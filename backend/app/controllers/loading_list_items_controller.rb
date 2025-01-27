@@ -1,0 +1,2 @@
+class LoadingListItemsController < ApplicationController
+end

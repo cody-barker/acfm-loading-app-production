@@ -1,0 +1,2 @@
+class LoadingListItem < ApplicationRecord
+end

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :loading_list_items
   resources :items
   resources :loading_lists
   resources :teams
