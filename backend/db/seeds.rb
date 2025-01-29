@@ -1,9 +1,53 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+5.times do 
+  Team.create!(
+    name: Faker::Pokemon.name
+  )
+end
+
+2.times do 
+  User.create!(
+    email: Faker::Internet.email,
+    password_digest: Faker::Internet.password(min_length: 6),
+    first_name: Faker::Name.first_name,
+    last_name: Faker::Name.last_name,
+    role: "pm"
+  )
+end
+
+2.times do 
+  User.create!(
+    email: Faker::Internet.email,
+    password_digest: Faker::Internet.password(min_length: 6),
+    first_name: Faker::Name.first_name,
+    last_name: Faker::Name.last_name,
+    role: "loader"
+  )
+end
+
+12.times do 
+  LoadingList.create!(
+    user_id: User.all.sample.id, 
+    team_id: Team.all.sample.id, 
+    date: Faker::Date.today,
+    return_date: Faker::Date.forward(days: rand(1..4)), 
+    site_name: Faker::Address.city,
+    notes: Faker::Lorem.sentence
+  )
+end
+
+30.times do 
+  Item.create!(
+    name: Faker::Tools::Name.name,
+    category: Faker::Tools::Category.name,
+    quantity: Faker::Number.between(from: 5, to: 20)
+  )
+end
+
+100.times do 
+  LoadingListItem.create!(
+    loading_list_id: LoadingList.all.sample.id, 
+    item_id: Item.all.sample.id, 
+    quantity: Faker::Number.between(from: 1, to: 10)
+  )
+end
+
