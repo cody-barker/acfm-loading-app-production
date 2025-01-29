@@ -1,13 +1,15 @@
-5.times do 
+require 'faker'
+
+5.times do |i|
   Team.create!(
-    name: Faker::Pokemon.name
+    name: i + 1
   )
 end
 
 2.times do 
   User.create!(
     email: Faker::Internet.email,
-    password_digest: Faker::Internet.password(min_length: 6),
+    password: Faker::Internet.password(min_length: 6),
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
     role: "pm"
@@ -17,7 +19,7 @@ end
 2.times do 
   User.create!(
     email: Faker::Internet.email,
-    password_digest: Faker::Internet.password(min_length: 6),
+    password: Faker::Internet.password(min_length: 6),
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
     role: "loader"
@@ -28,7 +30,7 @@ end
   LoadingList.create!(
     user_id: User.all.sample.id, 
     team_id: Team.all.sample.id, 
-    date: Faker::Date.today,
+    date: Date.today,
     return_date: Faker::Date.forward(days: rand(1..4)), 
     site_name: Faker::Address.city,
     notes: Faker::Lorem.sentence
@@ -37,8 +39,8 @@ end
 
 30.times do 
   Item.create!(
-    name: Faker::Tools::Name.name,
-    category: Faker::Tools::Category.name,
+    name: Faker::Name.name,
+    category: Faker::Name.name,
     quantity: Faker::Number.between(from: 5, to: 20)
   )
 end
