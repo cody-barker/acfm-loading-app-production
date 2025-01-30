@@ -2,8 +2,8 @@ class Api::LoadingListsController < ApplicationController
   before_action :set_loading_list, only: [:show, :update, :destroy]
 
   def index 
-    loading_lists = LoadingList.includes(:user, :team, :loading_list_items).all
-    render json: loading_lists
+    loading_lists = LoadingList.includes(:user, :team, :loading_list_items => :item ).all
+    render json: loading_lists, include: [:loading_list_items => :item]
   end
 
   def show
