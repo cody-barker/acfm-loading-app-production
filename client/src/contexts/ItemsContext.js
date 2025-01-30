@@ -31,7 +31,7 @@ function ItemsProvider({ children }) {
     return () => controller.abort();
   }, []);
 
-  const value = useMemo(() => ({ items, loading }), [items, loading]);
+  const value = useMemo(() => ({ items, setItems, loading }), [items, loading]);
 
   return (
     <ItemsContext.Provider value={value}>{children}</ItemsContext.Provider>

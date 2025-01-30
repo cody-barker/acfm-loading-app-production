@@ -32,7 +32,7 @@ function LoadingListsProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ loadingLists, loading }),
+    () => ({ loadingLists, setLoadingLists, loading }),
     [loadingLists, loading]
   );
 
