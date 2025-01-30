@@ -28,7 +28,7 @@ class Api::UsersController < ApplicationController
   private 
 
   def set_user
-    @user = User.includes(:loading_lists)find(params[:id])
+    @user = User.includes(:loading_lists).find(params[:id])
   end
 
   def user_params
