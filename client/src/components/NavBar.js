@@ -45,20 +45,9 @@ function NavBar() {
         </button>
         <div className={`nav-links ${isMenuOpen ? "open" : ""}`}>
           <NavLink className="nav-button" to="/" onClick={closeMenu}>
-            Shelves
+            Home{" "}
           </NavLink>
-          <NavLink className="nav-button" to="/totals" onClick={closeMenu}>
-            Totals
-          </NavLink>
-          <NavLink className="nav-button" to="/teams" onClick={closeMenu}>
-            Teams
-          </NavLink>
-          <NavLink className="nav-button" to="/products" onClick={closeMenu}>
-            Products
-          </NavLink>
-          <NavLink className="nav-button" to="/help" onClick={closeMenu}>
-            Help
-          </NavLink>
+
           <NavLink
             className="nav-button"
             to="/"
