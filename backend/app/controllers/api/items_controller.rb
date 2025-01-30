@@ -12,7 +12,10 @@ class Api::ItemsController < ApplicationController
 
   def create
     item = Item.create!(item_params)
-    render json: item, status: :created
+    if item.save
+      render json: item, status: :created
+    else
+      render json: item.errors, status: :unprocessable_entity
 
   end
 

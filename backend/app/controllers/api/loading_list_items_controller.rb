@@ -10,25 +10,19 @@
       render json: @loading_list_item
     end
 
-   def create
-    loading_list_item = LoadingListItem.create!(loading_list_item_params)
-    render json: loading_list_item, status: :created
-  end
-
+    def create
+      loading_list_item = LoadingListItem.create!(loading_list_item_params)
+      render json: loading_list_item, status: :created
+    end
 
     def update
-      loading_list_item = LoadingListItem.find(params[:id])
-      if loading_list_item.update(loading_list_item_params)
-        render json: loading_list_item
-      else
-        render json: loading_list_item.errors, status: :unprocessable_entity
-      end
+      @loading_list_item.update!(loading_list_item_params)
+      render json: @loading_list_item, status: :ok
     end
 
     def destroy
-      loading_list_item = LoadingListItem.find(params[:id])
-      loading_list_item.destroy
-      render json: {}, status: :no_content
+      @loading_list_item.destroy
+      head :no_content
     end
 
     private
@@ -38,7 +32,7 @@
     end
     
     def loading_list_item_params
-      params.require(:loading_list_item).permit(:loading_list_id, :item_id)
+      params.require(:loading_list_item).permit(:loading_list_id, :item_id, :quantity)
     end
 
 end
