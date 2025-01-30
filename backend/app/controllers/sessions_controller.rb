@@ -15,4 +15,5 @@ skip_before_action :authorize, only: [:create]
         session.delete(:user_id)
         render json: {}, status: :no_content
     end
+    
 end

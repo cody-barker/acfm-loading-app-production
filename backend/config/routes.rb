@@ -1,12 +1,12 @@
 Rails.application.routes.draw do
 
-
+namespace :api do
     resources :loading_list_items
     resources :items
     resources :loading_lists
     resources :teams
     resources :users
-
+end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

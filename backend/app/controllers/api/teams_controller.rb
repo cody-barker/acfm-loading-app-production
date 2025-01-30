@@ -1,4 +1,5 @@
-class TeamsController < ApplicationController
+class Api::TeamsController < ApplicationController
+
   def index
     teams = Team.all
     render json: teams
@@ -32,4 +33,5 @@ class TeamsController < ApplicationController
   def team_params
     params.require(:team).permit(:name)
   end
+
 end
