@@ -7,7 +7,7 @@ class Api::LoadingListsController < ApplicationController
   end
 
   def show
-    render json: @loading_list  
+    render json: @loading_list, include: [:loading_list_items => :item]
   end
 
   def create
@@ -28,7 +28,7 @@ class Api::LoadingListsController < ApplicationController
   private
 
   def set_loading_list
-    @loading_list = LoadingList.includes(:user, :team, :loading_list_items).find(params[:id])
+    @loading_list = LoadingList.includes(:user, :team, :loading_list_items => :item).find(params[:id])
   end
 
   def loading_list_params
