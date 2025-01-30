@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect, useMemo, createContext } from "react";
 
 const UserContext = createContext();
 
@@ -9,7 +9,6 @@ function UserProvider({ children }) {
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
-    let isMounted = true;
 
     const fetchUser = async () => {
       try {
@@ -17,31 +16,24 @@ function UserProvider({ children }) {
         if (!response.ok) throw new Error("Failed to fetch user");
 
         const userData = await response.json();
-        if (isMounted) {
-          setUser(userData);
-          setLoading(false);
-        }
+        setUser(userData);
       } catch (error) {
-        if (error.name !== "AbortError" && isMounted) {
+        if (error.name !== "AbortError") {
           console.error("Error fetching user:", error);
-          setLoading(false);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
 
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
+    return () => controller.abort();
   }, []);
 
-  return (
-    <UserContext.Provider value={{ user, setUser, loading }}>
-      {children}
-    </UserContext.Provider>
-  );
+  const value = useMemo(() => ({ user, setUser, loading }), [user, loading]);
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 export { UserContext, UserProvider };
