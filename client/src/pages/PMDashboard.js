@@ -60,7 +60,11 @@ const PMDashboard = () => {
       { previous: [], today: [], tomorrow: [] }
     );
 
-    // Sort previous lists by date in descending order (most recent first)
+    // Sort today and tomorrow lists by team_id ascending
+    categorized.today.sort((a, b) => a.team_id - b.team_id);
+    categorized.tomorrow.sort((a, b) => a.team_id - b.team_id);
+
+    // Sort previous lists by date descending
     categorized.previous.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     setLists(categorized);
