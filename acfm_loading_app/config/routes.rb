@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+get "*path", to: "fallback#index", constraints: ->(req) { !req.xhr? && req.format.html? }
 
 namespace :api do
     resources :loading_list_items
@@ -9,7 +10,7 @@ namespace :api do
     resources :users
 end
 
-get '/me', to: 'users#show'
+get '/me', to: 'api/users#show'
 post '/login', to: 'sessions#create'
 delete '/logout', to: 'sessions#destroy'
 
@@ -19,6 +20,5 @@ delete '/logout', to: 'sessions#destroy'
   # Can be used by load balancers and uptime monitors to verify that the app is live.
 get "up" => "rails/health#show", as: :rails_health_check
 
-get "*path", to: "fallback#index", constraints: ->(req) { !req.xhr? && req.format.html? }
 
 end

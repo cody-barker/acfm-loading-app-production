@@ -1,5 +1,5 @@
 import "../styles/App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Home from "./Home";
 import NavBar from "../components/NavBar";
 import Login from "./Login";
@@ -33,11 +33,11 @@ function App() {
         <NavBar />
       </header>
       <main>
-        <Router>
+   
           <Routes>
             <Route path="/" element={<Home />} />
           </Routes>
-        </Router>
+    
       </main>
     </>
   );
