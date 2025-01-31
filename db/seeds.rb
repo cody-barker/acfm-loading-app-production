@@ -7,23 +7,23 @@ require 'faker'
 end
 
 
-  User.create!(
-    email: "pm@email.com",
-    password: "password123",
-    first_name: Faker::Name.first_name,
-    last_name: Faker::Name.last_name,
-    role: "pm"
-  )
+User.create!(
+  email: "pm@email.com",
+  password: "password123",
+  first_name: Faker::Name.first_name,
+  last_name: Faker::Name.last_name,
+  role: "pm"
+)
 
 
 
-  User.create!(
-    email: "loader@email.com",
-    password: "password123",
-    first_name: Faker::Name.first_name,
-    last_name: Faker::Name.last_name,
-    role: "loader"
-  )
+User.create!(
+  email: "loader@email.com",
+  password: "password123",
+  first_name: Faker::Name.first_name,
+  last_name: Faker::Name.last_name,
+  role: "loader"
+)
 
 
 12.times do

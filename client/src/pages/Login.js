@@ -1,20 +1,13 @@
 import React, { useState, useContext } from "react";
-import { Navigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
-import {
-  Container,
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-} from "@mui/material";
+import Error from "../components/Error";
+import { Container, Box, TextField, Button, Typography } from "@mui/material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { user, setUser} = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
 
   const loginUser = async (email, password) => {
     const response = await fetch("/login", {
@@ -26,16 +19,16 @@ const Login = () => {
     });
 
     const data = await response.json();
+    setError("");
     if (response.ok) {
-      return { success: true, user: data.user };
+      return { success: true, user: data };
     } else {
-      return { success: false, error: data.error || "Failed to login" };
+      return {
+        success: false,
+        error: data.errors,
+      };
     }
   };
-
-  if (user) {
-    return <Navigate to="/" />;
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,11 +57,7 @@ const Login = () => {
           ACFM Loading App
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+          {error && <Error error={error} />}
           <TextField
             margin="normal"
             required

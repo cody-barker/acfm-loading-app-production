@@ -9,7 +9,7 @@ namespace :api do
     resources :users
 end
 
-get "/me", to: "api/users#show"
+get "/me", to: "sessions#show"
 post "/login", to: "sessions#create"
 delete "/logout", to: "sessions#destroy"
 
