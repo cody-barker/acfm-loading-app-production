@@ -21,6 +21,6 @@ Things you may want to cover:
 
 - Deployment instructions
 
-test2
+change to ruby 3.3.5
 
 - ...
