@@ -14,7 +14,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser} = useContext(UserContext);
 
   const loginUser = async (email, password) => {
     const response = await fetch("/login", {
