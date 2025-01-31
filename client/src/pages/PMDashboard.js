@@ -11,11 +11,6 @@ const PMDashboard = () => {
     tomorrow: [],
   });
 
-  useEffect(() => {
-    // Fetch loading lists and categorize them
-    fetchLoadingLists();
-  }, []);
-
   const fetchLoadingLists = async () => {
     try {
       const response = await fetch("/api/loading_lists");
@@ -25,6 +20,10 @@ const PMDashboard = () => {
       console.error("Error fetching lists:", error);
     }
   };
+
+  useEffect(() => {
+    fetchLoadingLists();
+  }, []);
 
   const categorizeLists = (lists) => {
     const today = new Date();

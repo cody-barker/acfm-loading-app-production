@@ -29,16 +29,14 @@ function App() {
 
   return (
     <>
-      <header>
-        <NavBar />
-      </header>
-      <main>
-   
+        <header>
+          <NavBar />
+        </header>
+        <main>
           <Routes>
             <Route path="/" element={<PMDashboard />} />
           </Routes>
-    
-      </main>
+        </main>
     </>
   );
 }

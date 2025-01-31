@@ -9,13 +9,21 @@ import {
   Chip,
 } from "@mui/material";
 import { Draggable } from "react-beautiful-dnd";
-import { format } from "date-fns";
 
 const PMListCard = ({ list, index }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
     navigate(`/loading-lists/${list.id}`);
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
   return (
@@ -42,16 +50,13 @@ const PMListCard = ({ list, index }) => {
 
               <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
                 <Chip
-                  label={format(new Date(list.date), "MMM d, yyyy")}
+                  label={formatDate(list.date)}
                   size="small"
                   color="primary"
                 />
                 {list.return_date && (
                   <Chip
-                    label={`Return: ${format(
-                      new Date(list.return_date),
-                      "MMM d"
-                    )}`}
+                    label={`Return: ${formatDate(list.return_date)}`}
                     size="small"
                     variant="outlined"
                   />

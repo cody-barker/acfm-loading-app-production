@@ -8,14 +8,13 @@ import {
   TextField,
   Stack,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
 
 const CreateListButton = ({ onListCreated }) => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     site_name: "",
-    date: null,
-    return_date: null,
+    date: "",
+    return_date: "",
     notes: "",
   });
 
@@ -66,18 +65,24 @@ const CreateListButton = ({ onListCreated }) => {
                 setFormData({ ...formData, site_name: e.target.value })
               }
             />
-            <DatePicker
+            <TextField
               label="Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
               value={formData.date}
-              onChange={(newValue) =>
-                setFormData({ ...formData, date: newValue })
+              onChange={(e) =>
+                setFormData({ ...formData, date: e.target.value })
               }
             />
-            <DatePicker
+            <TextField
               label="Return Date"
+              type="date"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
               value={formData.return_date}
-              onChange={(newValue) =>
-                setFormData({ ...formData, return_date: newValue })
+              onChange={(e) =>
+                setFormData({ ...formData, return_date: e.target.value })
               }
             />
             <TextField
