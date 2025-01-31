@@ -6,25 +6,25 @@ require 'faker'
   )
 end
 
-2.times do 
+ 
   User.create!(
-    email: Faker::Internet.email,
-    password: Faker::Internet.password(min_length: 6),
+    email: "pm@email.com",
+    password: "password123",
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
     role: "pm"
   )
-end
 
-2.times do 
+
+
   User.create!(
-    email: Faker::Internet.email,
-    password: Faker::Internet.password(min_length: 6),
+    email: "loader@email.com",
+    password: "password123",
     first_name: Faker::Name.first_name,
     last_name: Faker::Name.last_name,
     role: "loader"
   )
-end
+
 
 12.times do 
   LoadingList.create!(
