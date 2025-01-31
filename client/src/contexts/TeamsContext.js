@@ -12,7 +12,7 @@ function TeamsProvider({ children }) {
 
     const fetchTeams = async () => {
       try {
-        const response = await fetch("/teams", { signal });
+        const response = await fetch("/api/teams", { signal });
         if (!response.ok) throw new Error("Failed to fetch teams");
 
         const teamData = await response.json();

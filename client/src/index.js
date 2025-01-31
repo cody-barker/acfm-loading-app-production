@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import "./styles/index.css";
+import App from "./pages/App.js";
+import reportWebVitals from "./reportWebVitals.js";
 import { BrowserRouter } from "react-router-dom";
-import { UserProvider } from "./contexts/UserContext";
-import { ItemsProvider } from "./contexts/ItemsContext";
-import { TeamsProvider } from "./contexts/TeamsContext";
-import { LoadingListsProvider } from "./contexts/LoadingListsContext";
+import { UserProvider } from "./contexts/UserContext.js";
+import { ItemsProvider } from "./contexts/ItemsContext.js";
+import { TeamsProvider } from "./contexts/TeamsContext.js";
+import { LoadingListsProvider } from "./contexts/LoadingListsContext.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

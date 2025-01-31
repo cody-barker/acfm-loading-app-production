@@ -12,7 +12,7 @@ function ItemsProvider({ children }) {
 
     const fetchItems = async () => {
       try {
-        const response = await fetch("/items", { signal });
+        const response = await fetch("/api/items", { signal });
         if (!response.ok) throw new Error("Failed to fetch items");
 
         const itemsData = await response.json();

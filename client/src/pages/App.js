@@ -1,7 +1,8 @@
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import "../styles/App.css";
+import { Routes, Route } from "react-router-dom";
+import Home from "./Home";
 import NavBar from "../components/NavBar";
+import Login from "./Login";
 import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 
@@ -32,11 +33,11 @@ function App() {
         <NavBar />
       </header>
       <main>
-        <Router>
+   
           <Routes>
             <Route path="/" element={<Home />} />
           </Routes>
-        </Router>
+    
       </main>
     </>
   );

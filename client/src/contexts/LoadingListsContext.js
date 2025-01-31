@@ -12,7 +12,7 @@ function LoadingListsProvider({ children }) {
 
     const fetchLoadingLists = async () => {
       try {
-        const response = await fetch("/loading_lists", { signal });
+        const response = await fetch("/api/loading_lists", { signal });
         if (!response.ok) throw new Error("Failed to fetch loading lists");
 
         const loadingListData = await response.json();
