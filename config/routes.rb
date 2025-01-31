@@ -11,6 +11,7 @@ end
 
 get "/me", to: "sessions#show"
 post "/login", to: "sessions#create"
+post "/signup", to: "sessions#signup"
 delete "/logout", to: "sessions#destroy"
 
 # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
