@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Button,
   Dialog,
@@ -7,20 +7,31 @@ import {
   DialogActions,
   TextField,
   Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
+import { UserContext } from "../../contexts/UserContext";
+import { TeamsContext } from "../../contexts/TeamsContext";
 
-const CreateListButton = ({ onListCreated }) => {
+function CreateListButton({ onListCreated }) {
   const [open, setOpen] = useState(false);
+  const { user } = useContext(UserContext);
+  const { teams } = useContext(TeamsContext);
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
     return_date: "",
     notes: "",
+    team_id: "",
+    user_id: user.id,
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(formData)
       const response = await fetch("/api/loading_lists", {
         method: "POST",
         headers: {
@@ -85,6 +96,22 @@ const CreateListButton = ({ onListCreated }) => {
                 setFormData({ ...formData, return_date: e.target.value })
               }
             />
+            <FormControl fullWidth>
+              <InputLabel id="team__selector--label">Team</InputLabel>
+              <Select
+                labelId="team__selector--label"
+                id="team__selector"
+                value={formData.team}
+                label="Team"
+                onChange={(e) =>
+                  setFormData({ ...formData, team_id: e.target.value })
+                }
+              >
+                {teams.map((team) => {
+                  return <MenuItem value={team.id + 1}>{team.name}</MenuItem>;
+                })}
+              </Select>
+            </FormControl>
             <TextField
               label="Notes"
               fullWidth
@@ -106,6 +133,6 @@ const CreateListButton = ({ onListCreated }) => {
       </Dialog>
     </>
   );
-};
+}
 
 export default CreateListButton;
