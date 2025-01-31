@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Box, Container } from "@mui/material";
 import { DragDropContext } from "react-beautiful-dnd";
 import PMKanbanBoard from "../components/pm/PMKanbanBoard";
@@ -26,24 +26,19 @@ const PMDashboard = () => {
   }, []);
 
   const categorizeLists = (lists) => {
-    // Get start of today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Get start of tomorrow
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Get date from 7 days ago
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const categorized = lists.reduce(
       (acc, list) => {
-        // Convert list date to local date at midnight
         const listDate = new Date(list.date + "T00:00:00");
 
-        // Compare dates
         const isToday = listDate.toDateString() === today.toDateString();
         const isTomorrow = listDate.toDateString() === tomorrow.toDateString();
         const isWithinPastWeek = listDate >= sevenDaysAgo && listDate < today;
@@ -60,18 +55,42 @@ const PMDashboard = () => {
       { previous: [], today: [], tomorrow: [] }
     );
 
-    // Sort today and tomorrow lists by team_id ascending
     categorized.today.sort((a, b) => a.team_id - b.team_id);
     categorized.tomorrow.sort((a, b) => a.team_id - b.team_id);
-
-    // Sort previous lists by date descending
     categorized.previous.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     setLists(categorized);
   };
 
-  const handleDragEnd = (result) => {
-    // Implement drag and drop logic between columns
+  const handleNewList = (newList) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const listDate = new Date(newList.date + "T00:00:00");
+
+    if (listDate.toDateString() === today.toDateString()) {
+      setLists((prev) => ({
+        ...prev,
+        today: [...prev.today, newList].sort((a, b) => a.team_id - b.team_id),
+      }));
+    } else if (listDate.toDateString() === tomorrow.toDateString()) {
+      setLists((prev) => ({
+        ...prev,
+        tomorrow: [...prev.tomorrow, newList].sort(
+          (a, b) => a.team_id - b.team_id
+        ),
+      }));
+    } else if (listDate >= new Date(today.setDate(today.getDate() - 7))) {
+      setLists((prev) => ({
+        ...prev,
+        previous: [...prev.previous, newList].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        ),
+      }));
+    }
   };
 
   return (
@@ -84,8 +103,8 @@ const PMDashboard = () => {
           padding: 2,
         }}
       >
-        <CreateListButton onListCreated={fetchLoadingLists} />
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <CreateListButton onListCreated={handleNewList} />
+        <DragDropContext>
           <Box
             sx={{
               display: "flex",

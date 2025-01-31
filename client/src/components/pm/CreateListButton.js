@@ -14,11 +14,13 @@ import {
 } from "@mui/material";
 import { UserContext } from "../../contexts/UserContext";
 import { TeamsContext } from "../../contexts/TeamsContext";
+import { LoadingListsContext } from "../../contexts/LoadingListsContext";
 
 function CreateListButton({ onListCreated }) {
   const [open, setOpen] = useState(false);
   const { user } = useContext(UserContext);
   const { teams } = useContext(TeamsContext);
+  const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
@@ -31,7 +33,6 @@ function CreateListButton({ onListCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(formData)
       const response = await fetch("/api/loading_lists", {
         method: "POST",
         headers: {
@@ -41,8 +42,17 @@ function CreateListButton({ onListCreated }) {
       });
 
       if (response.ok) {
+        const newList = await response.json();
         setOpen(false);
-        onListCreated();
+        onListCreated(newList);
+        setFormData({
+          site_name: "",
+          date: "",
+          return_date: "",
+          notes: "",
+          team_id: "",
+          user_id: user.id,
+        });
       }
     } catch (error) {
       console.error("Error creating list:", error);
@@ -101,7 +111,7 @@ function CreateListButton({ onListCreated }) {
               <Select
                 labelId="team__selector--label"
                 id="team__selector"
-                value={formData.team}
+                value={formData.team_id}
                 label="Team"
                 onChange={(e) =>
                   setFormData({ ...formData, team_id: e.target.value })
