@@ -26,18 +26,24 @@ const PMDashboard = () => {
   }, []);
 
   const categorizeLists = (lists) => {
+    // Start of today in user's timezone
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const categorized = lists.reduce(
       (acc, list) => {
+        // Convert the list date to start of day in user's timezone
         const listDate = new Date(list.date);
+        listDate.setHours(0, 0, 0, 0);
+
         if (listDate < today) {
           acc.previous.push(list);
-        } else if (listDate.toDateString() === today.toDateString()) {
+        } else if (listDate.getTime() === today.getTime()) {
           acc.today.push(list);
-        } else if (listDate.toDateString() === tomorrow.toDateString()) {
+        } else if (listDate.getTime() === tomorrow.getTime()) {
           acc.tomorrow.push(list);
         }
         return acc;
