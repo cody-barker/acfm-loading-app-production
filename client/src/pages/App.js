@@ -1,10 +1,10 @@
 import "../styles/App.css";
 import { Routes, Route } from "react-router-dom";
-import Home from "./Home";
 import NavBar from "../components/NavBar";
 import Login from "./Login";
 import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
+import PMDashboard from "./PMDashboard";
 
 function App() {
   const { user, loading: userLoading } = useContext(UserContext);
@@ -35,7 +35,7 @@ function App() {
       <main>
    
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<PMDashboard />} />
           </Routes>
     
       </main>
