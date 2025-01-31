@@ -4,11 +4,11 @@ class Api::TeamsController < ApplicationController
   def index
     teams = Team.includes(:loading_lists).all
     render json: teams
-  end 
+  end
 
   def show
     render json: @team
-  end 
+  end
 
   def create
     team = Team.create!(team_params)
@@ -34,5 +34,4 @@ class Api::TeamsController < ApplicationController
   def team_params
     params.require(:team).permit(:name)
   end
-
 end

@@ -1,13 +1,13 @@
 class Api::LoadingListsController < ApplicationController
-  before_action :set_loading_list, only: [:show, :update, :destroy]
+  before_action :set_loading_list, only: [ :show, :update, :destroy ]
 
-  def index 
-    loading_lists = LoadingList.includes(:user, :team, :loading_list_items => :item ).all
-    render json: loading_lists, include: [:loading_list_items => :item]
+  def index
+    loading_lists = LoadingList.includes(:user, :team, loading_list_items: :item).all
+    render json: loading_lists, include: [ loading_list_items: :item ]
   end
 
   def show
-    render json: @loading_list, include: [:loading_list_items => :item]
+    render json: @loading_list, include: [ loading_list_items: :item ]
   end
 
   def create
@@ -28,7 +28,7 @@ class Api::LoadingListsController < ApplicationController
   private
 
   def set_loading_list
-    @loading_list = LoadingList.includes(:user, :team, :loading_list_items => :item).find(params[:id])
+    @loading_list = LoadingList.includes(:user, :team, loading_list_items: :item).find(params[:id])
   end
 
   def loading_list_params

@@ -1,7 +1,7 @@
   class Api::LoadingListItemsController < ApplicationController
     before_action :set_loading_list_item, only: %i[show update destroy]
-    
-    def index 
+
+    def index
       loading_list_items = LoadingListItem.includes(:loading_list, :item).all
       render json: loading_list_items
     end
@@ -30,9 +30,8 @@
     def set_loading_list_item
       @loading_list_item = LoadingListItem.includes(:loading_list, :item).find(params[:id])
     end
-    
+
     def loading_list_item_params
       params.require(:loading_list_item).permit(:loading_list_id, :item_id, :quantity)
     end
-
-end
+  end

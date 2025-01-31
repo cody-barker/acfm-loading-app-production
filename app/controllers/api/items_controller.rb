@@ -22,7 +22,7 @@ class Api::ItemsController < ApplicationController
 
   def destroy
     @item.destroy
-    head :no_content 
+    head :no_content
   end
 
   private

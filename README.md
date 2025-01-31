@@ -21,6 +21,6 @@ Things you may want to cover:
 
 - Deployment instructions
 
-change to ruby 3.3.5
+update rubocop to avoid errors in CI
 
 - ...

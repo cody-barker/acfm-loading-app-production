@@ -1,6 +1,6 @@
 class Api::UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy]
-  
+  before_action :set_user, only: [ :show, :update, :destroy ]
+
   def index
     users = User.includes(:loading_lists).all
     render json: users
@@ -30,7 +30,7 @@ class Api::UsersController < ApplicationController
     head :no_content
   end
 
-  private 
+  private
 
   def set_user
     @user = User.includes(:loading_lists).find(params[:id])
@@ -38,6 +38,5 @@ class Api::UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:email, :first_name, :last_name)
-  end 
-
+  end
 end
