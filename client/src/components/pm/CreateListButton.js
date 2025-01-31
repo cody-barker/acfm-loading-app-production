@@ -108,7 +108,7 @@ function CreateListButton({ onListCreated }) {
                 }
               >
                 {teams.map((team) => {
-                  return <MenuItem value={team.id + 1}>{team.name}</MenuItem>;
+                  return <MenuItem value={team.id}>{team.name}</MenuItem>;
                 })}
               </Select>
             </FormControl>

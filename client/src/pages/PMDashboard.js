@@ -26,30 +26,42 @@ const PMDashboard = () => {
   }, []);
 
   const categorizeLists = (lists) => {
-    // Start of today in user's timezone
+    // Get start of today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Get start of tomorrow
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Get date from 7 days ago
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
     const categorized = lists.reduce(
       (acc, list) => {
-        // Convert the list date to start of day in user's timezone
-        const listDate = new Date(list.date);
-        listDate.setHours(0, 0, 0, 0);
+        // Convert list date to local date at midnight
+        const listDate = new Date(list.date + "T00:00:00");
 
-        if (listDate < today) {
-          acc.previous.push(list);
-        } else if (listDate.getTime() === today.getTime()) {
+        // Compare dates
+        const isToday = listDate.toDateString() === today.toDateString();
+        const isTomorrow = listDate.toDateString() === tomorrow.toDateString();
+        const isWithinPastWeek = listDate >= sevenDaysAgo && listDate < today;
+
+        if (isToday) {
           acc.today.push(list);
-        } else if (listDate.getTime() === tomorrow.getTime()) {
+        } else if (isTomorrow) {
           acc.tomorrow.push(list);
+        } else if (isWithinPastWeek) {
+          acc.previous.push(list);
         }
         return acc;
       },
       { previous: [], today: [], tomorrow: [] }
     );
+
+    // Sort previous lists by date in descending order (most recent first)
+    categorized.previous.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     setLists(categorized);
   };

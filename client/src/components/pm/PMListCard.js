@@ -48,6 +48,9 @@ const PMListCard = ({ list, index }) => {
               <Typography variant="h6" component="div" gutterBottom>
                 {list.site_name}
               </Typography>
+              <Typography variant="h6" component="div" gutterBottom>
+                {`Team ${list.team_id}`}
+              </Typography>
 
               <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
                 <Chip
