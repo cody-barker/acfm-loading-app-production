@@ -90,13 +90,17 @@ function LoadingListEditor() {
   };
 
   const decreaseQuantity = (itemId) => {
-    setLoadingListItems((prev) =>
-      prev.map((item) =>
+    setLoadingListItems((prev) => {
+      const updatedItems = prev.map((item) =>
         item.id === itemId && item.quantity > 0
           ? { ...item, quantity: item.quantity - 1 }
           : item
-      )
-    );
+      );
+
+      // Filter out items with quantity 0
+      return updatedItems.filter((item) => item.quantity > 0);
+    });
+
     setAvailableItems((prev) =>
       prev.map((item) =>
         item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
