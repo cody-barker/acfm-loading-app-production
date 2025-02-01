@@ -4,7 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
-import './LoadingListEditor.css'; // Import custom styles
+import "./LoadingListEditor.css"; // Import custom styles
 
 function LoadingListEditor() {
   const { id } = useParams();
@@ -37,6 +37,15 @@ function LoadingListEditor() {
       destination.droppableId === "loadingListItems"
     ) {
       const item = availableItems[source.index];
+
+      // Check if the item already exists in the loading list
+      const itemExists = loadingListItems.some(
+        (loadingItem) => loadingItem.id === item.id
+      );
+      if (itemExists) {
+        return; // Prevent adding the same item again
+      }
+
       setLoadingListItems((prev) => [
         ...prev,
         { ...item, quantity: 1 }, // Start with quantity 1 in the loading list
@@ -119,9 +128,9 @@ function LoadingListEditor() {
             <Box
               ref={provided.innerRef}
               {...provided.droppableProps}
-              sx={{ width: "45%", backgroundColor: "#f0f0f0", padding: 2, borderRadius: 2, boxShadow: 2 }}
+              sx={{ width: "45%", backgroundColor: "#f0f0f0", padding: 2 }}
             >
-              <Typography variant="h6" sx={{ marginBottom: 2 }}>Available Items</Typography>
+              <Typography variant="h6">Available Items</Typography>
               {availableItems.map((item, index) => (
                 <Draggable
                   key={String(item.id)}
@@ -133,7 +142,7 @@ function LoadingListEditor() {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      sx={{ marginBottom: 1, borderRadius: 2, boxShadow: 1, transition: '0.3s', '&:hover': { boxShadow: 3 } }}
+                      sx={{ marginBottom: 1 }}
                     >
                       <CardContent>
                         <Typography variant="body1">{item.name}</Typography>
@@ -158,9 +167,9 @@ function LoadingListEditor() {
             <Box
               ref={provided.innerRef}
               {...provided.droppableProps}
-              sx={{ width: "45%", backgroundColor: "#e0f7fa", padding: 2, borderRadius: 2, boxShadow: 2 }}
+              sx={{ width: "45%", backgroundColor: "#e0f7fa", padding: 2 }}
             >
-              <Typography variant="h6" sx={{ marginBottom: 2 }}>Loading List Items</Typography>
+              <Typography variant="h6">Loading List Items</Typography>
               {loadingListItems.map((item, index) => (
                 <Draggable
                   key={`loading-${item.id}`}
@@ -172,7 +181,7 @@ function LoadingListEditor() {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      sx={{ marginBottom: 1, borderRadius: 2, boxShadow: 1, transition: '0.3s', '&:hover': { boxShadow: 3 } }}
+                      sx={{ marginBottom: 1 }}
                     >
                       <CardContent>
                         <Typography variant="body1">{item.name}</Typography>
@@ -181,13 +190,12 @@ function LoadingListEditor() {
                         </Typography>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Button
-                            variant="outlined"
                             onClick={() => decreaseQuantity(item.id)}
                             disabled={item.quantity <= 0}
                           >
                             -
                           </Button>
-                          <Button variant="outlined" onClick={() => increaseQuantity(item.id)}>
+                          <Button onClick={() => increaseQuantity(item.id)}>
                             +
                           </Button>
                         </Box>
