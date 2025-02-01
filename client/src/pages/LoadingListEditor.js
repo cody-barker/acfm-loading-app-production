@@ -10,44 +10,43 @@ function LoadingListEditor() {
   const { id } = useParams();
   const { items } = useContext(ItemsContext); // Fetch items from context
   const { loadingLists } = useContext(LoadingListsContext); // Fetch loading lists from context
-  // const [loading, setLoading] = useState(true); // Loading state
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
-  const [loadingListItems, setLoadingListItems] = useState([loadingList.loading_list_items]); // Initialize as an empty array
+  const [loadingListItems, setLoadingListItems] = useState(loadingList.loading_list_items); // Initialize as an empty array
   const [availableItems, setAvailableItems] = useState(items);
-  console.log(loadingListItems)
+  
+  useEffect(() => {
+    const fetchLoadingList = async () => {
+      try {
+        const response = await fetch(`/api/loading_lists/${id}`);
+        const loadingList = await response.json();
 
-  // useEffect(() => {
-  //   const fetchLoadingList = async () => {
-  //     try {
-  //       const response = await fetch(`/api/loading_lists/${id}`);
-  //       const loadingList = await response.json();
+        // Set loading list items
+        setLoadingListItems(loadingList.loading_list_items || []);
 
-  //       // Set loading list items and available items
-  //       setLoadingListItems(loadingList.loading_list_items || []); // Set items or an empty array if undefined
-  //       setAvailableItems(
-  //         items.map((item) => {
-  //           const loadingItem = loadingList.loading_list_items.find(
-  //             (loadingItem) => loadingItem.item_id === item.id
-  //           );
-  //           return {
-  //             ...item,
-  //             quantity: loadingItem
-  //               ? item.quantity - loadingItem.quantity
-  //               : item.quantity, // Adjust quantity based on loading list
-  //           };
-  //         })
-  //       );
-  //     } catch (error) {
-  //       console.error("Error fetching loading list:", error);
-  //     } finally {
-  //       setLoading(false); // Set loading to false after fetching data
-  //     }
-  //   };
+        // Adjust available items based on the loading list items
+        setAvailableItems(
+          items.map((item) => {
+            const loadingItem = loadingList.loading_list_items.find(
+              (loadingItem) => loadingItem.item_id === item.id
+            );
+            return {
+              ...item,
+              quantity: loadingItem
+                ? item.quantity - loadingItem.quantity // Subtract allocated quantity
+                : item.quantity,
+            };
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching loading list:", error);
+      }
+    };
 
-  //   fetchLoadingList();
-  // }, [id, items]);
+    fetchLoadingList();
+  }, [id, items]);
+
 
   const createLoadingListItem = async (item) => {
     try {
