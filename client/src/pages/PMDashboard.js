@@ -3,6 +3,7 @@ import { Box, Container } from "@mui/material";
 import { DragDropContext } from "react-beautiful-dnd";
 import PMKanbanBoard from "../components/pm/PMKanbanBoard";
 import CreateListButton from "../components/pm/CreateListButton";
+import { LoadingListsContext } from "../contexts/LoadingListsContext";
 
 const PMDashboard = () => {
   const [lists, setLists] = useState({
@@ -11,18 +12,14 @@ const PMDashboard = () => {
     tomorrow: [],
   });
 
-  const fetchLoadingLists = async () => {
-    try {
-      const response = await fetch("/api/loading_lists");
-      const data = await response.json();
-      categorizeLists(data);
-    } catch (error) {
-      console.error("Error fetching lists:", error);
-    }
+  const { loadingLists } = useContext(LoadingListsContext);
+
+  const fetchLoadingLists = async (loadingLists) => {
+    categorizeLists(loadingLists);
   };
 
   useEffect(() => {
-    fetchLoadingLists();
+    fetchLoadingLists(loadingLists);
   }, []);
 
   const categorizeLists = (lists) => {
@@ -114,7 +111,7 @@ const PMDashboard = () => {
               padding: 2,
             }}
           >
-            <PMKanbanBoard lists={lists} onListUpdate={fetchLoadingLists} />
+            <PMKanbanBoard lists={lists} onListUpdate={categorizeLists} />
           </Box>
         </DragDropContext>
       </Box>
