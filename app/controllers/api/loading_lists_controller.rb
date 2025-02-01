@@ -32,6 +32,6 @@ class Api::LoadingListsController < ApplicationController
   end
 
   def loading_list_params
-    params.require(:loading_list).permit(:user_id, :team_id, :date, :return_date, :site_name, :notes)
+    params.require(:loading_list).permit(:id, :user_id, :team_id, :date, :return_date, :site_name, :notes)
   end
 end

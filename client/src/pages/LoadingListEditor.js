@@ -13,15 +13,54 @@ function LoadingListEditor() {
 
   const [availableItems, setAvailableItems] = useState(items);
   const [loadingListItems, setLoadingListItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Find the loading list by ID and set the available items accordingly
     const loadingList = loadingLists.find((list) => list.id === parseInt(id));
     if (loadingList) {
       // Initialize available items based on the loading list or other logic
+      setLoadingListItems(loadingList.items || []);
       setAvailableItems(items); // You can customize this based on your requirements
     }
+    setLoading(false);
   }, [id, items, loadingLists]);
+
+  const updateDatabase = async () => {
+    try {
+      // Prepare the items array for the loading list
+      const itemsToUpdate = loadingListItems.map((item) => ({
+        item_id: item.id,
+        quantity: item.quantity,
+      }));
+
+      // Update loading list items
+      await fetch(`/api/loading_lists/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ loading_list: { items: itemsToUpdate } }), // Wrap items in loading_list
+      });
+
+      // Update item quantities
+      await Promise.all(
+        loadingListItems.map((item) =>
+          fetch(`/api/items/${item.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ quantity: item.quantity }),
+          })
+        )
+      );
+
+      console.log("Database updated successfully");
+    } catch (error) {
+      console.error("Error updating database:", error);
+    }
+  };
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -58,6 +97,9 @@ function LoadingListEditor() {
             : availableItem
         )
       );
+
+      // Update the database after adding the item
+      updateDatabase();
     }
 
     // If the item is dropped back to the available items
@@ -83,6 +125,9 @@ function LoadingListEditor() {
             : availableItem
         )
       );
+
+      // Update the database after removing the item
+      updateDatabase();
     }
   };
 
@@ -97,6 +142,9 @@ function LoadingListEditor() {
         item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item
       )
     );
+
+    // Update the database after increasing quantity
+    updateDatabase();
   };
 
   const decreaseQuantity = (itemId) => {
@@ -116,7 +164,14 @@ function LoadingListEditor() {
         item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
+
+    // Update the database after decreasing quantity
+    updateDatabase();
   };
+
+  if (loading) {
+    return <Typography variant="h6">Loading...</Typography>;
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -128,9 +183,17 @@ function LoadingListEditor() {
             <Box
               ref={provided.innerRef}
               {...provided.droppableProps}
-              sx={{ width: "45%", backgroundColor: "#f0f0f0", padding: 2 }}
+              sx={{
+                width: "45%",
+                backgroundColor: "#f0f0f0",
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
             >
-              <Typography variant="h6">Available Items</Typography>
+              <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                Available Items
+              </Typography>
               {availableItems.map((item, index) => (
                 <Draggable
                   key={String(item.id)}
@@ -142,7 +205,13 @@ function LoadingListEditor() {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      sx={{ marginBottom: 1 }}
+                      sx={{
+                        marginBottom: 1,
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        transition: "0.3s",
+                        "&:hover": { boxShadow: 3 },
+                      }}
                     >
                       <CardContent>
                         <Typography variant="body1">{item.name}</Typography>
@@ -167,9 +236,17 @@ function LoadingListEditor() {
             <Box
               ref={provided.innerRef}
               {...provided.droppableProps}
-              sx={{ width: "45%", backgroundColor: "#e0f7fa", padding: 2 }}
+              sx={{
+                width: "45%",
+                backgroundColor: "#e0f7fa",
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
             >
-              <Typography variant="h6">Loading List Items</Typography>
+              <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                Loading List Items
+              </Typography>
               {loadingListItems.map((item, index) => (
                 <Draggable
                   key={`loading-${item.id}`}
@@ -181,7 +258,13 @@ function LoadingListEditor() {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      sx={{ marginBottom: 1 }}
+                      sx={{
+                        marginBottom: 1,
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        transition: "0.3s",
+                        "&:hover": { boxShadow: 3 },
+                      }}
                     >
                       <CardContent>
                         <Typography variant="body1">{item.name}</Typography>
@@ -190,12 +273,16 @@ function LoadingListEditor() {
                         </Typography>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Button
+                            variant="outlined"
                             onClick={() => decreaseQuantity(item.id)}
                             disabled={item.quantity <= 0}
                           >
                             -
                           </Button>
-                          <Button onClick={() => increaseQuantity(item.id)}>
+                          <Button
+                            variant="outlined"
+                            onClick={() => increaseQuantity(item.id)}
+                          >
                             +
                           </Button>
                         </Box>
