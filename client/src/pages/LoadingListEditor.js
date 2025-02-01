@@ -76,6 +76,34 @@ function LoadingListEditor() {
     }
   };
 
+  const increaseQuantity = (itemId) => {
+    setLoadingListItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+    setAvailableItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item
+      )
+    );
+  };
+
+  const decreaseQuantity = (itemId) => {
+    setLoadingListItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId && item.quantity > 0
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+    );
+    setAvailableItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Box
@@ -146,6 +174,17 @@ function LoadingListEditor() {
                         <Typography variant="body2">
                           Quantity: {item.quantity}
                         </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Button
+                            onClick={() => decreaseQuantity(item.id)}
+                            disabled={item.quantity <= 0}
+                          >
+                            -
+                          </Button>
+                          <Button onClick={() => increaseQuantity(item.id)}>
+                            +
+                          </Button>
+                        </Box>
                       </CardContent>
                     </Card>
                   )}
