@@ -3,7 +3,7 @@ class Api::LoadingListsController < ApplicationController
 
   def index
     loading_lists = LoadingList.includes(:user, :team, loading_list_items: :item).all
-    render json: loading_lists, include: [ loading_list_items: :item ]
+    render json: loading_lists, include: [:team, loading_list_items: :item ]
   end
 
   def show

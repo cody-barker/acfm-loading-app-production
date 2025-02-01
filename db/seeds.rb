@@ -2,7 +2,7 @@ require 'faker'
 
 5.times do |i|
   Team.create!(
-    name: i + 1
+    name: "Team #{i + 1}"
   )
 end
 
