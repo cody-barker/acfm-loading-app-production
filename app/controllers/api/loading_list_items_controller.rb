@@ -2,7 +2,7 @@
     before_action :set_loading_list_item, only: %i[show update destroy]
 
     def index
-      loading_list_items = LoadingListItem.includes(:loading_list, :item).all
+      loading_list_items = LoadingListItem.includes(:item, :loading_list, :item).all
       render json: loading_list_items
     end
 
