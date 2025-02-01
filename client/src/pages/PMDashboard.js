@@ -14,7 +14,7 @@ const PMDashboard = () => {
 
   const { loadingLists } = useContext(LoadingListsContext);
 
-  const fetchLoadingLists = async (loadingLists) => {
+  const fetchLoadingLists = (loadingLists) => {
     categorizeLists(loadingLists);
   };
 
