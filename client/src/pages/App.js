@@ -36,7 +36,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<PMDashboard />} />
-          <Route path="loading_lists/:id" element={LoadingListEditor} />
+          <Route path="loading-lists/:id" element={<LoadingListEditor />} />
         </Routes>
       </main>
     </>
