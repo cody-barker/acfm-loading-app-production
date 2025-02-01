@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Box, Container } from "@mui/material";
 import { DragDropContext } from "react-beautiful-dnd";
 import PMKanbanBoard from "../components/pm/PMKanbanBoard";
@@ -14,13 +14,13 @@ const PMDashboard = () => {
 
   const { loadingLists } = useContext(LoadingListsContext);
 
-  const fetchLoadingLists = (loadingLists) => {
+  const fetchLoadingLists = useCallback((loadingLists) => {
     categorizeLists(loadingLists);
-  };
+  }, []);
 
   useEffect(() => {
     fetchLoadingLists(loadingLists);
-  }, []);
+  }, [fetchLoadingLists, loadingLists]);
 
   const categorizeLists = (lists) => {
     const today = new Date();

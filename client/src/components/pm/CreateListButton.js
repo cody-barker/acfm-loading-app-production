@@ -14,13 +14,11 @@ import {
 } from "@mui/material";
 import { UserContext } from "../../contexts/UserContext";
 import { TeamsContext } from "../../contexts/TeamsContext";
-import { LoadingListsContext } from "../../contexts/LoadingListsContext";
 
 function CreateListButton({ onListCreated }) {
   const [open, setOpen] = useState(false);
   const { user } = useContext(UserContext);
   const { teams } = useContext(TeamsContext);
-  const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
