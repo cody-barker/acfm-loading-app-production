@@ -74,7 +74,11 @@ function LoadingListEditor() {
     }
   };
 
-  const updateLoadingListItemQuantity = async (loadingListItemId, quantity) => {
+  const updateLoadingListItemQuantity = async (
+    loadingListItemId,
+    quantity,
+    adjustAvailable
+  ) => {
     try {
       const loadingListItem = loadingListItems.find(
         (item) => item.id === loadingListItemId
@@ -90,30 +94,55 @@ function LoadingListEditor() {
           body: JSON.stringify({ quantity }),
         });
 
-        // Update available item quantity
-        setAvailableItems((prev) =>
-          prev.map((availableItem) =>
-            availableItem.id === itemId
-              ? { ...availableItem, quantity: availableItem.quantity - 1 }
-              : availableItem
-          )
-        );
+        if (adjustAvailable === "decrease") {
+          // Update available item quantity
+          setAvailableItems((prev) =>
+            prev.map((availableItem) =>
+              availableItem.id === itemId
+                ? { ...availableItem, quantity: availableItem.quantity - 1 }
+                : availableItem
+            )
+          );
+        } else if (adjustAvailable === "increase") {
+          // Update available item quantity
+          setAvailableItems((prev) =>
+            prev.map((availableItem) =>
+              availableItem.id === itemId
+                ? { ...availableItem, quantity: availableItem.quantity + 1 }
+                : availableItem
+            )
+          );
+        }
       } else {
         await fetch(`/api/loading_list_items/${loadingListItemId}`, {
           method: "DELETE",
         });
 
-        // Update available item quantity
-        setAvailableItems((prev) =>
-          prev.map((availableItem) =>
-            availableItem.id === itemId
-              ? {
-                  ...availableItem,
-                  quantity: availableItem.quantity + loadingListItem.quantity,
-                }
-              : availableItem
-          )
-        );
+        if (adjustAvailable === "decrease") {
+          // Update available item quantity
+          setAvailableItems((prev) =>
+            prev.map((availableItem) =>
+              availableItem.id === itemId
+                ? {
+                    ...availableItem,
+                    quantity: availableItem.quantity + loadingListItem.quantity,
+                  }
+                : availableItem
+            )
+          );
+        } else if (adjustAvailable === "increase") {
+          // Update available item quantity
+          setAvailableItems((prev) =>
+            prev.map((availableItem) =>
+              availableItem.id === itemId
+                ? {
+                    ...availableItem,
+                    quantity: availableItem.quantity + 1,
+                  }
+                : availableItem
+            )
+          );
+        }
       }
     } catch (error) {
       console.error("Error updating loading list item quantity:", error);
@@ -163,57 +192,49 @@ function LoadingListEditor() {
       );
 
       // Update the database after removing the item
-      updateLoadingListItemQuantity(item.id, 0);
+      updateLoadingListItemQuantity(item.id, 0, "decrease");
     }
   };
 
   const increaseQuantity = (loadingListItemId) => {
-    setLoadingListItems((prev) =>
-      prev.map((item) =>
+    setLoadingListItems((prev) => {
+      const updatedItems = prev.map((item) =>
         item.id === loadingListItemId
           ? { ...item, quantity: item.quantity + 1 }
           : item
-      )
-    );
-    updateLoadingListItemQuantity(
-      loadingListItemId,
-      loadingListItems.find((item) => item.id === loadingListItemId).quantity +
-        1
-    );
+      );
+
+      // Update loading list item quantity and adjust available item quantity
+      updateLoadingListItemQuantity(
+        loadingListItemId,
+        updatedItems.find((item) => item.id === loadingListItemId).quantity,
+        "decrease"
+      );
+
+      return updatedItems;
+    });
   };
 
   const decreaseQuantity = (loadingListItemId) => {
     setLoadingListItems((prevLoadingListItems) => {
-      const updatedItems = prevLoadingListItems.map((item) => {
-        if (item.id === loadingListItemId && item.quantity > 0) {
-          return { ...item, quantity: item.quantity - 1 };
-        }
-        return item;
-      });
+      const updatedItems = prevLoadingListItems
+        .map((item) => {
+          if (item.id === loadingListItemId && item.quantity > 0) {
+            return { ...item, quantity: item.quantity - 1 };
+          }
+          return item;
+        })
+        .filter((item) => item.quantity > 0); // Remove items with quantity 0
 
-      const item = updatedItems.find((item) => item.id === loadingListItemId);
-      if (item && item.quantity <= 0) {
-        updateLoadingListItemQuantity(item.id, 0); // Remove item if quantity is 0
-      } else {
-        updateLoadingListItemQuantity(item.id, item.quantity); // Update quantity
-      }
-
-      return updatedItems.filter((item) => item.quantity > 0);
-    });
-
-    // Update available item quantity in a single state update
-    setAvailableItems((prevAvailableItems) => {
-      const loadingListItem = loadingListItems.find(
-        (item) => item.id === loadingListItemId
+      // Update loading list item quantity and adjust available item quantity
+      updateLoadingListItemQuantity(
+        loadingListItemId,
+        updatedItems.find((item) => item.id === loadingListItemId)?.quantity ||
+          0,
+        "increase"
       );
-      if (loadingListItem) {
-        return prevAvailableItems.map((item) =>
-          item.id === loadingListItem.item_id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return prevAvailableItems;
+
+      return updatedItems;
     });
   };
 
@@ -224,7 +245,7 @@ function LoadingListEditor() {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Box
-        sx={{ display: "flex", justifyContent: "space-between", padding: 2 }}
+        sx={{ display: "flex", justifyContent: "space-between", padding: 5 }}
       >
         <Droppable droppableId="availableItems">
           {(provided) => (
@@ -325,7 +346,6 @@ function LoadingListEditor() {
                           <Button
                             variant="outlined"
                             onClick={() => decreaseQuantity(item.id)}
-                            disabled={item.quantity <= 0}
                           >
                             -
                           </Button>
