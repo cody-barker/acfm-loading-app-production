@@ -11,8 +11,8 @@
     end
 
     def create
-      @loading_list_item = LoadingListItem.create!(loading_list_item_params)
-      render json: @loading_list_item, status: :created
+      loading_list_item = LoadingListItem.create!(loading_list_item_params)
+      render json: loading_list_item, status: :created
     end
 
     def update

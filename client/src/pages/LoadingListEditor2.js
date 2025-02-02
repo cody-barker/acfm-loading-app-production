@@ -10,6 +10,7 @@ function LoadingListEditor2() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
+  console.log(loadingLists);
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
@@ -19,22 +20,22 @@ function LoadingListEditor2() {
     loadingList.loading_list_items
   );
 
-  const decreaseItemQuantity = async (loadingListItem) => {
+  const decreaseItemQuantity = async (item) => {
     try {
-      const response = await fetch(`/api/items/${loadingListItem.item_id}`, {
+      const response = await fetch(`/api/items/${item.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: loadingListItem.item_id,
-          quantity: loadingListItem.quantity - 1,
+          quantity: item.quantity - 1,
         }),
       });
+      const updatedItem = await response.json();
       setItems((prev) =>
         prev.map((item) =>
-          item.id === loadingListItem.item_id
-            ? { ...item, quantity: item.quantity - 1 }
+          item.id === updatedItem.id
+            ? { ...item, quantity: updatedItem.quantity }
             : item
         )
       );
@@ -43,22 +44,22 @@ function LoadingListEditor2() {
     }
   };
 
-  const increaseItemQuantity = async (loadingListItem) => {
+  const increaseItemQuantity = async (item) => {
     try {
-      const response = await fetch(`/api/items/${loadingListItem.item_id}`, {
+      const response = await fetch(`/api/items/${item.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: loadingListItem.item_id,
-          quantity: loadingListItem.quantity + 1,
+          quantity: item.quantity + 1,
         }),
       });
+      const updatedItem = await response.json();
       setItems((prev) =>
         prev.map((item) =>
-          item.id === loadingListItem.item_id
-            ? { ...item, quantity: item.quantity + 1 }
+          item.id === updatedItem.id
+            ? { ...item, quantity: updatedItem.quantity }
             : item
         )
       );
@@ -67,7 +68,7 @@ function LoadingListEditor2() {
     }
   };
 
-  const createLoadingListItem = async (loadingListItem) => {
+  const createLoadingListItem = async (item) => {
     try {
       const response = await fetch("/api/loading_list_items", {
         method: "POST",
@@ -76,14 +77,14 @@ function LoadingListEditor2() {
         },
         body: JSON.stringify({
           loading_list_id: parseInt(id),
-          item_id: loadingListItem.item_id,
+          item_id: item.id,
           quantity: 1,
         }),
       });
       const newLoadingListItem = await response.json();
       setLoadingListItems((prev) => [...prev, newLoadingListItem]);
       //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
-      decreaseItemQuantity(loadingListItem);
+      decreaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
     }
@@ -91,17 +92,20 @@ function LoadingListEditor2() {
 
   const increaseLoadingListItemQuantity = async (loadingListItem) => {
     try {
-      const response = await fetch("/api/loading_list_items", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          loading_list_id: parseInt(id),
-          item_id: loadingListItem.item_id,
-          quantity: loadingListItem.quantity + 1,
-        }),
-      });
+      const response = await fetch(
+        `/api/loading_list_items/${loadingListItem.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            loading_list_id: parseInt(id),
+            item_id: loadingListItem.item_id,
+            quantity: loadingListItem.quantity + 1,
+          }),
+        }
+      );
       const updatedLoadingListItem = await response.json();
       setLoadingListItems((prev) => {
         prev.map((loadingListItem) => {
@@ -111,8 +115,9 @@ function LoadingListEditor2() {
           return loadingListItem;
         });
       });
+      const item = updatedLoadingListItem.item;
       //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
-      decreaseItemQuantity(loadingListItem);
+      decreaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
     }
@@ -120,17 +125,20 @@ function LoadingListEditor2() {
 
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
     try {
-      const response = await fetch("/api/loading_list_items", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          loading_list_id: parseInt(id),
-          item_id: loadingListItem.item_id,
-          quantity: loadingListItem.quantity - 1,
-        }),
-      });
+      const response = await fetch(
+        `/api/loading_list_items/${loadingListItem.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            loading_list_id: parseInt(id),
+            item_id: loadingListItem.item_id,
+            quantity: loadingListItem.quantity - 1,
+          }),
+        }
+      );
       const updatedLoadingListItem = await response.json();
       setLoadingListItems((prev) => {
         prev.map((loadingListItem) => {
@@ -140,8 +148,10 @@ function LoadingListEditor2() {
           return loadingListItem;
         });
       });
+      console.log(updatedLoadingListItem);
+      const item = updatedLoadingListItem.item;
       //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
-      increaseItemQuantity(loadingListItem);
+      increaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
     }
@@ -159,7 +169,6 @@ function LoadingListEditor2() {
       destination.droppableId === "loadingListItems"
     ) {
       const item = items[source.index];
-      console.log(item);
       const itemExists = loadingListItems.some(
         (loadingListItem) => loadingListItem.item_id === item.id
       );
