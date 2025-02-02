@@ -9,7 +9,7 @@ import "./LoadingListEditor.css"; // Import custom styles
 function LoadingListEditor2() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
-  const { loadingLists, setLoadingList } = useContext(LoadingListsContext);
+  const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
@@ -18,6 +18,54 @@ function LoadingListEditor2() {
   const [loadingListItems, setLoadingListItems] = useState(
     loadingList.loading_list_items
   );
+
+  const decreaseItemQuantity = async (loadingListItem) => {
+    try {
+      const response = await fetch(`/api/items/${loadingListItem.item_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: loadingListItem.item_id,
+          quantity: quantity - 1,
+        }),
+      });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === loadingListItem.item_id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+      );
+    } catch {
+      console.error("Error decreasing item quantity:", error);
+    }
+  };
+
+  const increaseItemQuantity = async (loadingListItem) => {
+    try {
+      const response = await fetch(`/api/items/${loadingListItem.item_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: loadingListItem.item_id,
+          quantity: quantity + 1,
+        }),
+      });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === loadingListItem.item_id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
+    } catch {
+      console.error("Error decreasing item quantity:", error);
+    }
+  };
 
   const createLoadingListItem = async (loadingListItem) => {
     try {
@@ -34,13 +82,37 @@ function LoadingListEditor2() {
       });
       const newLoadingListItem = await response.json();
       setLoadingListItems((prev) => [...prev, newLoadingListItem]);
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === loadingListItem.item_id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        )
-      );
+      //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
+      decreaseItemQuantity(loadingListItem);
+    } catch (error) {
+      console.error("Error creating loading list item:", error);
+    }
+  };
+
+  const increaseLoadingListItemQuantity = async (loadingListItem) => {
+    try {
+      const response = await fetch("/api/loading_list_items", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          loading_list_id: parseInt(id),
+          item_id: loadingListItem.item_id,
+          quantity: quantity + 1,
+        }),
+      });
+      const updatedLoadingListItem = await response.json();
+      setLoadingListItems((prev) => {
+        prev.map((loadingListItem) => {
+          if (loadingListItem.id === updatedLoadingListItem.id) {
+            return updatedLoadingListItem;
+          }
+          return loadingListItem;
+        });
+      });
+      //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
+      decreaseItemQuantity(loadingListItem);
     } catch (error) {
       console.error("Error creating loading list item:", error);
     }
@@ -196,13 +268,17 @@ function LoadingListEditor2() {
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Button
                             variant="outlined"
-                            onClick={() => decreaseQuantity(loadingListItem.id)}
+                            onClick={() =>
+                              decreaseLoadingListItemQuantity(loadingListItem)
+                            }
                           >
                             -
                           </Button>
                           <Button
                             variant="outlined"
-                            onClick={() => increaseQuantity(loadingListItem.id)}
+                            onClick={() =>
+                              increaseLoadingListItemQuantity(loadingListItem)
+                            }
                           >
                             +
                           </Button>
