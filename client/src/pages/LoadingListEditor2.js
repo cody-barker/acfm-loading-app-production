@@ -6,10 +6,21 @@ import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import ba
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
 import "./LoadingListEditor.css"; // Import custom styles
 
-//add inventory item, quantity is 1 and item quantity minus 1
-//increase inventory item quantity by 1, item quantity decreases by 1
-//first click to decrease inventory item quantity decreases it by 1, but item quantity increases by 2
-//
+/**
+ * Case 1 (success)
+ * -drag to loading list
+ * -subtract 1
+ * -both item and loading list item are correct quantity
+ * 
+ * Case 2
+ * -drag to loading list
+ * -add 3
+ * -subtract 1 is fine
+ * -subtract 1 more is fine for loading list item but it decreases the item quantity by 1 instead of increasing it by 1
+ * -subtract 1 more is fine for loading list item and item quantity (it increases as it should)
+ * -qty is now 1, subtract 1 is fine for loading list item now at 0, but item decreases quantity again by 1
+ */
+
 
 function LoadingListEditor2() {
   const { id } = useParams();
@@ -48,31 +59,33 @@ function LoadingListEditor2() {
     }
   };
 
-  const increaseItemQuantity = async (item) => {
-    try {
-      const response = await fetch(`/api/items/${item.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          quantity: item.quantity,
-        }),
-      });
-      const updatedItem = await response.json();
-      console.log(item);
-      console.log(updatedItem);
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === updatedItem.id
-            ? { ...item, quantity: updatedItem.quantity }
-            : item
-        )
-      );
-    } catch (error) {
-      console.error("Error decreasing item quantity:", error);
-    }
-  };
+const increaseItemQuantity = async (item) => {
+  if (!item) return; // Prevent calling with undefined/null
+  console.log("Before Update:", item);
+  try {
+    const response = await fetch(`/api/items/${item.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        quantity: item.quantity + 1, // ✅ Explicitly incrementing
+      }),
+    });
+
+    const updatedItem = await response.json();
+    console.log("After Update:", updatedItem);
+
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
+      )
+    );
+  } catch (error) {
+    console.error("Error increasing item quantity:", error);
+  }
+};
+
 
   const createLoadingListItem = async (item) => {
     try {
@@ -154,14 +167,16 @@ function LoadingListEditor2() {
   };
 
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
+    console.log("Before Decrease:", loadingListItem);
+
     try {
       if (loadingListItem.quantity <= 1) {
-        // If quantity is 1, delete the item instead of decreasing it to 0
+        // If the quantity is 1, delete the item
         await fetch(`/api/loading_list_items/${loadingListItem.id}`, {
           method: "DELETE",
         });
 
-        // Remove from state
+        // Update state
         setLoadingListItems((prev) =>
           prev.filter((item) => item.id !== loadingListItem.id)
         );
@@ -178,11 +193,13 @@ function LoadingListEditor2() {
               : list
           )
         );
-        console.log(loadingListItem.item)
-        // Increase available inventory only when item is removed
-        increaseItemQuantity(loadingListItem.item);
+
+        // 🔥 Ensure we're passing the correct item reference
+        increaseItemQuantity(
+          items.find((i) => i.id === loadingListItem.item_id)
+        );
       } else {
-        // If quantity is greater than 1, just decrease the quantity
+        // If quantity is greater than 1, decrease quantity
         const response = await fetch(
           `/api/loading_list_items/${loadingListItem.id}`,
           {
@@ -198,7 +215,6 @@ function LoadingListEditor2() {
 
         const updatedLoadingListItem = await response.json();
 
-        // Update state
         setLoadingListItems((prev) =>
           prev.map((item) =>
             item.id === updatedLoadingListItem.id
@@ -222,13 +238,16 @@ function LoadingListEditor2() {
           )
         );
 
-        // Increase available inventory only when decreasing quantity
-        increaseItemQuantity(loadingListItem.item);
+        // 🔥 Fix by ensuring the correct item is passed
+        increaseItemQuantity(
+          items.find((i) => i.id === loadingListItem.item_id)
+        );
       }
     } catch (error) {
       console.error("Error decreasing loading list item quantity:", error);
     }
   };
+
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
