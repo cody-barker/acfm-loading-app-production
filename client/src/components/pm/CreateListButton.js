@@ -14,11 +14,13 @@ import {
 } from "@mui/material";
 import { UserContext } from "../../contexts/UserContext";
 import { TeamsContext } from "../../contexts/TeamsContext";
+import { LoadingListsContext } from "../../contexts/LoadingListsContext";
 
 function CreateListButton({ onListCreated }) {
   const [open, setOpen] = useState(false);
   const { user } = useContext(UserContext);
   const { teams } = useContext(TeamsContext);
+  const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
@@ -41,6 +43,7 @@ function CreateListButton({ onListCreated }) {
 
       if (response.ok) {
         const newList = await response.json();
+        setLoadingLists([...loadingLists, newList]);
         setOpen(false);
         onListCreated(newList);
         setFormData({
@@ -116,7 +119,11 @@ function CreateListButton({ onListCreated }) {
                 }
               >
                 {teams.map((team) => {
-                  return <MenuItem value={team.id}>{team.name}</MenuItem>;
+                  return (
+                    <MenuItem key={team.id} value={team.id}>
+                      {team.name}
+                    </MenuItem>
+                  );
                 })}
               </Select>
             </FormControl>
