@@ -26,14 +26,16 @@ function LoadingListEditor() {
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
 
+  // Get the current loading list from global state
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
 
-  const [loadingListItems, setLoadingListItems] = useState(
-    loadingList ? loadingList.loading_list_items : []
-  );
+  if (!loadingList) {
+    return <div>"Loading..."</div>;
+  }
 
+  // Update functions
   const decreaseItemQuantity = async (item) => {
     try {
       const response = await fetch(`/api/items/${item.id}`, {
@@ -47,10 +49,8 @@ function LoadingListEditor() {
       });
       const updatedItem = await response.json();
       setItems((prev) =>
-        prev.map((item) =>
-          item.id === updatedItem.id
-            ? { ...item, quantity: updatedItem.quantity }
-            : item
+        prev.map((i) =>
+          i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
         )
       );
     } catch (error) {
@@ -59,8 +59,6 @@ function LoadingListEditor() {
   };
 
   const increaseItemQuantity = async (item) => {
-    if (!item) return; // Prevent calling with undefined/null
-    console.log("Before Update:", item);
     try {
       const response = await fetch(`/api/items/${item.id}`, {
         method: "PATCH",
@@ -68,13 +66,10 @@ function LoadingListEditor() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          quantity: item.quantity + 1, // ✅ Explicitly incrementing
+          quantity: item.quantity + 1,
         }),
       });
-
       const updatedItem = await response.json();
-      console.log("After Update:", updatedItem);
-
       setItems((prev) =>
         prev.map((i) =>
           i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
@@ -99,7 +94,8 @@ function LoadingListEditor() {
         }),
       });
       const newLoadingListItem = await response.json();
-      setLoadingListItems((prev) => [...prev, newLoadingListItem]);
+
+      // Update the loadingLists state globally
       setLoadingLists((prev) =>
         prev.map((list) =>
           list.id === newLoadingListItem.loading_list_id
@@ -114,7 +110,7 @@ function LoadingListEditor() {
         )
       );
 
-      //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
+      // Decrease the item quantity
       decreaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
@@ -138,6 +134,7 @@ function LoadingListEditor() {
         }
       );
       const updatedLoadingListItem = await response.json();
+
       setLoadingLists((prev) =>
         prev.map((list) =>
           list.id === updatedLoadingListItem.loading_list_id
@@ -152,32 +149,20 @@ function LoadingListEditor() {
             : list
         )
       );
-      const item = updatedLoadingListItem.item;
-      setLoadingListItems((prev) =>
-        prev.map((item) =>
-          item.id === updatedLoadingListItem.id ? updatedLoadingListItem : item
-        )
-      );
-      decreaseItemQuantity(item);
+      // Decrease item quantity
+      decreaseItemQuantity(updatedLoadingListItem.item);
     } catch (error) {
-      console.error("Error creating loading list item:", error);
+      console.error("Error increasing loading list item quantity:", error);
     }
   };
 
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
-    console.log("Before Decrease:", loadingListItem);
-
     try {
       if (loadingListItem.quantity <= 1) {
-        // If the quantity is 1, delete the item
+        // Delete the item if quantity is 1
         await fetch(`/api/loading_list_items/${loadingListItem.id}`, {
           method: "DELETE",
         });
-
-        // Update state
-        setLoadingListItems((prev) =>
-          prev.filter((item) => item.id !== loadingListItem.id)
-        );
 
         setLoadingLists((prev) =>
           prev.map((list) =>
@@ -192,12 +177,11 @@ function LoadingListEditor() {
           )
         );
 
-        // 🔥 Ensure we're passing the correct item reference
+        // Increase the item quantity back to available
         increaseItemQuantity(
           items.find((i) => i.id === loadingListItem.item_id)
         );
       } else {
-        // If quantity is greater than 1, decrease quantity
         const response = await fetch(
           `/api/loading_list_items/${loadingListItem.id}`,
           {
@@ -210,16 +194,7 @@ function LoadingListEditor() {
             }),
           }
         );
-
         const updatedLoadingListItem = await response.json();
-
-        setLoadingListItems((prev) =>
-          prev.map((item) =>
-            item.id === updatedLoadingListItem.id
-              ? updatedLoadingListItem
-              : item
-          )
-        );
 
         setLoadingLists((prev) =>
           prev.map((list) =>
@@ -235,10 +210,8 @@ function LoadingListEditor() {
               : list
           )
         );
-
-        // 🔥 Fix by ensuring the correct item is passed
         increaseItemQuantity(
-          items.find((i) => i.id === loadingListItem.item_id)
+          items.find((i) => i.id === updatedLoadingListItem.item_id)
         );
       }
     } catch (error) {
@@ -249,7 +222,19 @@ function LoadingListEditor() {
   const deleteLoadingListItem = async (id) => {
     try {
       await fetch(`/api/loading_list_items/${id}`, { method: "DELETE" });
-      setLoadingListItems((prev) => prev.filter((item) => item.id !== id));
+
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === loadingList.id
+            ? {
+                ...list,
+                loading_list_items: list.loading_list_items.filter(
+                  (item) => item.id !== id
+                ),
+              }
+            : list
+        )
+      );
     } catch (error) {
       console.error("Error deleting loading list item:", error);
     }
@@ -257,41 +242,30 @@ function LoadingListEditor() {
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
-    console.log(source, destination, result);
-    if (!destination) {
-      return;
-    }
 
-    if (
-      source.droppableId === "availableItems" &&
-      destination.droppableId === "loadingListItems"
-    ) {
-      //this is a regular item
-      const item = items[source.index];
-      const itemExists = loadingListItems.some(
-        (loadingListItem) => loadingListItem.item_id === item.id
-      );
-      console.log(item);
-      if (itemExists) {
-        return; // Prevent adding the same item again
-      }
-
-      // Create loading list item
-      createLoadingListItem(item);
-    }
+    if (!destination) return;
 
     if (
       source.droppableId === "loadingListItems" &&
       destination.droppableId === "availableItems"
     ) {
-      const item = loadingListItems[source.index];
+      const item = loadingList.loading_list_items[source.index];
 
-      // Remove from state
-      setLoadingListItems((prev) =>
-        prev.filter((_, index) => index !== source.index)
+      // Remove item from the loading list and update global state
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === loadingList.id
+            ? {
+                ...list,
+                loading_list_items: list.loading_list_items.filter(
+                  (_, index) => index !== source.index
+                ),
+              }
+            : list
+        )
       );
 
-      // Update availableItems state
+      // Update available items state
       setItems((prev) =>
         prev.map((availableItem) =>
           availableItem.id === item.item_id
@@ -303,14 +277,23 @@ function LoadingListEditor() {
         )
       );
 
-      // Delete from DB
+      // Remove item from DB
       deleteLoadingListItem(item.id);
     }
-  };
 
-  if (!loadingList) {
-    return <div>"Loading..."</div>;
-  }
+    if (
+      source.droppableId === "availableItems" &&
+      destination.droppableId === "loadingListItems"
+    ) {
+      const item = items[source.index];
+      const itemExists = loadingList.loading_list_items.some(
+        (loadingListItem) => loadingListItem.item_id === item.id
+      );
+      if (itemExists) return; // Prevent adding the same item again
+
+      createLoadingListItem(item);
+    }
+  };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -386,7 +369,7 @@ function LoadingListEditor() {
               <Typography variant="h6" sx={{ marginBottom: 2 }}>
                 Loading List Items
               </Typography>
-              {loadingListItems.map((loadingListItem, index) => (
+              {loadingList.loading_list_items.map((loadingListItem, index) => (
                 <Draggable
                   key={`loading-${loadingListItem.id}`}
                   draggableId={`loading-${loadingListItem.id}`}
