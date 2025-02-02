@@ -9,7 +9,7 @@ import "./LoadingListEditor.css"; // Import custom styles
 function LoadingListEditor2() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
-  const { loadingLists } = useContext(LoadingListsContext);
+  const { loadingLists, setLoadingList } = useContext(LoadingListsContext);
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
@@ -17,7 +17,34 @@ function LoadingListEditor2() {
 
   const [loadingListItems, setLoadingListItems] = useState(
     loadingList.loading_list_items
-  ); // Initialize as an empty array
+  );
+  
+  const createLoadingListItem = async (loadingListItem) => {
+    try {
+      const response = await fetch("/api/loading_list_items", {
+        method : 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          loading_list_id: parseInt(id),
+          item_id: loadingListItem.id,
+          quantity: 1,
+        })
+      });
+      const newLoadingListItem = await response.json();
+      setLoadingListItems((prev) => [...prev, newLoadingListItem]);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === loadingListItem.id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error("Error creating loading list item:", error);
+    }
+  }
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -31,8 +58,9 @@ function LoadingListEditor2() {
       destination.droppableId === "loadingListItems"
     ) {
       const item = items[source.index];
+      console.log(item)
       const itemExists = loadingListItems.some(
-        (loadingItem) => loadingItem.item_id === item.id
+        (loadingListItem) => loadingListItem.item_id === item.id
       );
       if (itemExists) {
         return; // Prevent adding the same item again
@@ -65,6 +93,7 @@ function LoadingListEditor2() {
       updateLoadingListItemQuantity(item.id, 0, "decrease");
     }
   };
+
 
 
   return (
@@ -195,4 +224,4 @@ function LoadingListEditor2() {
   );
 }
 
-export default LoadingListEditor;
+export default LoadingListEditor2;
