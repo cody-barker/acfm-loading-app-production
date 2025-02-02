@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import NavBar from "../components/NavBar";
-import LoadingListEditor from "../pages/LoadingListEditor";
+import LoadingListEditor2 from "../pages/LoadingListEditor2";
 import Login from "./Login";
 import PMDashboard from "./PMDashboard";
 
@@ -36,7 +36,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<PMDashboard />} />
-          <Route path="loading-lists/:id" element={<LoadingListEditor />} />
+          <Route path="loading-lists/:id" element={<LoadingListEditor2 />} />
         </Routes>
       </main>
     </>

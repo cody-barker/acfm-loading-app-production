@@ -1,0 +1,198 @@
+import React, { useContext, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Box, Card, CardContent, Typography, Button } from "@mui/material";
+import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
+import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
+import "./LoadingListEditor.css"; // Import custom styles
+
+function LoadingListEditor2() {
+  const { id } = useParams();
+  const { items, setItems } = useContext(ItemsContext);
+  const { loadingLists } = useContext(LoadingListsContext);
+
+  let loadingList = loadingLists.find(
+    (loadingList) => loadingList.id === parseInt(id)
+  );
+
+  const [loadingListItems, setLoadingListItems] = useState(
+    loadingList.loading_list_items
+  ); // Initialize as an empty array
+
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (
+      source.droppableId === "availableItems" &&
+      destination.droppableId === "loadingListItems"
+    ) {
+      const item = items[source.index];
+      const itemExists = loadingListItems.some(
+        (loadingItem) => loadingItem.item_id === item.id
+      );
+      if (itemExists) {
+        return; // Prevent adding the same item again
+      }
+
+      // Create loading list item
+      createLoadingListItem(item);
+    }
+
+    if (
+      source.droppableId === "loadingListItems" &&
+      destination.droppableId === "availableItems"
+    ) {
+      const item = loadingListItems[source.index];
+      setLoadingListItems((prev) =>
+        prev.filter((_, index) => index !== source.index)
+      );
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === item.item_id
+            ? {
+                ...item,
+                quantity: item.quantity + item.quantity,
+              }
+            : item
+        )
+      );
+
+      // Update the database after removing the item
+      updateLoadingListItemQuantity(item.id, 0, "decrease");
+    }
+  };
+
+
+  return (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", padding: 5 }}
+      >
+        <Droppable droppableId="availableItems">
+          {(provided) => (
+            <Box
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              sx={{
+                width: "45%",
+                backgroundColor: "#f0f0f0",
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                Available Items
+              </Typography>
+              {availableItems.map((item, index) => (
+                <Draggable
+                  key={item.id}
+                  draggableId={String(item.id)}
+                  index={index}
+                >
+                  {(provided) => (
+                    <Card
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      sx={{
+                        marginBottom: 1,
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        transition: "0.3s",
+                        "&:hover": { boxShadow: 3 },
+                      }}
+                    >
+                      <CardContent>
+                        <Typography variant="body1">{item.name}</Typography>
+                        <Typography variant="body2">
+                          Quantity: {item.quantity}
+                        </Typography>
+                        <Typography variant="body2">
+                          Category: {item.category}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </Box>
+          )}
+        </Droppable>
+
+        <Droppable droppableId="loadingListItems">
+          {(provided) => (
+            <Box
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              sx={{
+                width: "45%",
+                backgroundColor: "#e0f7fa",
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                Loading List Items
+              </Typography>
+              {loadingListItems.map((item, index) => (
+                <Draggable
+                  key={`loading-${item.id}`}
+                  draggableId={`loading-${item.id}`}
+                  index={index}
+                >
+                  {(provided) => (
+                    <Card
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      sx={{
+                        marginBottom: 1,
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        transition: "0.3s",
+                        "&:hover": { boxShadow: 3 },
+                      }}
+                    >
+                      <CardContent>
+                        <Typography variant="body1">
+                          {item.item ? item.item.name : "Item not found"}
+                        </Typography>
+                        <Typography variant="body2">
+                          Quantity: {item.quantity}
+                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Button
+                            variant="outlined"
+                            onClick={() => decreaseQuantity(item.id)}
+                          >
+                            -
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            onClick={() => increaseQuantity(item.id)}
+                          >
+                            +
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </Box>
+          )}
+        </Droppable>
+      </Box>
+    </DragDropContext>
+  );
+}
+
+export default LoadingListEditor;
