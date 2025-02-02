@@ -14,9 +14,11 @@ function LoadingListEditor() {
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
-  const [loadingListItems, setLoadingListItems] = useState(loadingList.loading_list_items); // Initialize as an empty array
+  const [loadingListItems, setLoadingListItems] = useState(
+    loadingList.loading_list_items
+  ); // Initialize as an empty array
   const [availableItems, setAvailableItems] = useState(items);
-  
+
   // useEffect(() => {
   //   const fetchLoadingList = async () => {
   //     try {
@@ -66,7 +68,7 @@ function LoadingListEditor() {
       // Update available item quantity
       setAvailableItems((prev) =>
         prev.map((availableItem) =>
-          availableItem.id === item.id
+          availableItem.id === item.item_id
             ? { ...availableItem, quantity: availableItem.quantity - 1 }
             : availableItem
         )

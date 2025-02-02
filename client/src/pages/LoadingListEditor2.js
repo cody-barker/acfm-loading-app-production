@@ -28,7 +28,7 @@ function LoadingListEditor2() {
         },
         body: JSON.stringify({
           loading_list_id: parseInt(id),
-          item_id: loadingListItem.id,
+          item_id: loadingListItem.item_id,
           quantity: 1,
         })
       });
@@ -36,7 +36,7 @@ function LoadingListEditor2() {
       setLoadingListItems((prev) => [...prev, newLoadingListItem]);
       setItems((prev) =>
         prev.map((item) =>
-          item.id === loadingListItem.id
+          item.id === loadingListItem.item_id
             ? { ...item, quantity: item.quantity - 1 }
             : item
         )
