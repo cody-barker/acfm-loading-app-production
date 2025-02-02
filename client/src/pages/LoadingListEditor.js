@@ -5,13 +5,17 @@ import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
 import "./LoadingListEditor.css"; // Import custom styles
+import { format } from "date-fns"; // Import date-fns for formatting
 
 function LoadingListEditor() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
 
-  // Get the current loading list from global state
+  // Get today's date formatted as 'yyyy-MM-dd' (assuming that's how the date is stored)
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  // Find the current loading list from global state
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
@@ -19,6 +23,15 @@ function LoadingListEditor() {
   if (!loadingList) {
     return <div>"Loading..."</div>;
   }
+
+  // Helper function to calculate how many items are returning today
+  const returningTodayCount = (itemId) => {
+    const item = loadingList.loading_list_items.find(
+      (loadingListItem) =>
+        loadingListItem.item_id === itemId && loadingList.return_date === today
+    );
+    return item ? item.quantity : 0;
+  };
 
   // Update functions
   const decreaseItemQuantity = async (item) => {
@@ -80,7 +93,6 @@ function LoadingListEditor() {
       });
       const newLoadingListItem = await response.json();
 
-      // Update the loadingLists state globally
       setLoadingLists((prev) =>
         prev.map((list) =>
           list.id === newLoadingListItem.loading_list_id
@@ -94,8 +106,6 @@ function LoadingListEditor() {
             : list
         )
       );
-
-      // Decrease the item quantity
       decreaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
@@ -134,7 +144,6 @@ function LoadingListEditor() {
             : list
         )
       );
-      // Decrease item quantity
       decreaseItemQuantity(updatedLoadingListItem.item);
     } catch (error) {
       console.error("Error increasing loading list item quantity:", error);
@@ -144,25 +153,22 @@ function LoadingListEditor() {
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
     try {
       if (loadingListItem.quantity <= 1) {
-        // Delete the item if quantity is 1
         await fetch(`/api/loading_list_items/${loadingListItem.id}`, {
           method: "DELETE",
         });
 
         setLoadingLists((prev) =>
           prev.map((list) =>
-            list.id === loadingListItem.loading_list_id
+            list.id === loadingList.id
               ? {
                   ...list,
                   loading_list_items: list.loading_list_items.filter(
-                    (item) => item.id !== loadingListItem.id
+                    (_, index) => index !== loadingListItem.id
                   ),
                 }
               : list
           )
         );
-
-        // Increase the item quantity back to available
         increaseItemQuantity(
           items.find((i) => i.id === loadingListItem.item_id)
         );
@@ -236,7 +242,6 @@ function LoadingListEditor() {
     ) {
       const item = loadingList.loading_list_items[source.index];
 
-      // Remove item from the loading list and update global state
       setLoadingLists((prev) =>
         prev.map((list) =>
           list.id === loadingList.id
@@ -250,7 +255,6 @@ function LoadingListEditor() {
         )
       );
 
-      // Update available items state
       setItems((prev) =>
         prev.map((availableItem) =>
           availableItem.id === item.item_id
@@ -262,7 +266,6 @@ function LoadingListEditor() {
         )
       );
 
-      // Remove item from DB
       deleteLoadingListItem(item.id);
     }
 
@@ -279,7 +282,6 @@ function LoadingListEditor() {
       createLoadingListItem(item);
     }
   };
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Box
@@ -292,7 +294,7 @@ function LoadingListEditor() {
               {...provided.droppableProps}
               sx={{
                 width: "45%",
-                backgroundColor: "#f0f0f0",
+                backgroundColor: "#e0f7fa",
                 padding: 2,
                 borderRadius: 2,
                 boxShadow: 2,
@@ -301,38 +303,43 @@ function LoadingListEditor() {
               <Typography variant="h6" sx={{ marginBottom: 2 }}>
                 Available Items
               </Typography>
-              {items.map((item, index) => (
-                <Draggable
-                  key={`available-${item.id}`}
-                  draggableId={`available-${item.id}`}
-                  index={index}
-                >
-                  {(provided) => (
-                    <Card
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      sx={{
-                        marginBottom: 1,
-                        borderRadius: 2,
-                        boxShadow: 1,
-                        transition: "0.3s",
-                        "&:hover": { boxShadow: 3 },
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="body1">{item.name}</Typography>
-                        <Typography variant="body2">
-                          Quantity: {item.quantity}
-                        </Typography>
-                        <Typography variant="body2">
-                          Category: {item.category}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  )}
-                </Draggable>
-              ))}
+              {items.map((item, index) => {
+                // Calculate how many of this item will be returning today
+
+                return (
+                  <Draggable
+                    key={`item-${item.id}`}
+                    draggableId={`item-${item.id}`}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <Card
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        sx={{
+                          marginBottom: 1,
+                          borderRadius: 2,
+                          boxShadow: 1,
+                          transition: "0.3s",
+                          "&:hover": { boxShadow: 3 },
+                        }}
+                      >
+                        <CardContent>
+                          <Typography variant="body1">{item.name}</Typography>
+                          <Typography variant="body2">
+                            Quantity: {item.quantity}
+                          </Typography>
+                          {/* Display the returning today count for each item */}
+                          <Typography variant="body2" sx={{ marginTop: 1 }}>
+                            Returning today: {returningTodayCount(item.id)}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </Draggable>
+                );
+              })}
               {provided.placeholder}
             </Box>
           )}
