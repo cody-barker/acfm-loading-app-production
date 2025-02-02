@@ -79,18 +79,16 @@ function LoadingListEditor2() {
         prev.filter((_, index) => index !== source.index)
       );
       setItems((prev) =>
-        prev.map((item) =>
-          item.id === item.item_id
+        prev.map((availableItem) =>
+          availableItem.id === item.item_id
             ? {
                 ...item,
-                quantity: item.quantity + item.quantity,
+                quantity: availableItem.quantity + item.quantity,
               }
             : item
         )
       );
 
-      // Update the database after removing the item
-      updateLoadingListItemQuantity(item.id, 0, "decrease");
     }
   };
 
