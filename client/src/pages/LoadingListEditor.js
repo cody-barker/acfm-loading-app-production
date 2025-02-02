@@ -157,18 +157,20 @@ function LoadingListEditor() {
           method: "DELETE",
         });
 
+        // Update the state and remove the deleted item from the list
         setLoadingLists((prev) =>
           prev.map((list) =>
             list.id === loadingList.id
               ? {
                   ...list,
                   loading_list_items: list.loading_list_items.filter(
-                    (_, index) => index !== loadingListItem.id
+                    (item) => item.id !== loadingListItem.id
                   ),
                 }
               : list
           )
         );
+        // Restore the quantity of the item in the available items list
         increaseItemQuantity(
           items.find((i) => i.id === loadingListItem.item_id)
         );
@@ -187,6 +189,7 @@ function LoadingListEditor() {
         );
         const updatedLoadingListItem = await response.json();
 
+        // Update the loading list state with the new quantity
         setLoadingLists((prev) =>
           prev.map((list) =>
             list.id === updatedLoadingListItem.loading_list_id
@@ -201,6 +204,8 @@ function LoadingListEditor() {
               : list
           )
         );
+
+        // Also update the quantity of the item in the available items list
         increaseItemQuantity(
           items.find((i) => i.id === updatedLoadingListItem.item_id)
         );
@@ -282,6 +287,7 @@ function LoadingListEditor() {
       createLoadingListItem(item);
     }
   };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Box
