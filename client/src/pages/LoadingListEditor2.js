@@ -6,6 +6,11 @@ import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import ba
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
 import "./LoadingListEditor.css"; // Import custom styles
 
+//add inventory item, quantity is 1 and item quantity minus 1
+//increase inventory item quantity by 1, item quantity decreases by 1
+//first click to decrease inventory item quantity decreases it by 1, but item quantity increases by 2
+//
+
 function LoadingListEditor2() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
@@ -18,8 +23,6 @@ function LoadingListEditor2() {
   const [loadingListItems, setLoadingListItems] = useState(
     loadingList ? loadingList.loading_list_items : []
   );
-
-  console.log(loadingListItems);
 
   const decreaseItemQuantity = async (item) => {
     try {
@@ -53,10 +56,12 @@ function LoadingListEditor2() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          quantity: item.quantity + 1,
+          quantity: item.quantity,
         }),
       });
       const updatedItem = await response.json();
+      console.log(item);
+      console.log(updatedItem);
       setItems((prev) =>
         prev.map((item) =>
           item.id === updatedItem.id
@@ -150,50 +155,78 @@ function LoadingListEditor2() {
 
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
     try {
-      const response = await fetch(
-        `/api/loading_list_items/${loadingListItem.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            loading_list_id: parseInt(id),
-            item_id: loadingListItem.item_id,
-            quantity: loadingListItem.quantity - 1,
-          }),
-        }
-      );
-      const updatedLoadingListItem = await response.json();
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === updatedLoadingListItem.loading_list_id
-            ? {
-                ...list,
-                loading_list_items:
-                  updatedLoadingListItem.quantity > 0
-                    ? list.loading_list_items.map((item) =>
-                        item.id === updatedLoadingListItem.id
-                          ? updatedLoadingListItem
-                          : item
-                      )
-                    : list.loading_list_items.filter(
-                        (item) => item.id !== updatedLoadingListItem.id
-                      ),
-              }
-            : list
-        )
-      );
-      setLoadingListItems((prev) =>
-        prev.map((item) =>
-          item.id === updatedLoadingListItem.id ? updatedLoadingListItem : item
-        )
-      );
-      console.log(updatedLoadingListItem);
-      const item = updatedLoadingListItem.item;
-      increaseItemQuantity(item);
+      if (loadingListItem.quantity <= 1) {
+        // If quantity is 1, delete the item instead of decreasing it to 0
+        await fetch(`/api/loading_list_items/${loadingListItem.id}`, {
+          method: "DELETE",
+        });
+
+        // Remove from state
+        setLoadingListItems((prev) =>
+          prev.filter((item) => item.id !== loadingListItem.id)
+        );
+
+        setLoadingLists((prev) =>
+          prev.map((list) =>
+            list.id === loadingListItem.loading_list_id
+              ? {
+                  ...list,
+                  loading_list_items: list.loading_list_items.filter(
+                    (item) => item.id !== loadingListItem.id
+                  ),
+                }
+              : list
+          )
+        );
+        console.log(loadingListItem.item)
+        // Increase available inventory only when item is removed
+        increaseItemQuantity(loadingListItem.item);
+      } else {
+        // If quantity is greater than 1, just decrease the quantity
+        const response = await fetch(
+          `/api/loading_list_items/${loadingListItem.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              quantity: loadingListItem.quantity - 1,
+            }),
+          }
+        );
+
+        const updatedLoadingListItem = await response.json();
+
+        // Update state
+        setLoadingListItems((prev) =>
+          prev.map((item) =>
+            item.id === updatedLoadingListItem.id
+              ? updatedLoadingListItem
+              : item
+          )
+        );
+
+        setLoadingLists((prev) =>
+          prev.map((list) =>
+            list.id === updatedLoadingListItem.loading_list_id
+              ? {
+                  ...list,
+                  loading_list_items: list.loading_list_items.map((item) =>
+                    item.id === updatedLoadingListItem.id
+                      ? updatedLoadingListItem
+                      : item
+                  ),
+                }
+              : list
+          )
+        );
+
+        // Increase available inventory only when decreasing quantity
+        increaseItemQuantity(loadingListItem.item);
+      }
     } catch (error) {
-      console.error("Error creating loading list item:", error);
+      console.error("Error decreasing loading list item quantity:", error);
     }
   };
 
