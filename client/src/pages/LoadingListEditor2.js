@@ -84,6 +84,20 @@ function LoadingListEditor2() {
       });
       const newLoadingListItem = await response.json();
       setLoadingListItems((prev) => [...prev, newLoadingListItem]);
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === newLoadingListItem.loading_list_id
+            ? {
+                ...list,
+                loading_list_items: [
+                  ...list.loading_list_items,
+                  newLoadingListItem,
+                ],
+              }
+            : list
+        )
+      );
+
       //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
       decreaseItemQuantity(item);
     } catch (error) {
@@ -108,13 +122,26 @@ function LoadingListEditor2() {
         }
       );
       const updatedLoadingListItem = await response.json();
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === updatedLoadingListItem.loading_list_id
+            ? {
+                ...list,
+                loading_list_items: list.loading_list_items.map((item) =>
+                  item.id === updatedLoadingListItem.id
+                    ? updatedLoadingListItem
+                    : item
+                ),
+              }
+            : list
+        )
+      );
+      const item = updatedLoadingListItem.item;
       setLoadingListItems((prev) =>
         prev.map((item) =>
           item.id === updatedLoadingListItem.id ? updatedLoadingListItem : item
         )
       );
-      const item = updatedLoadingListItem.item;
-      //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
       decreaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
@@ -138,6 +165,25 @@ function LoadingListEditor2() {
         }
       );
       const updatedLoadingListItem = await response.json();
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === updatedLoadingListItem.loading_list_id
+            ? {
+                ...list,
+                loading_list_items:
+                  updatedLoadingListItem.quantity > 0
+                    ? list.loading_list_items.map((item) =>
+                        item.id === updatedLoadingListItem.id
+                          ? updatedLoadingListItem
+                          : item
+                      )
+                    : list.loading_list_items.filter(
+                        (item) => item.id !== updatedLoadingListItem.id
+                      ),
+              }
+            : list
+        )
+      );
       setLoadingListItems((prev) =>
         prev.map((item) =>
           item.id === updatedLoadingListItem.id ? updatedLoadingListItem : item
@@ -145,7 +191,6 @@ function LoadingListEditor2() {
       );
       console.log(updatedLoadingListItem);
       const item = updatedLoadingListItem.item;
-      //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
       increaseItemQuantity(item);
     } catch (error) {
       console.error("Error creating loading list item:", error);
