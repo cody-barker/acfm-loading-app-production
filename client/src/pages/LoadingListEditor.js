@@ -314,7 +314,12 @@ function LoadingListEditor() {
                 Available Items
               </Typography>
               {items.map((item, index) => {
-                // Calculate how many of this item will be returning today
+                const returningCount = returningTodayCount(item.id);
+                const inStockCount = item.quantity;
+
+                // Check if absolute value of in stock is less than returning today
+                const inStockColor =
+                  returningCount + inStockCount < 0 ? "red" : "black";
 
                 return (
                   <Draggable
@@ -337,12 +342,14 @@ function LoadingListEditor() {
                       >
                         <CardContent>
                           <Typography variant="body1">{item.name}</Typography>
-                          <Typography variant="body2" sx={{ marginTop: 1 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ marginTop: 1, color: inStockColor }}
+                          >
                             In Stock: {item.quantity}
                           </Typography>
-                          {/* Display the returning today count for each item */}
                           <Typography variant="body2" sx={{ marginTop: 1 }}>
-                            Returning today: {returningTodayCount(item.id)}
+                            Returning today: {returningCount}
                           </Typography>
                         </CardContent>
                       </Card>
@@ -350,6 +357,7 @@ function LoadingListEditor() {
                   </Draggable>
                 );
               })}
+
               {provided.placeholder}
             </Box>
           )}
