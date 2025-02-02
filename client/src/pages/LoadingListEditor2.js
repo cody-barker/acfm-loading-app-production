@@ -10,15 +10,16 @@ function LoadingListEditor2() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
-  console.log(loadingLists);
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
 
   const [loadingListItems, setLoadingListItems] = useState(
-    loadingList.loading_list_items
+    loadingList ? loadingList.loading_list_items : []
   );
+
+  console.log(loadingListItems);
 
   const decreaseItemQuantity = async (item) => {
     try {
@@ -107,14 +108,11 @@ function LoadingListEditor2() {
         }
       );
       const updatedLoadingListItem = await response.json();
-      setLoadingListItems((prev) => {
-        prev.map((loadingListItem) => {
-          if (loadingListItem.id === updatedLoadingListItem.id) {
-            return updatedLoadingListItem;
-          }
-          return loadingListItem;
-        });
-      });
+      setLoadingListItems((prev) =>
+        prev.map((item) =>
+          item.id === updatedLoadingListItem.id ? updatedLoadingListItem : item
+        )
+      );
       const item = updatedLoadingListItem.item;
       //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
       decreaseItemQuantity(item);
@@ -140,14 +138,11 @@ function LoadingListEditor2() {
         }
       );
       const updatedLoadingListItem = await response.json();
-      setLoadingListItems((prev) => {
-        prev.map((loadingListItem) => {
-          if (loadingListItem.id === updatedLoadingListItem.id) {
-            return updatedLoadingListItem;
-          }
-          return loadingListItem;
-        });
-      });
+      setLoadingListItems((prev) =>
+        prev.map((item) =>
+          item.id === updatedLoadingListItem.id ? updatedLoadingListItem : item
+        )
+      );
       console.log(updatedLoadingListItem);
       const item = updatedLoadingListItem.item;
       //do I need to update loadingLists as well if I'm updating loadingList property in state and db?
@@ -200,6 +195,10 @@ function LoadingListEditor2() {
       );
     }
   };
+
+  if (!loadingList) {
+    return <div>"Loading..."</div>;
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
