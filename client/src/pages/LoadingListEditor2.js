@@ -18,11 +18,11 @@ function LoadingListEditor2() {
   const [loadingListItems, setLoadingListItems] = useState(
     loadingList.loading_list_items
   );
-  
+
   const createLoadingListItem = async (loadingListItem) => {
     try {
       const response = await fetch("/api/loading_list_items", {
-        method : 'POST',
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -30,7 +30,7 @@ function LoadingListEditor2() {
           loading_list_id: parseInt(id),
           item_id: loadingListItem.item_id,
           quantity: 1,
-        })
+        }),
       });
       const newLoadingListItem = await response.json();
       setLoadingListItems((prev) => [...prev, newLoadingListItem]);
@@ -44,7 +44,7 @@ function LoadingListEditor2() {
     } catch (error) {
       console.error("Error creating loading list item:", error);
     }
-  }
+  };
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -58,7 +58,7 @@ function LoadingListEditor2() {
       destination.droppableId === "loadingListItems"
     ) {
       const item = items[source.index];
-      console.log(item)
+      console.log(item);
       const itemExists = loadingListItems.some(
         (loadingListItem) => loadingListItem.item_id === item.id
       );
@@ -88,11 +88,8 @@ function LoadingListEditor2() {
             : item
         )
       );
-
     }
   };
-
-
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -115,7 +112,7 @@ function LoadingListEditor2() {
               <Typography variant="h6" sx={{ marginBottom: 2 }}>
                 Available Items
               </Typography>
-              {availableItems.map((item, index) => (
+              {items.map((item, index) => (
                 <Draggable
                   key={item.id}
                   draggableId={String(item.id)}
@@ -168,10 +165,10 @@ function LoadingListEditor2() {
               <Typography variant="h6" sx={{ marginBottom: 2 }}>
                 Loading List Items
               </Typography>
-              {loadingListItems.map((item, index) => (
+              {loadingListItems.map((loadingListItem, index) => (
                 <Draggable
-                  key={`loading-${item.id}`}
-                  draggableId={`loading-${item.id}`}
+                  key={`loading-${loadingListItem.id}`}
+                  draggableId={`loading-${loadingListItem.id}`}
                   index={index}
                 >
                   {(provided) => (
@@ -189,21 +186,23 @@ function LoadingListEditor2() {
                     >
                       <CardContent>
                         <Typography variant="body1">
-                          {item.item ? item.item.name : "Item not found"}
+                          {loadingListItem.item
+                            ? loadingListItem.item.name
+                            : "Item not found"}
                         </Typography>
                         <Typography variant="body2">
-                          Quantity: {item.quantity}
+                          Quantity: {loadingListItem.quantity}
                         </Typography>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Button
                             variant="outlined"
-                            onClick={() => decreaseQuantity(item.id)}
+                            onClick={() => decreaseQuantity(loadingListItem.id)}
                           >
                             -
                           </Button>
                           <Button
                             variant="outlined"
-                            onClick={() => increaseQuantity(item.id)}
+                            onClick={() => increaseQuantity(loadingListItem.id)}
                           >
                             +
                           </Button>
