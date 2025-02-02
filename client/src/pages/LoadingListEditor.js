@@ -327,8 +327,8 @@ function LoadingListEditor() {
                       >
                         <CardContent>
                           <Typography variant="body1">{item.name}</Typography>
-                          <Typography variant="body2">
-                            Quantity: {item.quantity}
+                          <Typography variant="body2" sx={{ marginTop: 1 }}>
+                            In Stock: {item.quantity}
                           </Typography>
                           {/* Display the returning today count for each item */}
                           <Typography variant="body2" sx={{ marginTop: 1 }}>
