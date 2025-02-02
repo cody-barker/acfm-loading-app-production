@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, createContext } from "react";
 
-const LoadingListsContext = createContext();
+export const LoadingListsContext = createContext();
 
-function LoadingListsProvider({ children }) {
+export const LoadingListsProvider = ({ children }) => {
   const [loadingLists, setLoadingLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [availableItems, setAvailableItems] = useState([]);
@@ -11,6 +11,16 @@ function LoadingListsProvider({ children }) {
     setLoadingLists((prevLists) =>
       prevLists.map((list) =>
         list.id === id ? { ...list, loading_list_items: updatedItems } : list
+      )
+    );
+  };
+
+  const updateAvailableItems = (itemId, quantityChange) => {
+    setAvailableItems((prevAvailableItems) =>
+      prevAvailableItems.map((item) =>
+        item.id === itemId
+          ? { ...item, quantity: item.quantity + quantityChange }
+          : item
       )
     );
   };
@@ -74,6 +84,7 @@ function LoadingListsProvider({ children }) {
       availableItems,
       setAvailableItems,
       updateLoadingListItemQuantity,
+      updateAvailableItems,
     }),
     [loadingLists, loading, availableItems]
   );
@@ -83,6 +94,4 @@ function LoadingListsProvider({ children }) {
       {children}
     </LoadingListsContext.Provider>
   );
-}
-
-export { LoadingListsContext, LoadingListsProvider };
+};

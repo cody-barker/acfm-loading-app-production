@@ -9,13 +9,16 @@ import "./LoadingListEditor.css"; // Import custom styles
 function LoadingListEditor() {
   const { id } = useParams();
   const { items } = useContext(ItemsContext); // Fetch items from context
-  const { loadingLists } = useContext(LoadingListsContext); // Fetch loading lists from context
+  const { loadingLists, updateLoadingList, updateAvailableItems } =
+    useContext(LoadingListsContext); // Fetch loading lists and update functions from context
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
-  const [loadingListItems, setLoadingListItems] = useState(loadingList.loading_list_items); // Initialize as an empty array
+  const [loadingListItems, setLoadingListItems] = useState(
+    loadingList.loading_list_items
+  ); // Initialize as an empty array
   const [availableItems, setAvailableItems] = useState(items);
-  
+
   useEffect(() => {
     const fetchLoadingList = async () => {
       try {
@@ -46,7 +49,6 @@ function LoadingListEditor() {
 
     fetchLoadingList();
   }, [id, items]);
-
 
   const createLoadingListItem = async (item) => {
     try {
@@ -207,11 +209,11 @@ function LoadingListEditor() {
       );
 
       // Update loading list item quantity and adjust available item quantity
-      updateLoadingListItemQuantity(
-        loadingListItemId,
-        updatedItems.find((item) => item.id === loadingListItemId).quantity,
-        "decrease"
+      const loadingListItem = updatedItems.find(
+        (item) => item.id === loadingListItemId
       );
+      updateAvailableItems(loadingListItem.item_id, -1); // Decrease available item quantity
+      updateLoadingList(id, updatedItems); // Update loading list in context
 
       return updatedItems;
     });
@@ -229,14 +231,15 @@ function LoadingListEditor() {
         .filter((item) => item.quantity > 0); // Remove items with quantity 0
 
       // Update loading list item quantity and adjust available item quantity
-      updateLoadingListItemQuantity(
-        loadingListItemId,
-        updatedItems.find((item) => item.id === loadingListItemId)?.quantity ||
-          0,
-        "increase"
+      const loadingListItem = updatedItems.find(
+        (item) => item.id === loadingListItemId
       );
+      if (loadingListItem) {
+        updateAvailableItems(loadingListItem.item_id, 1); // Increase available item quantity
+      }
 
-      return updatedItems;
+      updateLoadingList(id, updatedItems); // Update loading list in context
+      return updatedItems; // Return the updated list
     });
   };
 
