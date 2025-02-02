@@ -6,21 +6,6 @@ import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import ba
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
 import "./LoadingListEditor.css"; // Import custom styles
 
-/**
- * Case 1 (success)
- * -drag to loading list
- * -subtract 1
- * -both item and loading list item are correct quantity
- *
- * Case 2
- * -drag to loading list
- * -add 3
- * -subtract 1 is fine
- * -subtract 1 more is fine for loading list item but it decreases the item quantity by 1 instead of increasing it by 1
- * -subtract 1 more is fine for loading list item and item quantity (it increases as it should)
- * -qty is now 1, subtract 1 is fine for loading list item now at 0, but item decreases quantity again by 1
- */
-
 function LoadingListEditor() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
