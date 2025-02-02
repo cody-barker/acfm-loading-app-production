@@ -12,10 +12,8 @@ function LoadingListEditor() {
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
 
-  // Get today's date formatted as 'yyyy-MM-dd' (assuming that's how the date is stored)
   const today = format(new Date(), "yyyy-MM-dd");
 
-  // Find the current loading list from global state
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
@@ -24,25 +22,22 @@ function LoadingListEditor() {
     return <div>"Loading..."</div>;
   }
 
-  // Helper function to calculate how many items are returning today
- const returningTodayCount = (itemId) => {
-   let totalReturningQuantity = 0;
+  const returningTodayCount = (itemId) => {
+    let totalReturningQuantity = 0;
 
-   loadingLists.forEach((list) => {
-     const item = list.loading_list_items.find(
-       (loadingListItem) =>
-         loadingListItem.item_id === itemId && list.return_date === today
-     );
-     if (item) {
-       totalReturningQuantity += item.quantity;
-     }
-   });
+    loadingLists.forEach((list) => {
+      const item = list.loading_list_items.find(
+        (loadingListItem) =>
+          loadingListItem.item_id === itemId && list.return_date === today
+      );
+      if (item) {
+        totalReturningQuantity += item.quantity;
+      }
+    });
 
-   return totalReturningQuantity;
- };
+    return totalReturningQuantity;
+  };
 
-
-  // Update functions
   const decreaseItemQuantity = async (item) => {
     try {
       const response = await fetch(`/api/items/${item.id}`, {
