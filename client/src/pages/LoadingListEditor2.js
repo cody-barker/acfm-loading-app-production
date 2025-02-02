@@ -246,6 +246,15 @@ function LoadingListEditor2() {
     }
   };
 
+  const deleteLoadingListItem = async (id) => {
+    try {
+      await fetch(`/api/loading_list_items/${id}`, { method: "DELETE" });
+      setLoadingListItems((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Error deleting loading list item:", error);
+    }
+  };
+
   const onDragEnd = (result) => {
     const { source, destination } = result;
     console.log(source, destination, result);
@@ -275,23 +284,27 @@ function LoadingListEditor2() {
       source.droppableId === "loadingListItems" &&
       destination.droppableId === "availableItems"
     ) {
-      //this is a loadingListItem
       const item = loadingListItems[source.index];
+
+      // Remove from state
       setLoadingListItems((prev) =>
         prev.filter((_, index) => index !== source.index)
       );
-      console.log(item);
+
+      // Update availableItems state
       setItems((prev) =>
-        prev.map(
-          (availableItem) =>
-            availableItem.id === item.item_id
-              ? {
-                  ...availableItem, // ✅ Keep existing data
-                  quantity: availableItem.quantity + item.quantity, // ✅ Correctly update quantity
-                }
-              : availableItem // ✅ Keep all other items unchanged
+        prev.map((availableItem) =>
+          availableItem.id === item.item_id
+            ? {
+                ...availableItem,
+                quantity: availableItem.quantity + item.quantity,
+              }
+            : availableItem
         )
       );
+
+      // Delete from DB
+      deleteLoadingListItem(item.id);
     }
   };
 
