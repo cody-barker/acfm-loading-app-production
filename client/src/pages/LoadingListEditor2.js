@@ -11,7 +11,7 @@ import "./LoadingListEditor.css"; // Import custom styles
  * -drag to loading list
  * -subtract 1
  * -both item and loading list item are correct quantity
- * 
+ *
  * Case 2
  * -drag to loading list
  * -add 3
@@ -20,7 +20,6 @@ import "./LoadingListEditor.css"; // Import custom styles
  * -subtract 1 more is fine for loading list item and item quantity (it increases as it should)
  * -qty is now 1, subtract 1 is fine for loading list item now at 0, but item decreases quantity again by 1
  */
-
 
 function LoadingListEditor2() {
   const { id } = useParams();
@@ -59,33 +58,32 @@ function LoadingListEditor2() {
     }
   };
 
-const increaseItemQuantity = async (item) => {
-  if (!item) return; // Prevent calling with undefined/null
-  console.log("Before Update:", item);
-  try {
-    const response = await fetch(`/api/items/${item.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        quantity: item.quantity + 1, // ✅ Explicitly incrementing
-      }),
-    });
+  const increaseItemQuantity = async (item) => {
+    if (!item) return; // Prevent calling with undefined/null
+    console.log("Before Update:", item);
+    try {
+      const response = await fetch(`/api/items/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quantity: item.quantity + 1, // ✅ Explicitly incrementing
+        }),
+      });
 
-    const updatedItem = await response.json();
-    console.log("After Update:", updatedItem);
+      const updatedItem = await response.json();
+      console.log("After Update:", updatedItem);
 
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
-      )
-    );
-  } catch (error) {
-    console.error("Error increasing item quantity:", error);
-  }
-};
-
+      setItems((prev) =>
+        prev.map((i) =>
+          i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
+        )
+      );
+    } catch (error) {
+      console.error("Error increasing item quantity:", error);
+    }
+  };
 
   const createLoadingListItem = async (item) => {
     try {
@@ -248,10 +246,9 @@ const increaseItemQuantity = async (item) => {
     }
   };
 
-
   const onDragEnd = (result) => {
     const { source, destination } = result;
-
+    console.log(source, destination, result);
     if (!destination) {
       return;
     }
@@ -260,10 +257,12 @@ const increaseItemQuantity = async (item) => {
       source.droppableId === "availableItems" &&
       destination.droppableId === "loadingListItems"
     ) {
+      //this is a regular item
       const item = items[source.index];
       const itemExists = loadingListItems.some(
         (loadingListItem) => loadingListItem.item_id === item.id
       );
+      console.log(item);
       if (itemExists) {
         return; // Prevent adding the same item again
       }
@@ -276,18 +275,21 @@ const increaseItemQuantity = async (item) => {
       source.droppableId === "loadingListItems" &&
       destination.droppableId === "availableItems"
     ) {
+      //this is a loadingListItem
       const item = loadingListItems[source.index];
       setLoadingListItems((prev) =>
         prev.filter((_, index) => index !== source.index)
       );
+      console.log(item);
       setItems((prev) =>
-        prev.map((availableItem) =>
-          availableItem.id === item.item_id
-            ? {
-                ...item,
-                quantity: availableItem.quantity + item.quantity,
-              }
-            : item
+        prev.map(
+          (availableItem) =>
+            availableItem.id === item.item_id
+              ? {
+                  ...availableItem, // ✅ Keep existing data
+                  quantity: availableItem.quantity + item.quantity, // ✅ Correctly update quantity
+                }
+              : availableItem // ✅ Keep all other items unchanged
         )
       );
     }
@@ -320,8 +322,8 @@ const increaseItemQuantity = async (item) => {
               </Typography>
               {items.map((item, index) => (
                 <Draggable
-                  key={item.id}
-                  draggableId={String(item.id)}
+                  key={`available-${item.id}`}
+                  draggableId={`available-${item.id}`}
                   index={index}
                 >
                   {(provided) => (
