@@ -351,6 +351,9 @@ function LoadingListEditor() {
                           <Typography variant="body2" sx={{ marginTop: 1 }}>
                             Returning today: {returningCount}
                           </Typography>
+                          <Typography variant="body2" sx={{ marginTop: 1 }}>
+                            Available: {returningCount + inStockCount}
+                          </Typography>
                         </CardContent>
                       </Card>
                     )}
