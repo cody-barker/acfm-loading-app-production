@@ -50,7 +50,7 @@ const KanbanColumn = ({ title, lists, columnId }) => (
   </Box>
 );
 
-const PMKanbanBoard = ({ lists, onListUpdate }) => {
+const PMKanbanBoard = ({ lists }) => {
   return (
     <Box
       sx={{
@@ -77,11 +77,7 @@ const PMKanbanBoard = ({ lists, onListUpdate }) => {
         lists={lists.tomorrow}
         columnId="tomorrow"
       />
-      <KanbanColumn 
-        title="Future"
-        lists={lists.future}
-        columnId="future"
-      />
+      <KanbanColumn title="Future" lists={lists.future} columnId="future" />
     </Box>
   );
 };
