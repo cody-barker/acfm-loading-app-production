@@ -67,7 +67,11 @@ const PMKanbanBoard = ({ lists, onListUpdate }) => {
         lists={lists.previous}
         columnId="previous"
       />
-      <KanbanColumn title="Returning Today" lists={lists.today} columnId="today" />
+      <KanbanColumn
+        title="Loaded Yesterday"
+        lists={lists.today}
+        columnId="today"
+      />
       <KanbanColumn
         title="Load Today"
         lists={lists.tomorrow}
