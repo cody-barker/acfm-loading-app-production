@@ -326,8 +326,8 @@ function LoadingListEditor() {
             <Typography variant="h6">{`Load: ${
               loadingList.date === tomorrow
                 ? "Today"
-                : loadingList.date === tomorrow
-                ? "Tomorrow"
+                : loadingList.date === today
+                ? "Yesterday"
                 : loadingList.date
             }`}</Typography>
             <Typography variant="h6">{`Returns: ${
