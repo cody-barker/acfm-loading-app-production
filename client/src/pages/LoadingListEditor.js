@@ -1,11 +1,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Box, Card, CardContent, Typography, Button } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Container,
+} from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
 import "./LoadingListEditor.css"; // Import custom styles
-import { format } from "date-fns"; // Import date-fns for formatting
+import { format, addDays } from "date-fns"; // Import date-fns for formatting
 
 function LoadingListEditor() {
   const { id } = useParams();
@@ -13,6 +20,7 @@ function LoadingListEditor() {
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
 
   const today = format(new Date(), "yyyy-MM-dd");
+  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd"); // Get tomorrow's date
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
@@ -293,152 +301,198 @@ function LoadingListEditor() {
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", padding: 5 }}
-      >
-        <Droppable droppableId="availableItems">
-          {(provided) => (
-            <Box
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              sx={{
-                width: "45%",
-                backgroundColor: "#e0f7fa",
-                padding: 2,
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                Available Items
-              </Typography>
-              {items.map((item, index) => {
-                const returningCount = returningTodayCount(item.id);
-                const inStockCount = item.quantity;
+    <>
+      <Container>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: 2,
+            borderBottom: "2px solid #ccc",
+            backgroundColor: "#f5f5f5",
+            borderRadius: 2,
+            boxShadow: 2,
+            marginTop: 4,
+          }}
+        >
+          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+            {loadingList.site_name}
+          </Typography>
+          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+            {loadingList.team.name}
+          </Typography>
+          <Box sx={{ display: "flex", gap: 4 }}>
+            <Typography variant="h6">{`Load: ${
+              loadingList.date === tomorrow
+                ? "Today"
+                : loadingList.date === tomorrow
+                ? "Tomorrow"
+                : loadingList.date
+            }`}</Typography>
+            <Typography variant="h6">{`Returns: ${
+              loadingList.return_date === today
+                ? "Today"
+                : loadingList.return_date === tomorrow
+                ? "Tomorrow"
+                : loadingList.return_date
+            }`}</Typography>
+          </Box>
+        </Box>
+      </Container>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Box
+          sx={{ display: "flex", justifyContent: "space-between", padding: 5 }}
+        >
+          <Droppable droppableId="availableItems">
+            {(provided) => (
+              <Box
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                sx={{
+                  width: "45%",
+                  backgroundColor: "#e0f7fa",
+                  padding: 2,
+                  borderRadius: 2,
+                  boxShadow: 2,
+                }}
+              >
+                <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                  Available Items
+                </Typography>
+                {items.map((item, index) => {
+                  const returningCount = returningTodayCount(item.id);
+                  const inStockCount = item.quantity;
 
-                // Check if absolute value of in stock is less than returning today
-                const inStockColor =
-                  returningCount + inStockCount < 0 ? "red" : "black";
+                  // Check if absolute value of in stock is less than returning today
+                  const inStockColor =
+                    returningCount + inStockCount < 0 ? "red" : "black";
 
-                return (
-                  <Draggable
-                    key={`item-${item.id}`}
-                    draggableId={`item-${item.id}`}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <Card
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        sx={{
-                          marginBottom: 1,
-                          borderRadius: 2,
-                          boxShadow: 1,
-                          transition: "0.3s",
-                          "&:hover": { boxShadow: 3 },
-                        }}
-                      >
-                        <CardContent>
-                          <Typography variant="body1">{item.name}</Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ marginTop: 1, color: inStockColor }}
-                          >
-                            In Stock: {item.quantity}
-                          </Typography>
-                          <Typography variant="body2" sx={{ marginTop: 1 }}>
-                            Returning today: {returningCount}
-                          </Typography>
-                          <Typography variant="body2" sx={{ marginTop: 1 }}>
-                            Available: {returningCount + inStockCount}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </Draggable>
-                );
-              })}
-
-              {provided.placeholder}
-            </Box>
-          )}
-        </Droppable>
-
-        <Droppable droppableId="loadingListItems">
-          {(provided) => (
-            <Box
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              sx={{
-                width: "45%",
-                backgroundColor: "#e0f7fa",
-                padding: 2,
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                Loading List Items
-              </Typography>
-              {loadingList.loading_list_items.map((loadingListItem, index) => (
-                <Draggable
-                  key={`loading-${loadingListItem.id}`}
-                  draggableId={`loading-${loadingListItem.id}`}
-                  index={index}
-                >
-                  {(provided) => (
-                    <Card
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      sx={{
-                        marginBottom: 1,
-                        borderRadius: 2,
-                        boxShadow: 1,
-                        transition: "0.3s",
-                        "&:hover": { boxShadow: 3 },
-                      }}
+                  return (
+                    <Draggable
+                      key={`item-${item.id}`}
+                      draggableId={`item-${item.id}`}
+                      index={index}
                     >
-                      <CardContent>
-                        <Typography variant="body1">
-                          {loadingListItem.item
-                            ? loadingListItem.item.name
-                            : "Item not found"}
-                        </Typography>
-                        <Typography variant="body2">
-                          Quantity: {loadingListItem.quantity}
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Button
-                            variant="outlined"
-                            onClick={() =>
-                              decreaseLoadingListItemQuantity(loadingListItem)
-                            }
-                          >
-                            -
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            onClick={() =>
-                              increaseLoadingListItemQuantity(loadingListItem)
-                            }
-                          >
-                            +
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </Box>
-          )}
-        </Droppable>
-      </Box>
-    </DragDropContext>
+                      {(provided) => (
+                        <Card
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          sx={{
+                            marginBottom: 1,
+                            borderRadius: 2,
+                            boxShadow: 1,
+                            transition: "0.3s",
+                            "&:hover": { boxShadow: 3 },
+                          }}
+                        >
+                          <CardContent>
+                            <Typography variant="body1">{item.name}</Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ marginTop: 1, color: inStockColor }}
+                            >
+                              In Stock: {item.quantity}
+                            </Typography>
+                            <Typography variant="body2" sx={{ marginTop: 1 }}>
+                              Returning today: {returningCount}
+                            </Typography>
+                            <Typography variant="body2" sx={{ marginTop: 1 }}>
+                              Available: {returningCount + inStockCount}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </Draggable>
+                  );
+                })}
+
+                {provided.placeholder}
+              </Box>
+            )}
+          </Droppable>
+
+          <Droppable droppableId="loadingListItems">
+            {(provided) => (
+              <Box
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                sx={{
+                  width: "45%",
+                  backgroundColor: "#e0f7fa",
+                  padding: 2,
+                  borderRadius: 2,
+                  boxShadow: 2,
+                }}
+              >
+                <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                  Loading List Items
+                </Typography>
+                {loadingList.loading_list_items.map(
+                  (loadingListItem, index) => (
+                    <Draggable
+                      key={`loading-${loadingListItem.id}`}
+                      draggableId={`loading-${loadingListItem.id}`}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <Card
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          sx={{
+                            marginBottom: 1,
+                            borderRadius: 2,
+                            boxShadow: 1,
+                            transition: "0.3s",
+                            "&:hover": { boxShadow: 3 },
+                          }}
+                        >
+                          <CardContent>
+                            <Typography variant="body1">
+                              {loadingListItem.item
+                                ? loadingListItem.item.name
+                                : "Item not found"}
+                            </Typography>
+                            <Typography variant="body2">
+                              Quantity: {loadingListItem.quantity}
+                            </Typography>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Button
+                                variant="outlined"
+                                onClick={() =>
+                                  decreaseLoadingListItemQuantity(
+                                    loadingListItem
+                                  )
+                                }
+                              >
+                                -
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                onClick={() =>
+                                  increaseLoadingListItemQuantity(
+                                    loadingListItem
+                                  )
+                                }
+                              >
+                                +
+                              </Button>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </Draggable>
+                  )
+                )}
+                {provided.placeholder}
+              </Box>
+            )}
+          </Droppable>
+        </Box>
+      </DragDropContext>
+    </>
   );
 }
 

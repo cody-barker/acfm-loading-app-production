@@ -48,7 +48,12 @@ const PMListCard = ({ list, index }) => {
               <Typography variant="h6" component="div" gutterBottom>
                 {list.site_name}
               </Typography>
-              <Typography variant="h6" component="div" gutterBottom>
+              <Typography
+                variant="h6"
+                component="div"
+                gutterBottom
+                sx={{ mb: 1 }}
+              >
                 {`${list.team.name}`}
               </Typography>
 
@@ -89,12 +94,12 @@ const PMListCard = ({ list, index }) => {
                   mt: 1,
                 }}
               >
-                <Typography variant="caption" color="text.secondary">
-                  Items: {list.items_count || 0}
+                {/* <Typography variant="caption" color="text.secondary">
+                  Items: {list.count || 0}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   Total Qty: {list.total_quantity || 0}
-                </Typography>
+                </Typography> */}
               </Box>
             </CardContent>
           </CardActionArea>
