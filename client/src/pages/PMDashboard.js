@@ -10,6 +10,7 @@ const PMDashboard = () => {
     previous: [],
     today: [],
     tomorrow: [],
+    future: [],
   });
 
   const { loadingLists } = useContext(LoadingListsContext);
@@ -32,6 +33,9 @@ const PMDashboard = () => {
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
+    const daysAhead = new Date(today);
+    daysAhead.setDate(daysAhead.getDate() + 30);
+
     const categorized = lists.reduce(
       (acc, list) => {
         const listDate = new Date(list.date + "T00:00:00");
@@ -39,22 +43,26 @@ const PMDashboard = () => {
         const isToday = listDate.toDateString() === today.toDateString();
         const isTomorrow = listDate.toDateString() === tomorrow.toDateString();
         const isWithinPastWeek = listDate >= sevenDaysAgo && listDate < today;
+        const isInFuture = listDate <= daysAhead && listDate > tomorrow;
 
         if (isToday) {
-          acc.today.push(list);
+          acc.today.unshift(list);
         } else if (isTomorrow) {
-          acc.tomorrow.push(list);
+          acc.tomorrow.unshift(list);
         } else if (isWithinPastWeek) {
-          acc.previous.push(list);
+          acc.previous.unshift(list);
+        } else if (isInFuture) {
+          acc.future.unshift(list);
         }
         return acc;
       },
-      { previous: [], today: [], tomorrow: [] }
+      { previous: [], today: [], tomorrow: [], future: [] }
     );
 
     categorized.today.sort((a, b) => a.team_id - b.team_id);
     categorized.tomorrow.sort((a, b) => a.team_id - b.team_id);
     categorized.previous.sort((a, b) => new Date(b.date) - new Date(a.date));
+    categorized.future.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     setLists(categorized);
   };
@@ -85,6 +93,13 @@ const PMDashboard = () => {
         ...prev,
         previous: [...prev.previous, newList].sort(
           (a, b) => new Date(b.date) - new Date(a.date)
+        ),
+      }));
+    } else if (listDate <= new Date(today.setDate(today.getDate() + 7))) {
+      setLists((prev) => ({
+        ...prev,
+        future: [...prev.future, newList].sort(
+          (a, b) => new Date(b.date) + new Date(a.date)
         ),
       }));
     }

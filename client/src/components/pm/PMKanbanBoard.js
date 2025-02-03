@@ -77,6 +77,11 @@ const PMKanbanBoard = ({ lists, onListUpdate }) => {
         lists={lists.tomorrow}
         columnId="tomorrow"
       />
+      <KanbanColumn 
+        title="Future"
+        lists={lists.future}
+        columnId="future"
+      />
     </Box>
   );
 };
