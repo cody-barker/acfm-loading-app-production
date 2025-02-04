@@ -8,7 +8,10 @@ import {
   Typography,
   Button,
   Container,
-  autocompleteClasses,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
 } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
@@ -20,6 +23,11 @@ function LoadingListEditor() {
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const uniqueCategories = [...new Set(items.map((item) => item.category))]; // Get unique categories
+  const filteredItems = selectedCategory
+    ? items.filter((item) => item.category === selectedCategory)
+    : items; // Apply filtering before mapping
 
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd"); // Get tomorrow's date
@@ -368,15 +376,33 @@ function LoadingListEditor() {
                   boxShadow: 2,
                   maxHeight: "70vh",
                   overflowY: "auto",
-                  marginRight: 0, // Ensure no extra margin
+                  marginRight: 0,
                 }}
               >
                 {isExpanded && (
                   <>
+                    {/* Category Select Dropdown */}
+                    <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                      <InputLabel>Filter by Category</InputLabel>
+                      <Select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        displayEmpty
+                      >
+                        <MenuItem value="">All Categories</MenuItem>
+                        {uniqueCategories.map((category) => (
+                          <MenuItem key={category} value={category}>
+                            {category}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
                     <Typography variant="h6" sx={{ marginBottom: 2 }}>
                       Available Items
                     </Typography>
-                    {items.map((item, index) => {
+
+                    {filteredItems.map((item, index) => {
                       const returningCount = returningTodayCount(item.id);
                       const inStockCount = item.quantity;
                       const inStockColor =
@@ -407,20 +433,14 @@ function LoadingListEditor() {
                                 </Typography>
                                 <Typography
                                   variant="body2"
-                                  sx={{ marginTop: 1, color: inStockColor }}
+                                  sx={{ color: inStockColor }}
                                 >
                                   In Stock: {item.quantity}
                                 </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{ marginTop: 1 }}
-                                >
+                                <Typography variant="body2">
                                   Returning today: {returningCount}
                                 </Typography>
-                                <Typography
-                                  variant="body2"
-                                  sx={{ marginTop: 1 }}
-                                >
+                                <Typography variant="body2">
                                   Available: {returningCount + inStockCount}
                                 </Typography>
                               </CardContent>
@@ -435,8 +455,7 @@ function LoadingListEditor() {
               </Box>
             )}
           </Droppable>
-
-          {/* Toggle Button */}
+          ; ;{/* Toggle Button */}
           <Box
             sx={{
               display: "flex",
@@ -462,7 +481,6 @@ function LoadingListEditor() {
               {isExpanded ? "▶ Collapse Inventory" : "◀ Expand Inventory"}
             </Button>
           </Box>
-
           {/* Loading List Items Column */}
           <Droppable droppableId="loadingListItems">
             {(provided) => (
