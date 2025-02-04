@@ -358,6 +358,8 @@ function LoadingListEditor() {
                   padding: 2,
                   borderRadius: 2,
                   boxShadow: 2,
+                  maxHeight: "70vh", // Adjust based on your needs
+                  overflowY: "auto", // Enables scrolling
                 }}
               >
                 <Typography variant="h6" sx={{ marginBottom: 2 }}>
@@ -427,6 +429,8 @@ function LoadingListEditor() {
                   padding: 2,
                   borderRadius: 2,
                   boxShadow: 2,
+                  maxHeight: "70vh", // Adjust based on your needs
+                  overflowY: "auto", // Enables scrolling
                 }}
               >
                 <Typography variant="h6" sx={{ marginBottom: 2 }}>
