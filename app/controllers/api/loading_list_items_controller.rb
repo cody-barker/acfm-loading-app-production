@@ -23,10 +23,7 @@
     def destroy
       loading_list_item = LoadingListItem.find(params[:id])
       available_item = Item.find(loading_list_item.item_id)
-      
-      # Restore quantity in availableItems
       available_item.update(quantity: available_item.quantity + loading_list_item.quantity)
-
       loading_list_item.destroy
       head :no_content
     end

@@ -55,7 +55,7 @@ skip_before_action :authorize, only: [ :create, :signup ]
         when "loader2023"
             "loader"
         else
-            render json: { errors: ["Invalid employee token"] }, status: :unprocessable_entity
+            render json: { errors: [ "Invalid employee token" ] }, status: :unprocessable_entity
             nil
         end
     end
