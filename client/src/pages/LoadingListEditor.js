@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
@@ -8,6 +8,7 @@ import {
   Typography,
   Button,
   Container,
+  autocompleteClasses,
 } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
@@ -18,6 +19,7 @@ function LoadingListEditor() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd"); // Get tomorrow's date
@@ -314,6 +316,7 @@ function LoadingListEditor() {
             borderRadius: 2,
             boxShadow: 2,
             marginTop: 4,
+            marginBottom: 4,
           }}
         >
           <Typography variant="h4" sx={{ fontWeight: "bold" }}>
@@ -345,92 +348,136 @@ function LoadingListEditor() {
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
-          sx={{ display: "flex", justifyContent: "space-between", padding: 5 }}
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "stretch",
+            width: "100%",
+          }}
         >
+          {/* Available Items Column */}
           <Droppable droppableId="availableItems">
             {(provided) => (
               <Box
-                ref={provided.innerRef}
-                {...provided.droppableProps}
                 sx={{
-                  width: "45%",
+                  width: isExpanded ? "45%" : "0%",
+                  transition: "width 0.3s ease",
                   backgroundColor: "#e0f7fa",
-                  padding: 2,
+                  padding: isExpanded ? 2 : 0,
                   borderRadius: 2,
                   boxShadow: 2,
-                  maxHeight: "70vh", // Adjust based on your needs
-                  overflowY: "auto", // Enables scrolling
+                  maxHeight: "70vh",
+                  overflowY: "auto",
+                  marginRight: 0, // Ensure no extra margin
                 }}
               >
-                <Typography variant="h6" sx={{ marginBottom: 2 }}>
-                  Available Items
-                </Typography>
-                {items.map((item, index) => {
-                  const returningCount = returningTodayCount(item.id);
-                  const inStockCount = item.quantity;
+                {isExpanded && (
+                  <>
+                    <Typography variant="h6" sx={{ marginBottom: 2 }}>
+                      Available Items
+                    </Typography>
+                    {items.map((item, index) => {
+                      const returningCount = returningTodayCount(item.id);
+                      const inStockCount = item.quantity;
+                      const inStockColor =
+                        returningCount + inStockCount < 0 ? "red" : "black";
 
-                  // Check if absolute value of in stock is less than returning today
-                  const inStockColor =
-                    returningCount + inStockCount < 0 ? "red" : "black";
-
-                  return (
-                    <Draggable
-                      key={`item-${item.id}`}
-                      draggableId={`item-${item.id}`}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <Card
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          sx={{
-                            marginBottom: 1,
-                            borderRadius: 2,
-                            boxShadow: 1,
-                            transition: "0.3s",
-                            "&:hover": { boxShadow: 3 },
-                          }}
+                      return (
+                        <Draggable
+                          key={`item-${item.id}`}
+                          draggableId={`item-${item.id}`}
+                          index={index}
                         >
-                          <CardContent>
-                            <Typography variant="body1">{item.name}</Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{ marginTop: 1, color: inStockColor }}
+                          {(provided) => (
+                            <Card
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              sx={{
+                                marginBottom: 1,
+                                borderRadius: 2,
+                                boxShadow: 1,
+                                transition: "0.3s",
+                                "&:hover": { boxShadow: 3 },
+                              }}
                             >
-                              In Stock: {item.quantity}
-                            </Typography>
-                            <Typography variant="body2" sx={{ marginTop: 1 }}>
-                              Returning today: {returningCount}
-                            </Typography>
-                            <Typography variant="body2" sx={{ marginTop: 1 }}>
-                              Available: {returningCount + inStockCount}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </Draggable>
-                  );
-                })}
-
-                {provided.placeholder}
+                              <CardContent>
+                                <Typography variant="body1">
+                                  {item.name}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ marginTop: 1, color: inStockColor }}
+                                >
+                                  In Stock: {item.quantity}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ marginTop: 1 }}
+                                >
+                                  Returning today: {returningCount}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ marginTop: 1 }}
+                                >
+                                  Available: {returningCount + inStockCount}
+                                </Typography>
+                              </CardContent>
+                            </Card>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </>
+                )}
               </Box>
             )}
           </Droppable>
 
+          {/* Toggle Button */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              maxHeight: "72vh",
+              minWidth: "auto",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsExpanded(!isExpanded)}
+              sx={{
+                height: "100%",
+                writingMode: "vertical-rl",
+                transform: "rotate(180deg)",
+                padding: "4px",
+                minWidth: "auto",
+              }}
+            >
+              {isExpanded ? "▶ Collapse Inventory" : "◀ Expand Inventory"}
+            </Button>
+          </Box>
+
+          {/* Loading List Items Column */}
           <Droppable droppableId="loadingListItems">
             {(provided) => (
               <Box
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 sx={{
-                  width: "45%",
+                  width: "55%",
                   backgroundColor: "#e0f7fa",
                   padding: 2,
                   borderRadius: 2,
                   boxShadow: 2,
-                  maxHeight: "70vh", // Adjust based on your needs
-                  overflowY: "auto", // Enables scrolling
+                  maxHeight: "70vh",
+                  overflowY: "auto",
+                  marginLeft: 4,
                 }}
               >
                 <Typography variant="h6" sx={{ marginBottom: 2 }}>
