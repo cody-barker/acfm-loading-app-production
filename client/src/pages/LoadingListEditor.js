@@ -338,6 +338,9 @@ function LoadingListEditor() {
                 : loadingList.return_date
             }`}</Typography>
           </Box>
+          <Box sx={{ display: "flex", gap: 4 }}>
+            <Typography variant="h6">{loadingList.notes}</Typography>
+          </Box>
         </Box>
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
