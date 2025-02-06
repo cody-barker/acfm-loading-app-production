@@ -5,6 +5,12 @@ import {
   Box,
   Card,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
   Typography,
   Button,
   Container,
@@ -17,13 +23,19 @@ import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import ba
 import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
 import "./LoadingListEditor.css"; // Import custom styles
 import { format, addDays } from "date-fns"; // Import date-fns for formatting
+import { UserContext } from "../contexts/UserContext";
+import { TeamsContext } from "../contexts/TeamsContext";
 
 function LoadingListEditor() {
   const { id } = useParams();
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
+  const { teams } = useContext(TeamsContext);
+  const { user } = useContext(UserContext);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
+
   const uniqueCategories = [...new Set(items.map((item) => item.category))]; // Get unique categories
   const filteredItems = selectedCategory
     ? items.filter((item) => item.category === selectedCategory)
@@ -36,9 +48,43 @@ function LoadingListEditor() {
     (loadingList) => loadingList.id === parseInt(id)
   );
 
+  const [formData, setFormData] = useState({
+    site_name: loadingList.site_name,
+    date: loadingList.date,
+    return_date: loadingList.return_date,
+    notes: loadingList.notes,
+    team_id: loadingList.team_id,
+    user_id: user.id,
+  });
+
   if (!loadingList) {
     return <div>"Loading..."</div>;
   }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/loading_lists/${parseInt(id)}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const updatedList = await response.json();
+        setLoadingLists(
+          loadingLists.map((list) =>
+            list.id === parseInt(id) ? updatedList : list
+          )
+        );
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("Error submitting loading list:", error);
+    }
+  };
 
   const returningTodayCount = (itemId) => {
     let totalReturningQuantity = 0;
@@ -356,7 +402,86 @@ function LoadingListEditor() {
             <Typography variant="h6">{loadingList.notes}</Typography>
           </Box>
           <Box sx={{ display: "flex", gap: 4 }}>
-            <Button>Update</Button>
+            <Button variant="contained" onClick={() => setOpen(true)}>
+              Update
+            </Button>
+
+            <Dialog
+              open={open}
+              onClose={() => setOpen(false)}
+              maxWidth="sm"
+              fullWidth
+            >
+              <DialogTitle>Create New Loading List</DialogTitle>
+              <DialogContent>
+                <Stack spacing={2} sx={{ mt: 2 }}>
+                  <TextField
+                    label="Site Name"
+                    fullWidth
+                    value={formData.site_name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, site_name: e.target.value })
+                    }
+                  />
+                  <TextField
+                    label="Date"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.date}
+                    onChange={(e) =>
+                      setFormData({ ...formData, date: e.target.value })
+                    }
+                  />
+                  <TextField
+                    label="Return Date"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.return_date}
+                    onChange={(e) =>
+                      setFormData({ ...formData, return_date: e.target.value })
+                    }
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel id="team__selector--label">Team</InputLabel>
+                    <Select
+                      labelId="team__selector--label"
+                      id="team__selector"
+                      value={formData.team_id}
+                      label="Team"
+                      onChange={(e) =>
+                        setFormData({ ...formData, team_id: e.target.value })
+                      }
+                    >
+                      {teams.map((team) => {
+                        return (
+                          <MenuItem key={team.id} value={team.id}>
+                            {team.name}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Notes"
+                    fullWidth
+                    multiline
+                    rows={4}
+                    value={formData.notes}
+                    onChange={(e) =>
+                      setFormData({ ...formData, notes: e.target.value })
+                    }
+                  />
+                </Stack>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpen(false)}>Cancel</Button>
+                <Button onClick={handleSubmit} variant="contained">
+                  Create
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
         </Box>
       </Container>
