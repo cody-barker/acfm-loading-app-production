@@ -373,6 +373,8 @@ function LoadingListEditor() {
           <Droppable droppableId="availableItems">
             {(provided) => (
               <Box
+                ref={provided.innerRef}
+                {...provided.droppableProps}
                 sx={{
                   width: isExpanded ? "45%" : "0%",
                   transition: "width 0.3s ease",
