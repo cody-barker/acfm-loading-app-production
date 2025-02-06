@@ -391,14 +391,13 @@ function LoadingListEditor() {
                   <>
                     {/* Category Select Dropdown */}
                     <FormControl fullWidth sx={{ marginBottom: 2 }}>
-                      <InputLabel shrink sx={{ top: -7 }}>
-                        Filter by Category
-                      </InputLabel>
+                      <InputLabel shrink>Filter by Category</InputLabel>
                       <Select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         displayEmpty
                         notched
+                        sx={{ maxHeight: 40, marginTop: 1.5 }}
                       >
                         <MenuItem value="">All Categories</MenuItem>
                         {uniqueCategories.map((category) => (
