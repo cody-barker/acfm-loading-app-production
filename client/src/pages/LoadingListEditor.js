@@ -334,13 +334,16 @@ function LoadingListEditor() {
             {loadingList.team.name}
           </Typography>
           <Box sx={{ display: "flex", gap: 4 }}>
-            <Typography variant="h6">{`Load: ${
-              loadingList.date === tomorrow
-                ? "Today"
-                : loadingList.date === today
-                ? "Yesterday"
-                : loadingList.date
-            }`}</Typography>
+            <Typography variant="h6">
+              {loadingList.date < tomorrow ? "Loaded" : "Load"}
+              {`: ${
+                loadingList.date === tomorrow
+                  ? "Today"
+                  : loadingList.date === today
+                  ? "Yesterday"
+                  : loadingList.date
+              }`}
+            </Typography>
             <Typography variant="h6">{`Returns: ${
               loadingList.return_date === today
                 ? "Today"
