@@ -352,6 +352,9 @@ function LoadingListEditor() {
           <Box sx={{ display: "flex", gap: 4 }}>
             <Typography variant="h6">{loadingList.notes}</Typography>
           </Box>
+          <Box sx={{ display: "flex", gap: 4 }}>
+            <Button>Update</Button>
+          </Box>
         </Box>
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -383,7 +386,9 @@ function LoadingListEditor() {
                   <>
                     {/* Category Select Dropdown */}
                     <FormControl fullWidth sx={{ marginBottom: 2 }}>
-                      <InputLabel shrink sx={{top: -7}}>Filter by Category</InputLabel>
+                      <InputLabel shrink sx={{ top: -7 }}>
+                        Filter by Category
+                      </InputLabel>
                       <Select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
