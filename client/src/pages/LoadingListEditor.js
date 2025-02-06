@@ -383,11 +383,12 @@ function LoadingListEditor() {
                   <>
                     {/* Category Select Dropdown */}
                     <FormControl fullWidth sx={{ marginBottom: 2 }}>
-                      <InputLabel>Filter by Category</InputLabel>
+                      <InputLabel shrink sx={{top: -7}}>Filter by Category</InputLabel>
                       <Select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
                         displayEmpty
+                        notched
                       >
                         <MenuItem value="">All Categories</MenuItem>
                         {uniqueCategories.map((category) => (
@@ -455,7 +456,7 @@ function LoadingListEditor() {
               </Box>
             )}
           </Droppable>
-          ; ;{/* Toggle Button */}
+          {/* Toggle Button */}
           <Box
             sx={{
               display: "flex",
