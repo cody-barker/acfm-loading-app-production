@@ -6,6 +6,7 @@ import NavBar from "../components/NavBar";
 import LoadingListEditor from "./LoadingListEditor";
 import Login from "./Login";
 import PMDashboard from "./PMDashboard";
+import Inventory from "./Inventory";
 
 function App() {
   const { user, loading: userLoading } = useContext(UserContext);
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PMDashboard />} />
           <Route path="loading-lists/:id" element={<LoadingListEditor />} />
+          <Route path="inventory" element={<Inventory />} />
         </Routes>
       </main>
     </>
