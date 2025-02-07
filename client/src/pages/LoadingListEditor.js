@@ -50,6 +50,8 @@ function LoadingListEditor() {
     (loadingList) => loadingList.id === parseInt(id)
   );
 
+  console.log(loadingList);
+
   // Define formData with an empty or default state initially
   const [formData, setFormData] = useState({
     site_name: "",
