@@ -75,6 +75,7 @@ function LoadingListEditor() {
         });
         setLoadingLists(updatedLists);
         setOpen(false);
+
         navigate("/");
       }
     } catch (error) {
