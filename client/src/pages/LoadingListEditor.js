@@ -86,9 +86,18 @@ function LoadingListEditor() {
       });
 
       if (response.ok) {
+        // Remove the deleted loading list from state
         setLoadingLists((prevLists) =>
           prevLists.filter((list) => list.id !== parseInt(id))
         );
+
+        // Fetch the updated items list to reflect quantity changes
+        const itemsResponse = await fetch("/api/items"); // Adjust the endpoint as needed
+        if (itemsResponse.ok) {
+          const updatedItems = await itemsResponse.json();
+          setItems(updatedItems); // Update state with latest item data
+        }
+
         navigate("/");
       }
     } catch (error) {
