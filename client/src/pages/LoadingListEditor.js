@@ -50,8 +50,6 @@ function LoadingListEditor() {
     (loadingList) => loadingList.id === parseInt(id)
   );
 
-  console.log(loadingList);
-
   // Define formData with an empty or default state initially
   const [formData, setFormData] = useState({
     site_name: "",
@@ -77,7 +75,7 @@ function LoadingListEditor() {
   }, [loadingList, user.id]); // Re-run when loadingList or user.id changes
 
   if (!loadingList) {
-    return <div>Loading list deleted or not found.</div>;
+    return <div></div>;
   }
 
   const handleDelete = async (e) => {
