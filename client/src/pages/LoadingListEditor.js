@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
@@ -19,10 +19,10 @@ import {
   MenuItem,
   InputLabel,
 } from "@mui/material";
-import { ItemsContext } from "../contexts/ItemsContext"; // Adjust the import based on your context structure
-import { LoadingListsContext } from "../contexts/LoadingListsContext"; // Adjust the import based on your context structure
-import "./LoadingListEditor.css"; // Import custom styles
-import { format, addDays } from "date-fns"; // Import date-fns for formatting
+import { ItemsContext } from "../contexts/ItemsContext";
+import { LoadingListsContext } from "../contexts/LoadingListsContext";
+import "./LoadingListEditor.css";
+import { format, addDays } from "date-fns";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 
@@ -37,29 +37,45 @@ function LoadingListEditor() {
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const uniqueCategories = [...new Set(items.map((item) => item.category))]; // Get unique categories
+  const uniqueCategories = [...new Set(items.map((item) => item.category))];
   const filteredItems = selectedCategory
     ? items.filter((item) => item.category === selectedCategory)
-    : items; // Apply filtering before mapping
+    : items;
 
   const today = format(new Date(), "yyyy-MM-dd");
-  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd"); // Get tomorrow's date
+  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
+  // Move this part outside the conditional block
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
 
+  // Define formData with an empty or default state initially
   const [formData, setFormData] = useState({
-    site_name: loadingList.site_name,
-    date: loadingList.date,
-    return_date: loadingList.return_date,
-    notes: loadingList.notes,
-    team_id: loadingList.team_id,
+    site_name: "",
+    date: "",
+    return_date: "",
+    notes: "",
+    team_id: "",
     user_id: user.id,
   });
 
+  // If loadingList is found, update the formData state
+  useEffect(() => {
+    if (loadingList) {
+      setFormData({
+        site_name: loadingList.site_name || "",
+        date: loadingList.date || "",
+        return_date: loadingList.return_date || "",
+        notes: loadingList.notes || "",
+        team_id: loadingList.team_id || "",
+        user_id: user.id,
+      });
+    }
+  }, [loadingList, user.id]); // Re-run when loadingList or user.id changes
+
   if (!loadingList) {
-    return <div>"Loading..."</div>;
+    return <div>Loading list deleted or not found.</div>;
   }
 
   const handleDelete = async (e) => {
@@ -70,12 +86,9 @@ function LoadingListEditor() {
       });
 
       if (response.ok) {
-        const updatedLists = loadingLists.filter((list) => {
-          return list.id !== parseInt(id);
-        });
-        setLoadingLists(updatedLists);
-        setOpen(false);
-
+        setLoadingLists((prevLists) =>
+          prevLists.filter((list) => list.id !== parseInt(id))
+        );
         navigate("/");
       }
     } catch (error) {
@@ -517,7 +530,7 @@ function LoadingListEditor() {
                 <Box>
                   <Button onClick={() => setOpen(false)}>Cancel</Button>
                   <Button onClick={handleSubmit} variant="contained">
-                    Create
+                    Update
                   </Button>
                 </Box>
               </DialogActions>
