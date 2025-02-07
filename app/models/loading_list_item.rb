@@ -1,5 +1,12 @@
 class LoadingListItem < ApplicationRecord
   belongs_to :loading_list
   belongs_to :item
-  # validates :quantity, presence: true, numericality: { only_integer: true, greater_than: 0 }
+
+  after_save :check_loading_list_status
+
+  private
+
+  def check_loading_list_status
+    loading_list.update_loaded_status
+  end
 end
