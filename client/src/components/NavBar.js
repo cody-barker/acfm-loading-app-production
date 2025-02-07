@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
-import { Toolbar, IconButton, Typography, AppBar } from "@mui/material";
+import { Toolbar, Typography, AppBar } from "@mui/material";
 
 function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -64,15 +64,24 @@ function NavBar() {
     // </div>
     <AppBar position="static">
       <Toolbar variant="dense">
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ mr: 2 }}
-        ></IconButton>
         <NavLink to="/">
-          <Typography variant="h6" color="inherit" component="div">
+          <Typography
+            variant="h6"
+            color="inherit"
+            component="div"
+            sx={{ padding: 1 }}
+          >
             Loading Lists
+          </Typography>
+        </NavLink>
+        <NavLink to="/inventory">
+          <Typography
+            variant="h6"
+            color="inherit"
+            component="div"
+            sx={{ padding: 1 }}
+          >
+            Inventory
           </Typography>
         </NavLink>
         <NavLink
@@ -83,8 +92,12 @@ function NavBar() {
             closeMenu();
           }}
         >
-          {" "}
-          <Typography variant="h6" color="inherit" component="div">
+          <Typography
+            variant="h6"
+            color="inherit"
+            component="div"
+            sx={{ padding: 1 }}
+          >
             Log Out
           </Typography>
         </NavLink>
