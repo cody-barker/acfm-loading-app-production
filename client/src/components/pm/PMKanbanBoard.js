@@ -63,7 +63,7 @@ const PMKanbanBoard = ({ lists }) => {
       }}
     >
       <KanbanColumn
-        title="Previous"
+        title="Past Lists"
         lists={lists.previous}
         columnId="previous"
       />
@@ -73,11 +73,15 @@ const PMKanbanBoard = ({ lists }) => {
         columnId="today"
       />
       <KanbanColumn
-        title="Load Today"
+        title="Loading Today"
         lists={lists.tomorrow}
         columnId="tomorrow"
       />
-      <KanbanColumn title="Future" lists={lists.future} columnId="future" />
+      <KanbanColumn
+        title="Future Lists"
+        lists={lists.future}
+        columnId="future"
+      />
     </Box>
   );
 };
