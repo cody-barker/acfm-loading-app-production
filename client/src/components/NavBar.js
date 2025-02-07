@@ -84,6 +84,16 @@ function NavBar() {
             Inventory
           </Typography>
         </NavLink>
+        <NavLink to="/loaders">
+          <Typography
+            variant="h6"
+            color="inherit"
+            component="div"
+            sx={{ padding: 1 }}
+          >
+            Loaders
+          </Typography>
+        </NavLink>
         <NavLink
           className="nav-button"
           to="/"

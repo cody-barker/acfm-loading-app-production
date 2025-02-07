@@ -7,6 +7,7 @@ import LoadingListEditor from "./LoadingListEditor";
 import Login from "./Login";
 import PMDashboard from "./PMDashboard";
 import Inventory from "./Inventory";
+import Loaders from "./Loaders";
 
 function App() {
   const { user, loading: userLoading } = useContext(UserContext);
@@ -39,6 +40,7 @@ function App() {
           <Route path="/" element={<PMDashboard />} />
           <Route path="loading-lists/:id" element={<LoadingListEditor />} />
           <Route path="inventory" element={<Inventory />} />
+          <Route path="loaders" element={<Loaders />} />
         </Routes>
       </main>
     </>
