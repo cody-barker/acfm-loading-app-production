@@ -520,13 +520,15 @@ function LoadingListEditor() {
                   marginTop: 0,
                 }}
               >
-                <Button
-                  onClick={handleDelete}
-                  variant="contained"
-                  sx={{ backgroundColor: "red" }}
-                >
-                  Delete
-                </Button>
+                {loadingList.unloaded ? null : (
+                  <Button
+                    onClick={handleDelete}
+                    variant="contained"
+                    sx={{ backgroundColor: "red" }}
+                  >
+                    Delete
+                  </Button>
+                )}
                 <Box>
                   <Button onClick={() => setOpen(false)}>Cancel</Button>
                   <Button onClick={handleSubmit} variant="contained">
