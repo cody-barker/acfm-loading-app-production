@@ -522,16 +522,27 @@ function LoadingListEditor() {
                   marginTop: 0,
                 }}
               >
-                {loadingList.unloaded ? null : (
-                  <Button
-                    onClick={handleDelete}
-                    variant="contained"
-                    sx={{ backgroundColor: "red" }}
-                  >
-                    Delete
-                  </Button>
+                {/* Box for Delete button on the left */}
+                {!loadingList.unloaded && (
+                  <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                    <Button
+                      onClick={handleDelete}
+                      variant="contained"
+                      sx={{ backgroundColor: "red" }}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
                 )}
-                <Box>
+
+                {/* Box for Cancel and Update buttons on the right */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    flexGrow: 1,
+                  }}
+                >
                   <Button onClick={() => setOpen(false)}>Cancel</Button>
                   <Button onClick={handleSubmit} variant="contained">
                     Update
