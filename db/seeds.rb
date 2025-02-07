@@ -37,6 +37,16 @@ User.create!(
   )
 end
 
+LoadingList.create!(
+  user_id: User.all.sample.id,
+  team_id: Team.all.sample.id,
+  date: Date.yesterday,
+  return_date: Date.yesterday,
+  site_name: Faker::Address.city,
+  notes: Faker::Lorem.sentence,
+  unloaded: true
+)
+
 30.times do
   Item.create!(
     name: Faker::Name.name,
