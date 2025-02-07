@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo, createContext} from "react";
+import { useState, useEffect, useMemo, createContext, useContext } from "react";
+import { UserContext } from "./UserContext";
 
 
 export const LoadingListsContext = createContext();
 
 export const LoadingListsProvider = ({ children }) => {
+  const { user } = useContext(UserContext);
   const [loadingLists, setLoadingLists] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,6 +14,8 @@ export const LoadingListsProvider = ({ children }) => {
     const signal = controller.signal;
 
     const fetchLoadingLists = async () => {
+      if (!user) return;
+      
       try {
         const response = await fetch("/api/loading_lists", { signal });
         if (!response.ok) throw new Error("Failed to fetch loading lists");
@@ -30,7 +34,7 @@ export const LoadingListsProvider = ({ children }) => {
     fetchLoadingLists();
 
     return () => controller.abort();
-  }, []);
+  }, [user]);
 
   const value = useMemo(
     () => ({

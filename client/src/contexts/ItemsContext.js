@@ -1,8 +1,10 @@
-import { useState, useEffect, useMemo, createContext } from "react";
+import { useState, useEffect, useMemo, createContext, useContext } from "react";
+import { UserContext } from "./UserContext";
 
 const ItemsContext = createContext();
 
 function ItemsProvider({ children }) {
+  const { user } = useContext(UserContext);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -11,6 +13,8 @@ function ItemsProvider({ children }) {
     const signal = controller.signal;
 
     const fetchItems = async () => {
+      if (!user) return;
+
       try {
         const response = await fetch("/api/items", { signal });
         if (!response.ok) throw new Error("Failed to fetch items");
@@ -29,7 +33,7 @@ function ItemsProvider({ children }) {
     fetchItems();
 
     return () => controller.abort();
-  }, []);
+  }, [user]);
 
   const value = useMemo(() => ({ items, setItems, loading }), [items, loading]);
 
