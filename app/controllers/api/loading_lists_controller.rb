@@ -20,10 +20,24 @@ class Api::LoadingListsController < ApplicationController
     render json: @loading_list
   end
 
-  def destroy
-    @loading_list.destroy
-    head :no_content
+def destroy
+  # Loop through all loading_list_items in this loading_list
+  @loading_list.loading_list_items.each do |loading_list_item|
+    # Check if the item has been loaded (i.e., if its 'loaded' attribute is true)
+    if loading_list_item.loaded
+      # Add back the quantity of the loading_list_item to the associated inventory_item
+      inventory_item = loading_list_item.item
+      inventory_item.increment!(:quantity, loading_list_item.quantity)
+    end
   end
+
+  # Now destroy the loading_list after restoring inventory
+  @loading_list.destroy
+
+  # Return a successful response
+  head :no_content
+end
+
 
   private
 

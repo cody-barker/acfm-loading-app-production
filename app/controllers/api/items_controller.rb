@@ -2,7 +2,7 @@ class Api::ItemsController < ApplicationController
   before_action :set_item, only: %i[show update destroy]
 
   def index
-    items = Item.all
+    items = Item.includes(:loading_list_items).all
     render json: items
   end
 

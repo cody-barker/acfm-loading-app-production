@@ -88,7 +88,7 @@ function CreateListButton({ onListCreated }) {
               }
             />
             <TextField
-              label="Date"
+              label="Work Starts"
               type="date"
               fullWidth
               InputLabelProps={{ shrink: true }}
