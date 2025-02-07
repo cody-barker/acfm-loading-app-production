@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   Box,
@@ -28,6 +28,7 @@ import { TeamsContext } from "../contexts/TeamsContext";
 
 function LoadingListEditor() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const { teams } = useContext(TeamsContext);
@@ -60,6 +61,26 @@ function LoadingListEditor() {
   if (!loadingList) {
     return <div>"Loading..."</div>;
   }
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/loading_lists/${parseInt(id)}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const updatedLists = loadingLists.filter((list) => {
+          return list.id !== parseInt(id);
+        });
+        setLoadingLists(updatedLists);
+        setOpen(false);
+        navigate("/");
+      }
+    } catch (error) {
+      console.log("Error deleting loading list:", error);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -412,7 +433,7 @@ function LoadingListEditor() {
               maxWidth="sm"
               fullWidth
             >
-              <DialogTitle>Create New Loading List</DialogTitle>
+              <DialogTitle>Update Loading List Details</DialogTitle>
               <DialogContent>
                 <Stack spacing={2} sx={{ mt: 2 }}>
                   <TextField
@@ -475,11 +496,29 @@ function LoadingListEditor() {
                   />
                 </Stack>
               </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setOpen(false)}>Cancel</Button>
-                <Button onClick={handleSubmit} variant="contained">
-                  Create
+              <DialogActions
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginLeft: 2,
+                  marginRight: 2,
+                  marginBottom: 2,
+                  marginTop: 0,
+                }}
+              >
+                <Button
+                  onClick={handleDelete}
+                  variant="contained"
+                  sx={{ backgroundColor: "red" }}
+                >
+                  Delete
                 </Button>
+                <Box>
+                  <Button onClick={() => setOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSubmit} variant="contained">
+                    Create
+                  </Button>
+                </Box>
               </DialogActions>
             </Dialog>
           </Box>
