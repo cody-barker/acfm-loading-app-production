@@ -562,11 +562,12 @@ function LoadingListEditor() {
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
+          className="loading-list-editor"
           sx={{
             display: "flex",
             flexDirection: "row",
-            alignItems: "stretch",
-            width: "100%",
+            maxWidth: "55%",
+            margin: "auto",
           }}
         >
           {/* Available Items Column */}
@@ -590,7 +591,10 @@ function LoadingListEditor() {
                 {isExpanded && (
                   <>
                     {/* Category Select Dropdown */}
-                    <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                    <FormControl
+                      fullWidth
+                      sx={{ marginBottom: 2, maxWidth: "96%" }}
+                    >
                       <InputLabel shrink>Filter by Category</InputLabel>
                       <Select
                         value={selectedCategory}
@@ -633,6 +637,7 @@ function LoadingListEditor() {
                                 marginBottom: 1,
                                 borderRadius: 2,
                                 boxShadow: 1,
+                                maxWidth: "95%",
                                 transition: "0.3s",
                                 "&:hover": { boxShadow: 3 },
                               }}
