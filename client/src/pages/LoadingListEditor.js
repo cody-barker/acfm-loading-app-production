@@ -566,8 +566,10 @@ function LoadingListEditor() {
           sx={{
             display: "flex",
             flexDirection: "row",
-            maxWidth: "55%",
+            maxWidth: "1100px",
             margin: "auto",
+            paddingRight: 4,
+            paddingLeft: 4,
           }}
         >
           {/* Available Items Column */}
