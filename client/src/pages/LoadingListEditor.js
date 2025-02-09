@@ -25,6 +25,7 @@ import "./LoadingListEditor.css";
 import { format, addDays } from "date-fns";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
+import Error from "../components/Error";
 
 function LoadingListEditor() {
   const { id } = useParams();
@@ -36,6 +37,7 @@ function LoadingListEditor() {
   const [isExpanded, setIsExpanded] = useState(true);
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [error, setError] = useState(null);
 
   const uniqueCategories = [...new Set(items.map((item) => item.category))];
   const filteredItems = selectedCategory
@@ -358,7 +360,7 @@ function LoadingListEditor() {
       destination.droppableId === "availableItems"
     ) {
       const item = loadingList.loading_list_items[source.index];
-
+      setError(null);
       setLoadingLists((prev) =>
         prev.map((list) =>
           list.id === loadingList.id
@@ -394,7 +396,13 @@ function LoadingListEditor() {
       const itemExists = loadingList.loading_list_items.some(
         (loadingListItem) => loadingListItem.item_id === item.id
       );
-      if (itemExists) return; // Prevent adding the same item again
+      if (itemExists) {
+        setError("This item is already on the loading list.");
+        return;
+      }
+      if (!itemExists) {
+        setError(null);
+      }
 
       createLoadingListItem(item);
     }
@@ -558,6 +566,7 @@ function LoadingListEditor() {
               </DialogActions>
             </Dialog>
           </Box>
+          {error ? <Error sx={{ paddingTop: 5 }} error={error} /> : null}
         </Box>
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
