@@ -9,7 +9,7 @@ function ToggleButton({ isExpanded, setIsExpanded }) {
         justifyContent: "center",
         alignItems: "center",
         maxHeight: "72vh",
-        minWidth: "auto",
+        minWidth: "auto"
       }}
     >
       <Button
@@ -21,7 +21,7 @@ function ToggleButton({ isExpanded, setIsExpanded }) {
           writingMode: "vertical-rl",
           transform: "rotate(180deg)",
           padding: "4px",
-          minWidth: "auto",
+          minWidth: "auto"
         }}
       >
         {isExpanded ? "▶ Collapse Inventory" : "◀ Expand Inventory"}
