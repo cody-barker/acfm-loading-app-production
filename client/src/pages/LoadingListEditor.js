@@ -8,12 +8,12 @@ import { format } from "date-fns";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import Error from "../components/Error";
-import "./LoadingListEditor.css";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
 import AvailableItems from "../components/LoadingListEditor/AvailableItems";
 import ToggleButton from "../components/LoadingListEditor/ToggleButton";
+import "./LoadingListEditor.css";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -65,6 +65,17 @@ function LoadingListEditor() {
   if (!loadingList) {
     return <div></div>;
   }
+
+  const fetchData = async (url, options = {}) => {
+    try {
+      const response = await fetch(url, options);
+      return response.ok
+        ? response.json()
+        : Promise.reject(response.statusText);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
 
   const handleDelete = async (e) => {
     e.preventDefault();
