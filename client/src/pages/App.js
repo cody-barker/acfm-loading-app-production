@@ -9,33 +9,21 @@ import PMDashboard from "./PMDashboard";
 import Inventory from "./Inventory";
 import Loaders from "./Loaders";
 
-function App() {
-  const { user, loading: userLoading } = useContext(UserContext);
+function LoadingScreen() {
+  return (
+    <div className="loading-container">
+      <div className="loading-spinner"></div>
+    </div>
+  );
+}
 
-  if (userLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="page-container">
-        <div className="content-wrap">
-          <Login />
-        </div>
-      </div>
-    );
-  }
-
+function AuthenticatedApp() {
   return (
     <>
       <header>
         <NavBar />
       </header>
-      <main>
+      <main className="main-container">
         <Routes>
           <Route path="/" element={<PMDashboard />} />
           <Route path="loading-lists/:id" element={<LoadingListEditor />} />
@@ -45,6 +33,15 @@ function App() {
       </main>
     </>
   );
+}
+
+function App() {
+  const { user, loading: userLoading } = useContext(UserContext);
+
+  if (userLoading) return <LoadingScreen />;
+  if (!user) return <Login />;
+
+  return <AuthenticatedApp />;
 }
 
 export default App;
