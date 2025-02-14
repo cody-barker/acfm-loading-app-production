@@ -66,17 +66,6 @@ function LoadingListEditor() {
     return <div></div>;
   }
 
-  const fetchData = async (url, options = {}) => {
-    try {
-      const response = await fetch(url, options);
-      return response.ok
-        ? response.json()
-        : Promise.reject(response.statusText);
-    } catch (error) {
-      console.error("Fetch error:", error);
-    }
-  };
-
   const handleDelete = async (e) => {
     e.preventDefault();
     try {
