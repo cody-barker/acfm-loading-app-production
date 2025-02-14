@@ -26,7 +26,8 @@ import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import Error from "../components/Error";
 import "./LoadingListEditor.css";
-import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader"
+import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
+import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -407,118 +408,21 @@ function LoadingListEditor() {
     <>
       <Container>
         <LoadingListHeader
-        loadingList={loadingList}
-        onOpenDialog={() => setOpen(true)}
-      />
+          loadingList={loadingList}
+          onOpenDialog={() => setOpen(true)}
+        />
 
-            <Dialog
-              open={open}
-              onClose={() => setOpen(false)}
-              maxWidth="sm"
-              fullWidth
-            >
-              <DialogTitle>Update Loading List Details</DialogTitle>
-              <DialogContent>
-                <Stack spacing={2} sx={{ mt: 2 }}>
-                  <TextField
-                    label="Site Name"
-                    fullWidth
-                    value={formData.site_name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, site_name: e.target.value })
-                    }
-                  />
-                  <TextField
-                    label="Work Starts"
-                    type="date"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={formData.date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, date: e.target.value })
-                    }
-                  />
-                  <TextField
-                    label="Return Date"
-                    type="date"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={formData.return_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, return_date: e.target.value })
-                    }
-                  />
-                  <FormControl fullWidth>
-                    <InputLabel id="team__selector--label">Team</InputLabel>
-                    <Select
-                      labelId="team__selector--label"
-                      id="team__selector"
-                      value={formData.team_id}
-                      label="Team"
-                      onChange={(e) =>
-                        setFormData({ ...formData, team_id: e.target.value })
-                      }
-                    >
-                      {teams.map((team) => {
-                        return (
-                          <MenuItem key={team.id} value={team.id}>
-                            {team.name}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    label="Notes"
-                    fullWidth
-                    multiline
-                    rows={4}
-                    value={formData.notes}
-                    onChange={(e) =>
-                      setFormData({ ...formData, notes: e.target.value })
-                    }
-                  />
-                </Stack>
-              </DialogContent>
-              <DialogActions
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginLeft: 2,
-                  marginRight: 2,
-                  marginBottom: 2,
-                  marginTop: 0,
-                }}
-              >
-                {/* Box for Delete button on the left */}
-                {!loadingList.unloaded && (
-                  <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                    <Button
-                      onClick={handleDelete}
-                      variant="contained"
-                      sx={{ backgroundColor: "red" }}
-                    >
-                      Delete
-                    </Button>
-                  </Box>
-                )}
+        <LoadingListDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          formData={formData}
+          setFormData={setFormData}
+          teams={teams}
+          handleSubmit={handleSubmit}
+          handleDelete={handleDelete}
+        />
 
-                {/* Box for Cancel and Update buttons on the right */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    flexGrow: 1,
-                  }}
-                >
-                  <Button onClick={() => setOpen(false)}>Cancel</Button>
-                  <Button onClick={handleSubmit} variant="contained">
-                    Update
-                  </Button>
-                </Box>
-              </DialogActions>
-            </Dialog>
-          {error ? <Error sx={{ paddingTop: 5 }} error={error} /> : null}
+        {error ? <Error sx={{ paddingTop: 5 }} error={error} /> : null}
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
