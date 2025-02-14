@@ -1,116 +1,55 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
-import { Toolbar, Typography, AppBar } from "@mui/material";
+import { Toolbar, Typography, AppBar, Button } from "@mui/material";
+
+const NavItem = ({ to, label, onClick }) => (
+  <NavLink to={to} onClick={onClick} style={{ textDecoration: "none" }}>
+    <Typography variant="h6" color="inherit" sx={{ padding: 1 }}>
+      {label}
+    </Typography>
+  </NavLink>
+);
 
 function NavBar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  function handleLogout() {
-    fetch("/logout", {
-      method: "DELETE",
-    }).then((r) => {
-      if (r.ok) {
+  async function handleLogout() {
+    try {
+      const response = await fetch("/logout", { method: "DELETE" });
+      if (response.ok) {
         setUser(null);
         navigate("/");
+      } else {
+        console.error("Logout failed");
       }
-    });
+    } catch (error) {
+      console.error("Network error during logout:", error);
+    }
   }
 
-  function toggleMenu() {
-    setIsMenuOpen(!isMenuOpen);
-  }
-
-  function closeMenu() {
+  const closeMenu = useCallback(() => {
     setIsMenuOpen(false);
-  }
+  }, []);
 
   return (
-    // <div className="nav-container">
-    //   <nav id="navbar">
-    //     <NavLink to="/">
-    //       <img
-    //         className="logo-img"
-    //         src="/assets/acfm_logo_transparent.svg"
-    //         alt="logo"
-    //       />
-    //     </NavLink>
-    //     <button className="menu-toggle" onClick={toggleMenu}>
-    //       {isMenuOpen ? (
-    //         <span className="hamburger-icon--close">&times;</span>
-    //       ) : (
-    //         <span className="hamburger-icon">&#9776;</span>
-    //       )}
-    //     </button>
-    //     <div className={`nav-links ${isMenuOpen ? "open" : ""}`}>
-    //       <NavLink className="nav-button" to="/" onClick={closeMenu}>
-    //         Home{" "}
-    //       </NavLink>
-
-    //       <NavLink
-    //         className="nav-button"
-    //         to="/"
-    //         onClick={() => {
-    //           handleLogout();
-    //           closeMenu();
-    //         }}
-    //       >
-    //         Logout
-    //       </NavLink>
-    //     </div>
-    //   </nav>
-    // </div>
     <AppBar position="static">
       <Toolbar variant="dense">
-        <NavLink to="/">
-          <Typography
-            variant="h6"
-            color="inherit"
-            component="div"
-            sx={{ padding: 1 }}
-          >
-            Loading Lists
-          </Typography>
-        </NavLink>
-        <NavLink to="/inventory">
-          <Typography
-            variant="h6"
-            color="inherit"
-            component="div"
-            sx={{ padding: 1 }}
-          >
-            Inventory
-          </Typography>
-        </NavLink>
-        <NavLink to="/loaders">
-          <Typography
-            variant="h6"
-            color="inherit"
-            component="div"
-            sx={{ padding: 1 }}
-          >
-            Loaders
-          </Typography>
-        </NavLink>
-        <NavLink
-          className="nav-button"
-          to="/"
+        <NavItem to="/" label="Loading Lists" />
+        <NavItem to="/inventory" label="Inventory" />
+        <NavItem to="/loaders" label="Loaders" />
+        <Button
+          color="inherit"
           onClick={() => {
             handleLogout();
             closeMenu();
           }}
+          sx={{ padding: 1 }}
         >
-          <Typography
-            variant="h6"
-            color="inherit"
-            component="div"
-            sx={{ padding: 1 }}
-          >
-            Log Out
-          </Typography>
-        </NavLink>
+          Log Out
+        </Button>
       </Toolbar>
     </AppBar>
   );
