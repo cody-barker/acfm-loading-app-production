@@ -21,8 +21,6 @@ function NavBar() {
       if (response.ok) {
         setUser(null);
         navigate("/");
-      } else {
-        console.error("Logout failed");
       }
     } catch (error) {
       console.error("Network error during logout:", error);
