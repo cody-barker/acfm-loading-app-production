@@ -6,6 +6,7 @@ import {
   Select,
   MenuItem,
   Card,
+  CardContent,
   Typography,
 } from "@mui/material";
 import { Droppable, Draggable } from "react-beautiful-dnd";
@@ -17,6 +18,7 @@ const AvailableItems = ({
   setSelectedCategory,
   uniqueCategories,
   filteredItems,
+  returningTodayCount
 }) => (
   <Droppable droppableId="availableItems">
     {(provided) => (
@@ -49,27 +51,57 @@ const AvailableItems = ({
                 ))}
               </Select>
             </FormControl>
-            {filteredItems.map((item, index) => (
-              <Draggable
-                key={item.id}
-                draggableId={`item-${item.id}`}
-                index={index}
-              >
-                {(provided) => (
-                  <Card
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    sx={{ mb: 1, p: 2, boxShadow: 1 }}
-                  >
-                    <Typography variant="body1">{item.name}</Typography>
-                    <Typography variant="body2">
-                      In Stock: {item.quantity}
-                    </Typography>
-                  </Card>
-                )}
-              </Draggable>
-            ))}
+
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Available Items
+            </Typography>
+
+            {filteredItems.map((item, index) => {
+              const returningCount = returningTodayCount(item.id);
+              const inStockCount = item.quantity;
+              const inStockColor =
+                returningCount + inStockCount < 0 ? "red" : "black";
+
+              return (
+                <Draggable
+                  key={`item-${item.id}`}
+                  draggableId={`item-${item.id}`}
+                  index={index}
+                >
+                  {(provided) => (
+                    <Card
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      sx={{
+                        marginBottom: 1,
+                        borderRadius: 2,
+                        boxShadow: 1,
+                        maxWidth: "95%",
+                        transition: "0.3s",
+                        "&:hover": { boxShadow: 3 },
+                      }}
+                    >
+                      <CardContent>
+                        <Typography variant="body1">{item.name}</Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: inStockColor }}
+                        >
+                          In Stock: {item.quantity}
+                        </Typography>
+                        <Typography variant="body2">
+                          Returning today: {returningCount}
+                        </Typography>
+                        <Typography variant="body2">
+                          Available: {returningCount + inStockCount}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  )}
+                </Draggable>
+              );
+            })}
             {provided.placeholder}
           </>
         )}

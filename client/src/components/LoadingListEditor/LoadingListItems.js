@@ -1,6 +1,6 @@
 import React from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Box, Card, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography } from "@mui/material";
 
 const LoadingListItems = ({ loadingListItems }) => (
   <Droppable droppableId="loadingListItems">
