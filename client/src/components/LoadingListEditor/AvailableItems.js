@@ -28,19 +28,25 @@ const AvailableItems = ({
           width: isExpanded ? "45%" : "0%",
           transition: "width 0.3s",
           backgroundColor: "#e0f7fa",
-          p: isExpanded ? 2 : 0,
+          padding: 2,
           borderRadius: 2,
           boxShadow: 2,
-          overflow: "hidden",
+          maxHeight: "70vh",
+          overflowY: "auto",
         }}
       >
         {isExpanded && (
           <>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Available Items
+            </Typography>
             <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Filter by Category</InputLabel>
+              <InputLabel shrink>Filter by Category</InputLabel>
               <Select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
+                label="Filter by Category"
+                displayEmpty
               >
                 <MenuItem value="">All Categories</MenuItem>
                 {uniqueCategories.map((category) => (
@@ -50,10 +56,6 @@ const AvailableItems = ({
                 ))}
               </Select>
             </FormControl>
-
-            <Typography variant="h6" sx={{ marginBottom: 2 }}>
-              Available Items
-            </Typography>
 
             {filteredItems.map((item, index) => {
               const returningCount = returningTodayCount(item.id);
