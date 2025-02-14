@@ -1,4 +1,4 @@
-import { useState, useContext, useCallback } from "react";
+import { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { Toolbar, Typography, AppBar, Button } from "@mui/material";
@@ -35,9 +35,7 @@ function NavBar() {
         <NavItem to="/loaders" label="Loaders" />
         <Button
           color="inherit"
-          onClick={() => {
-            handleLogout();
-          }}
+          onClick={handleLogout}
           sx={{ padding: 1 }}
         >
           Log Out
