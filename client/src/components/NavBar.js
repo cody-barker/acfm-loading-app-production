@@ -14,7 +14,6 @@ const NavItem = ({ to, label, onClick }) => (
 function NavBar() {
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   async function handleLogout() {
     try {
@@ -30,10 +29,6 @@ function NavBar() {
     }
   }
 
-  const closeMenu = useCallback(() => {
-    setIsMenuOpen(false);
-  }, []);
-
   return (
     <AppBar position="static">
       <Toolbar variant="dense">
@@ -44,7 +39,6 @@ function NavBar() {
           color="inherit"
           onClick={() => {
             handleLogout();
-            closeMenu();
           }}
           sx={{ padding: 1 }}
         >
