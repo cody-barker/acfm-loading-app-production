@@ -3,8 +3,10 @@ import Error from "./Error";
 import { UserContext } from "../contexts/UserContext";
 
 function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { setUser } = useContext(UserContext);
@@ -12,12 +14,16 @@ function LoginForm() {
   function handleSubmit(e) {
     e.preventDefault();
     setIsLoading(true);
+    login();
+  }
+
+  function login() {
     fetch("/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(formData),
     })
       .then((r) => {
         setIsLoading(false);
@@ -35,6 +41,14 @@ function LoginForm() {
       });
   }
 
+  function handleInputChange(e) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+
   return (
     <form className="form form--login" onSubmit={handleSubmit}>
       <label className="form__label">
@@ -44,7 +58,7 @@ function LoginForm() {
           type="text"
           autoComplete="off"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleInputChange}
         />
       </label>
       <label className="form__label">
@@ -54,7 +68,7 @@ function LoginForm() {
           type="password"
           autoComplete="off"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handleInputChange}
         />
       </label>
 
