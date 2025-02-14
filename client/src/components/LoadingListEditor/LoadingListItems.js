@@ -1,28 +1,31 @@
 import React from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 
-const LoadingListItems = ({ loadingListItems }) => (
+const LoadingListItems = ({ loadingList, increaseLoadingListItemQuantity, decreaseLoadingListItemQuantity }) => (
   <Droppable droppableId="loadingListItems">
     {(provided) => (
       <Box
         ref={provided.innerRef}
         {...provided.droppableProps}
         sx={{
-          flex: 1,
-          backgroundColor: "#fff",
-          p: 2,
+          width: "55%",
+          backgroundColor: "#e0f7fa",
+          padding: 2,
           borderRadius: 2,
           boxShadow: 2,
+          maxHeight: "70vh",
+          overflowY: "auto",
+          marginLeft: 4,
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ marginBottom: 2 }}>
           Loading List Items
         </Typography>
-        {loadingListItems.map((item, index) => (
+        {loadingList.loading_list_items.map((loadingListItem, index) => (
           <Draggable
-            key={item.id}
-            draggableId={`item-${item.id}`}
+            key={`loading-${loadingListItem.id}`}
+            draggableId={`loading-${loadingListItem.id}`}
             index={index}
           >
             {(provided) => (
@@ -30,12 +33,42 @@ const LoadingListItems = ({ loadingListItems }) => (
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
-                sx={{ mb: 1, p: 2, boxShadow: 1 }}
+                sx={{
+                  marginBottom: 1,
+                  borderRadius: 2,
+                  boxShadow: 1,
+                  transition: "0.3s",
+                  "&:hover": { boxShadow: 3 },
+                }}
               >
-                <Typography variant="body1">{item.name}</Typography>
-                <Typography variant="body2">
-                  Quantity: {item.quantity}
-                </Typography>
+                <CardContent>
+                  <Typography variant="body1">
+                    {loadingListItem.item
+                      ? loadingListItem.item.name
+                      : "Item not found"}
+                  </Typography>
+                  <Typography variant="body2">
+                    Quantity: {loadingListItem.quantity}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        decreaseLoadingListItemQuantity(loadingListItem)
+                      }
+                    >
+                      -
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        increaseLoadingListItemQuantity(loadingListItem)
+                      }
+                    >
+                      +
+                    </Button>
+                  </Box>
+                </CardContent>
               </Card>
             )}
           </Draggable>

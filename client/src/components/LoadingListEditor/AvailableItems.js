@@ -13,12 +13,11 @@ import { Droppable, Draggable } from "react-beautiful-dnd";
 
 const AvailableItems = ({
   isExpanded,
-  setIsExpanded,
   selectedCategory,
   setSelectedCategory,
   uniqueCategories,
   filteredItems,
-  returningTodayCount
+  returningTodayCount,
 }) => (
   <Droppable droppableId="availableItems">
     {(provided) => (
