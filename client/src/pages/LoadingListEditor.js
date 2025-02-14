@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   Box,
@@ -21,19 +21,21 @@ import {
 } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
-import "./LoadingListEditor.css";
 import { format, addDays } from "date-fns";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import Error from "../components/Error";
+import "./LoadingListEditor.css";
 
 function LoadingListEditor() {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
+
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const { teams } = useContext(TeamsContext);
   const { user } = useContext(UserContext);
+
   const [isExpanded, setIsExpanded] = useState(true);
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -47,12 +49,10 @@ function LoadingListEditor() {
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
-  // Move this part outside the conditional block
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
 
-  // Define formData with an empty or default state initially
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
@@ -62,7 +62,6 @@ function LoadingListEditor() {
     user_id: user.id,
   });
 
-  // If loadingList is found, update the formData state
   useEffect(() => {
     if (loadingList) {
       setFormData({
@@ -74,7 +73,7 @@ function LoadingListEditor() {
         user_id: user.id,
       });
     }
-  }, [loadingList, user.id]); // Re-run when loadingList or user.id changes
+  }, [loadingList, user.id]);
 
   if (!loadingList) {
     return <div></div>;
@@ -88,16 +87,14 @@ function LoadingListEditor() {
       });
 
       if (response.ok) {
-        // Remove the deleted loading list from state
         setLoadingLists((prevLists) =>
           prevLists.filter((list) => list.id !== parseInt(id))
         );
 
-        // Fetch the updated items list to reflect quantity changes
-        const itemsResponse = await fetch("/api/items"); // Adjust the endpoint as needed
+        const itemsResponse = await fetch("/api/items");
         if (itemsResponse.ok) {
           const updatedItems = await itemsResponse.json();
-          setItems(updatedItems); // Update state with latest item data
+          setItems(updatedItems);
         }
 
         navigate("/");
