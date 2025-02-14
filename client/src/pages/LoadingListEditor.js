@@ -26,6 +26,7 @@ import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import Error from "../components/Error";
 import "./LoadingListEditor.css";
+import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader"
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -268,7 +269,6 @@ function LoadingListEditor() {
           method: "DELETE",
         });
 
-        // Update the state and remove the deleted item from the list
         setLoadingLists((prev) =>
           prev.map((list) =>
             list.id === loadingList.id
@@ -281,7 +281,6 @@ function LoadingListEditor() {
               : list
           )
         );
-        // Restore the quantity of the item in the available items list
         increaseItemQuantity(
           items.find((i) => i.id === loadingListItem.item_id)
         );
@@ -316,7 +315,6 @@ function LoadingListEditor() {
           )
         );
 
-        // Also update the quantity of the item in the available items list
         increaseItemQuantity(
           items.find((i) => i.id === updatedLoadingListItem.item_id)
         );
@@ -408,52 +406,10 @@ function LoadingListEditor() {
   return (
     <>
       <Container>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: 2,
-            borderBottom: "2px solid #ccc",
-            backgroundColor: "#f5f5f5",
-            borderRadius: 2,
-            boxShadow: 2,
-            marginTop: 4,
-            marginBottom: 4,
-          }}
-        >
-          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-            {loadingList.site_name}
-          </Typography>
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            {loadingList.team.name}
-          </Typography>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Typography variant="h6">
-              {loadingList.date < tomorrow ? "Loaded" : "Load"}
-              {`: ${
-                loadingList.date === tomorrow
-                  ? "Today"
-                  : loadingList.date === today
-                  ? "Yesterday"
-                  : loadingList.date
-              }`}
-            </Typography>
-            <Typography variant="h6">{`Returns: ${
-              loadingList.return_date === today
-                ? "Today"
-                : loadingList.return_date === tomorrow
-                ? "Tomorrow"
-                : loadingList.return_date
-            }`}</Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Typography variant="h6">{loadingList.notes}</Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 4 }}>
-            <Button variant="contained" onClick={() => setOpen(true)}>
-              Update
-            </Button>
+        <LoadingListHeader
+        loadingList={loadingList}
+        onOpenDialog={() => setOpen(true)}
+      />
 
             <Dialog
               open={open}
@@ -562,9 +518,7 @@ function LoadingListEditor() {
                 </Box>
               </DialogActions>
             </Dialog>
-          </Box>
           {error ? <Error sx={{ paddingTop: 5 }} error={error} /> : null}
-        </Box>
       </Container>
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
