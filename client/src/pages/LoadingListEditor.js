@@ -1,27 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import {
-  Box,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-  Typography,
-  Button,
-  Container,
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
-} from "@mui/material";
+import { DragDropContext } from "react-beautiful-dnd";
+import { Box, Container } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import Error from "../components/Error";
@@ -30,7 +13,7 @@ import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
 import AvailableItems from "../components/LoadingListEditor/AvailableItems";
-
+import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 function LoadingListEditor() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -51,7 +34,6 @@ function LoadingListEditor() {
     : items;
 
   const today = format(new Date(), "yyyy-MM-dd");
-  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
@@ -440,7 +422,6 @@ function LoadingListEditor() {
         >
           <AvailableItems
             isExpanded={isExpanded}
-            setIsExpanded={setIsExpanded}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             uniqueCategories={uniqueCategories}
@@ -449,33 +430,9 @@ function LoadingListEditor() {
           />
 
           {/* Toggle Button */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              maxHeight: "72vh",
-              minWidth: "auto",
-            }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsExpanded(!isExpanded)}
-              sx={{
-                height: "100%",
-                writingMode: "vertical-rl",
-                transform: "rotate(180deg)",
-                padding: "4px",
-                minWidth: "auto",
-              }}
-            >
-              {isExpanded ? "▶ Collapse Inventory" : "◀ Expand Inventory"}
-            </Button>
-          </Box>
+          <ToggleButton isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
           {/* Loading List Items Column */}
-          
+
           <LoadingListItems
             loadingList={loadingList}
             decreaseLoadingListItemQuantity={decreaseLoadingListItemQuantity}

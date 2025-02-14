@@ -36,8 +36,8 @@ const AvailableItems = ({
       >
         {isExpanded && (
           <>
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel shrink>Filter by Category</InputLabel>
+            <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Filter by Category</InputLabel>
               <Select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
