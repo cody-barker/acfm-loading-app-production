@@ -28,7 +28,7 @@ const AvailableItems = ({
           width: isExpanded ? "45%" : "0%",
           transition: "width 0.3s",
           backgroundColor: "#e0f7fa",
-          padding: 2,
+          padding: isExpanded ? 2 : 0,
           borderRadius: 2,
           boxShadow: 2,
           maxHeight: "70vh",
