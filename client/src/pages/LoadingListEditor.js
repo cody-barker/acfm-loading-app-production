@@ -14,6 +14,7 @@ import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
 import AvailableItems from "../components/LoadingListEditor/AvailableItems";
 import ToggleButton from "../components/LoadingListEditor/ToggleButton";
+
 function LoadingListEditor() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -406,8 +407,9 @@ function LoadingListEditor() {
           handleDelete={handleDelete}
         />
 
-        {error ? <Error sx={{ paddingTop: 5 }} error={error} /> : null}
+        {error ? <Error error={error} /> : null}
       </Container>
+
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
           className="loading-list-editor"
@@ -428,11 +430,7 @@ function LoadingListEditor() {
             filteredItems={filteredItems}
             returningTodayCount={returningTodayCount}
           />
-
-          {/* Toggle Button */}
           <ToggleButton isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
-          {/* Loading List Items Column */}
-
           <LoadingListItems
             loadingList={loadingList}
             decreaseLoadingListItemQuantity={decreaseLoadingListItemQuantity}
