@@ -373,18 +373,24 @@ function LoadingListEditor() {
       source.droppableId === "availableItems" &&
       destination.droppableId === "loadingListItems"
     ) {
-      const item = items[source.index];
+      const draggedItemId = parseInt(result.draggableId, 10); // Get ID from draggableId
+      const item = items.find((i) => i.id === draggedItemId); // Find item by ID
+
+      if (!item) {
+        setError("Error: Item not found.");
+        return;
+      }
+
       const itemExists = loadingList.loading_list_items.some(
         (loadingListItem) => loadingListItem.item_id === item.id
       );
+
       if (itemExists) {
         setError("This item is already on the loading list.");
         return;
       }
-      if (!itemExists) {
-        setError(null);
-      }
 
+      setError(null);
       createLoadingListItem(item);
     }
   };

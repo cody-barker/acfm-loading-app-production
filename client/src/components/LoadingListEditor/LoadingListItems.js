@@ -2,7 +2,11 @@ import React from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 
-const LoadingListItems = ({ loadingList, increaseLoadingListItemQuantity, decreaseLoadingListItemQuantity }) => (
+const LoadingListItems = ({
+  loadingList,
+  increaseLoadingListItemQuantity,
+  decreaseLoadingListItemQuantity,
+}) => (
   <Droppable droppableId="loadingListItems">
     {(provided) => (
       <Box
@@ -24,8 +28,8 @@ const LoadingListItems = ({ loadingList, increaseLoadingListItemQuantity, decrea
         </Typography>
         {loadingList.loading_list_items.map((loadingListItem, index) => (
           <Draggable
-            key={`loading-${loadingListItem.id}`}
-            draggableId={`loading-${loadingListItem.id}`}
+            key={loadingListItem.id}
+            draggableId={String(loadingListItem.id)}
             index={index}
           >
             {(provided) => (
@@ -52,6 +56,7 @@ const LoadingListItems = ({ loadingList, increaseLoadingListItemQuantity, decrea
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <Button
+                      sx={{ minWidth: 0.1 }}
                       variant="outlined"
                       onClick={() =>
                         decreaseLoadingListItemQuantity(loadingListItem)
@@ -60,6 +65,7 @@ const LoadingListItems = ({ loadingList, increaseLoadingListItemQuantity, decrea
                       -
                     </Button>
                     <Button
+                      sx={{ minWidth: 0.1 }}
                       variant="outlined"
                       onClick={() =>
                         increaseLoadingListItemQuantity(loadingListItem)

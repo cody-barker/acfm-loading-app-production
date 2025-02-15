@@ -65,8 +65,8 @@ const AvailableItems = ({
 
               return (
                 <Draggable
-                  key={`item-${item.id}`}
-                  draggableId={`item-${item.id}`}
+                  key={item.id}
+                  draggableId={String(item.id)}
                   index={index}
                 >
                   {(provided) => (
