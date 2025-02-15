@@ -4,23 +4,14 @@ import "./styles/index.css";
 import App from "./pages/App.js";
 import reportWebVitals from "./reportWebVitals.js";
 import { BrowserRouter } from "react-router-dom";
-import { UserProvider } from "./contexts/UserContext.js";
-import { ItemsProvider } from "./contexts/ItemsContext.js";
-import { TeamsProvider } from "./contexts/TeamsContext.js";
-import { LoadingListsProvider } from "./contexts/LoadingListsContext.js";
+import AppProviders from "./contexts/AppProviders.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
-    <UserProvider>
-      <ItemsProvider>
-        <TeamsProvider>
-          <LoadingListsProvider>
-            <App />
-          </LoadingListsProvider>
-        </TeamsProvider>
-      </ItemsProvider>
-    </UserProvider>
+    <AppProviders>
+      <App />
+    </AppProviders>
   </BrowserRouter>
 );
 
