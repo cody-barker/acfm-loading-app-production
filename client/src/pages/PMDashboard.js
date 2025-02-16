@@ -13,12 +13,17 @@ import {
   IconButton,
   InputAdornment,
   Tooltip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { DragDropContext } from "react-beautiful-dnd";
 import PMKanbanBoard from "../components/pm/PMKanbanBoard";
 import CreateListButton from "../components/pm/CreateListButton";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
+import { TeamsContext } from "../contexts/TeamsContext";
 
 const useDateRanges = () => {
   return useMemo(() => {
@@ -55,9 +60,11 @@ const PMDashboard = () => {
   const [filters, setFilters] = useState({
     siteNameFilter: "",
     dateFilter: "",
+    teamFilter: "",
   });
 
   const { loadingLists } = useContext(LoadingListsContext);
+  const { teams } = useContext(TeamsContext);
   const dateRanges = useDateRanges();
 
   const filterLists = useCallback(
@@ -73,7 +80,11 @@ const PMDashboard = () => {
           ? list.date === filters.dateFilter
           : true;
 
-        return matchesSiteName && matchesDate;
+        const matchesTeam = filters.teamFilter
+          ? list.team_id === filters.teamFilter
+          : true;
+
+        return matchesSiteName && matchesDate && matchesTeam;
       });
     },
     [filters]
@@ -227,6 +238,42 @@ const PMDashboard = () => {
               ),
             }}
           />
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Filter by Team</InputLabel>
+            <Select
+              value={filters.teamFilter}
+              onChange={(e) => {
+                setFilters((prev) => ({
+                  ...prev,
+                  teamFilter: e.target.value,
+                }));
+              }}
+              label="Filter by Team"
+              endAdornment={
+                filters.teamFilter && (
+                  <InputAdornment position="end" sx={{ mr: 2 }}>
+                    <Tooltip title="Clear filter">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFilters((prev) => ({ ...prev, teamFilter: "" }));
+                        }}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                )
+              }
+            >
+              {teams.map((team) => (
+                <MenuItem key={team.id} value={team.id}>
+                  {team.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <CreateListButton onNewList={handleNewList} />
         </Stack>
         <DragDropContext>
