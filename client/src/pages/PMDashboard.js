@@ -81,7 +81,6 @@ const PMDashboard = () => {
 
   const categorizeLists = useCallback(
     (lists) => {
-      // First filter the lists
       const filteredLists = filterLists(lists);
 
       const categorized = filteredLists.reduce(
@@ -122,7 +121,6 @@ const PMDashboard = () => {
     [filterLists, dateRanges]
   );
 
-  // Update lists when filters or loadingLists change
   useEffect(() => {
     categorizeLists(loadingLists);
   }, [categorizeLists, loadingLists]);
