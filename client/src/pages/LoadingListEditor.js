@@ -68,52 +68,51 @@ function LoadingListEditor() {
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(`/api/loading_lists/${parseInt(id)}`, {
+    const [response, error] = await settlePromise(
+      fetch(`/api/loading_lists/${parseInt(id)}`, {
         method: "DELETE",
-      });
+      })
+    );
 
-      if (response.ok) {
-        setLoadingLists((prevLists) =>
-          prevLists.filter((list) => list.id !== parseInt(id))
-        );
+    if (error) return console.error("Error deleting loading list:", error);
 
-        const itemsResponse = await fetch("/api/items");
-        if (itemsResponse.ok) {
-          const updatedItems = await itemsResponse.json();
-          setItems(updatedItems);
-        }
+    setLoadingLists((prevLists) =>
+      prevLists.filter((list) => list.id !== parseInt(id))
+    );
 
-        navigate("/");
-      }
-    } catch (error) {
-      console.log("Error deleting loading list:", error);
-    }
+    const [itemsResponse, itemsError] = await settlePromise(
+      fetch("/api/items")
+    );
+
+    if (itemsError)
+      return console.error("Error fetching updated items:", itemsError);
+
+    const updatedItems = await itemsResponse.json();
+    setItems(updatedItems);
+    navigate("/");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(`/api/loading_lists/${parseInt(id)}`, {
+    const [response, error] = await settlePromise(
+      fetch(`/api/loading_lists/${parseInt(id)}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      });
+      })
+    );
 
-      if (response.ok) {
-        const updatedList = await response.json();
-        setLoadingLists(
-          loadingLists.map((list) =>
-            list.id === parseInt(id) ? updatedList : list
-          )
-        );
-        setOpen(false);
-      }
-    } catch (error) {
-      console.error("Error submitting loading list:", error);
-    }
+    if (error) return console.error("Error submitting loading list:", error);
+
+    const updatedList = await response.json();
+    setLoadingLists(
+      loadingLists.map((list) =>
+        list.id === parseInt(id) ? updatedList : list
+      )
+    );
+    setOpen(false);
   };
 
   const returningTodayCount = (itemId) => {
@@ -131,28 +130,6 @@ function LoadingListEditor() {
 
     return totalReturningQuantity;
   };
-
-  // const decreaseItemQuantity = async (item) => {
-  //   try {
-  //     const response = await fetch(`/api/items/${item.id}`, {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         quantity: item.quantity - 1,
-  //       }),
-  //     });
-  //     const updatedItem = await response.json();
-  //     setItems((prev) =>
-  //       prev.map((i) =>
-  //         i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
-  //       )
-  //     );
-  //   } catch (error) {
-  //     console.error("Error decreasing item quantity:", error);
-  //   }
-  // };
 
   const settlePromise = (promise) =>
     Promise.allSettled([promise]).then(([{ value, reason }]) => [
@@ -243,124 +220,98 @@ function LoadingListEditor() {
   };
 
   const increaseLoadingListItemQuantity = async (loadingListItem) => {
-    try {
-      const response = await fetch(
-        `/api/loading_list_items/${loadingListItem.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            loading_list_id: parseInt(id),
-            item_id: loadingListItem.item_id,
-            quantity: loadingListItem.quantity + 1,
-          }),
-        }
-      );
-      const updatedLoadingListItem = await response.json();
+    const [response, error] = await settlePromise(
+      fetch(`/api/loading_list_items/${loadingListItem.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quantity: loadingListItem.quantity + 1,
+        }),
+      })
+    );
 
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === updatedLoadingListItem.loading_list_id
-            ? {
-                ...list,
-                loading_list_items: list.loading_list_items.map((item) =>
-                  item.id === updatedLoadingListItem.id
-                    ? updatedLoadingListItem
-                    : item
-                ),
-              }
-            : list
-        )
+    if (error)
+      return console.error(
+        "Error increasing loading list item quantity:",
+        error
       );
-      decreaseItemQuantity(updatedLoadingListItem.item);
-    } catch (error) {
-      console.error("Error increasing loading list item quantity:", error);
-    }
+
+    const updatedItem = await response.json();
+    setLoadingLists((prev) =>
+      prev.map((list) =>
+        list.id === loadingListItem.loading_list_id
+          ? {
+              ...list,
+              loading_list_items: list.loading_list_items.map((item) =>
+                item.id === updatedItem.id
+                  ? { ...item, quantity: updatedItem.quantity }
+                  : item
+              ),
+            }
+          : list
+      )
+    );
+    decreaseItemQuantity(updatedItem.item);
   };
 
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
-    try {
-      if (loadingListItem.quantity <= 1) {
-        await fetch(`/api/loading_list_items/${loadingListItem.id}`, {
-          method: "DELETE",
-        });
+    const [response, error] = await settlePromise(
+      fetch(`/api/loading_list_items/${loadingListItem.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          quantity: loadingListItem.quantity - 1,
+        }),
+      })
+    );
 
-        setLoadingLists((prev) =>
-          prev.map((list) =>
-            list.id === loadingList.id
-              ? {
-                  ...list,
-                  loading_list_items: list.loading_list_items.filter(
-                    (item) => item.id !== loadingListItem.id
-                  ),
-                }
-              : list
-          )
-        );
-        increaseItemQuantity(
-          items.find((i) => i.id === loadingListItem.item_id)
-        );
-      } else {
-        const response = await fetch(
-          `/api/loading_list_items/${loadingListItem.id}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              quantity: loadingListItem.quantity - 1,
-            }),
-          }
-        );
-        const updatedLoadingListItem = await response.json();
+    if (error)
+      return console.error(
+        "Error decreasing loading list item quantity:",
+        error
+      );
 
-        // Update the loading list state with the new quantity
-        setLoadingLists((prev) =>
-          prev.map((list) =>
-            list.id === updatedLoadingListItem.loading_list_id
-              ? {
-                  ...list,
-                  loading_list_items: list.loading_list_items.map((item) =>
-                    item.id === updatedLoadingListItem.id
-                      ? updatedLoadingListItem
-                      : item
-                  ),
-                }
-              : list
-          )
-        );
-
-        increaseItemQuantity(
-          items.find((i) => i.id === updatedLoadingListItem.item_id)
-        );
-      }
-    } catch (error) {
-      console.error("Error decreasing loading list item quantity:", error);
-    }
+    const updatedItem = await response.json();
+    setLoadingLists((prev) =>
+      prev.map((list) =>
+        list.id === loadingListItem.loading_list_id
+          ? {
+              ...list,
+              loading_list_items: list.loading_list_items.map((item) =>
+                item.id === updatedItem.id
+                  ? { ...item, quantity: updatedItem.quantity }
+                  : item
+              ),
+            }
+          : list
+      )
+    );
+    increaseItemQuantity(updatedItem.item);
   };
 
   const deleteLoadingListItem = async (id) => {
-    try {
-      await fetch(`/api/loading_list_items/${id}`, { method: "DELETE" });
+    const [response, error] = await settlePromise(
+      fetch(`/api/loading_list_items/${id}`, { method: "DELETE" })
+    );
 
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === loadingList.id
-            ? {
-                ...list,
-                loading_list_items: list.loading_list_items.filter(
-                  (item) => item.id !== id
-                ),
-              }
-            : list
-        )
-      );
-    } catch (error) {
-      console.error("Error deleting loading list item:", error);
-    }
+    if (error) return console.error("Error deleting loading list item:", error);
+
+    setLoadingLists((prev) =>
+      prev.map((list) =>
+        list.id === loadingList.id
+          ? {
+              ...list,
+              loading_list_items: list.loading_list_items.filter(
+                (item) => item.id !== id
+              ),
+            }
+          : list
+      )
+    );
   };
 
   const onDragEnd = (result) => {
