@@ -15,7 +15,9 @@ import { Droppable, Draggable } from "react-beautiful-dnd";
 // Memoized item card component
 const ItemCard = memo(({ item, returningCount, provided }) => {
   const inStockCount = item.quantity;
-  const inStockColor = returningCount + inStockCount < 0 ? "red" : "black";
+  const repairCount = item.repair_quantity || 0;
+  const availableCount = inStockCount + returningCount - repairCount;
+  const inStockColor = availableCount < 0 ? "red" : "black";
 
   return (
     <Card
@@ -35,13 +37,14 @@ const ItemCard = memo(({ item, returningCount, provided }) => {
       <CardContent>
         <Typography variant="body1">{item.name}</Typography>
         <Typography variant="body2" sx={{ color: inStockColor }}>
-          In Stock: {item.quantity}
+          In Stock: {inStockCount}
         </Typography>
         <Typography variant="body2">
           Returning today: {returningCount}
         </Typography>
-        <Typography variant="body2">
-          Available: {returningCount + inStockCount}
+        <Typography variant="body2">In Repair: {repairCount}</Typography>
+        <Typography variant="body2" sx={{ color: inStockColor }}>
+          Available: {availableCount}
         </Typography>
       </CardContent>
     </Card>
@@ -86,7 +89,7 @@ const AvailableItems = ({
               variant="outlined"
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
-              sx={{ mb: 2, width: "95%"}}
+              sx={{ mb: 2, width: "95%" }}
             />
             <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
               <InputLabel shrink>Filter by Category</InputLabel>
@@ -95,7 +98,7 @@ const AvailableItems = ({
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 label="Filter by Category"
                 displayEmpty
-                sx={{width: "95%"}}
+                sx={{ width: "95%" }}
               >
                 <MenuItem value="">All Categories</MenuItem>
                 {uniqueCategories.map((category) => (
