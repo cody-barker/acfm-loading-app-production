@@ -150,7 +150,7 @@ const Inventory = () => {
               <TableCell width="10%" align="right">
                 Quantity
               </TableCell>
-              <TableCell width="15%" align="right">
+              <TableCell width="10%" align="right">
                 Returns Today
               </TableCell>
               <TableCell width="15%" align="right">
@@ -178,7 +178,12 @@ const Inventory = () => {
                   <TableCell>{item.category}</TableCell>
                   <TableCell align="right">{item.quantity}</TableCell>
                   <TableCell align="right">{returningCount}</TableCell>
-                  <TableCell align="right">
+                  <TableCell
+                    align="right"
+                    sx={{
+                      color: item.repair_quantity > 0 ? "red" : "black",
+                    }}
+                  >
                     {item.repair_quantity || 0}
                   </TableCell>
                   <TableCell align="right">{availableCount}</TableCell>
