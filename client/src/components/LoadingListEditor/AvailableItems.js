@@ -33,6 +33,7 @@ const AvailableItems = ({
           boxShadow: 2,
           maxHeight: "65vh",
           overflowY: "auto",
+          paddingBottom: 2
         }}
       >
         {isExpanded && (
