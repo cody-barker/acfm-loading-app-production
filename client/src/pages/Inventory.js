@@ -148,7 +148,7 @@ const Inventory = () => {
               <TableCell width="20%">Name</TableCell>
               <TableCell width="15%">Category</TableCell>
               <TableCell width="10%" align="right">
-                Quantity
+                In Facilities
               </TableCell>
               <TableCell width="10%" align="right">
                 Returns Today
