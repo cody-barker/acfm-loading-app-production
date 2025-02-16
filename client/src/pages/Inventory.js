@@ -148,16 +148,16 @@ const Inventory = () => {
               <TableCell width="20%">Name</TableCell>
               <TableCell width="15%">Category</TableCell>
               <TableCell width="10%" align="right">
-                In Facilities
+                At Facilities
+              </TableCell>
+              <TableCell width="15%" align="right">
+                In Repair
               </TableCell>
               <TableCell width="10%" align="right">
                 Returns Today
               </TableCell>
               <TableCell width="15%" align="right">
-                In Repair
-              </TableCell>
-              <TableCell width="15%" align="right">
-                Available
+                Available to Load
               </TableCell>
             </TableRow>
           </TableHead>
@@ -177,7 +177,6 @@ const Inventory = () => {
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.category}</TableCell>
                   <TableCell align="right">{item.quantity}</TableCell>
-                  <TableCell align="right">{returningCount}</TableCell>
                   <TableCell
                     align="right"
                     sx={{
@@ -186,6 +185,7 @@ const Inventory = () => {
                   >
                     {item.repair_quantity || 0}
                   </TableCell>
+                  <TableCell align="right">{returningCount}</TableCell>
                   <TableCell align="right">{availableCount}</TableCell>
                 </TableRow>
               );

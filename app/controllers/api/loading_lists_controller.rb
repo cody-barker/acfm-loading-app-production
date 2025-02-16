@@ -3,38 +3,38 @@ class Api::LoadingListsController < ApplicationController
 
   def index
     loading_lists = LoadingList.includes(:user, :team, loading_list_items: :item).all
-    render json: loading_lists, include: [ :team, loading_list_items: :item ]
+    render json: loading_lists, include: [:team, loading_list_items: :item]
   end
 
   def show
-    render json: @loading_list, include: [ loading_list_items: :item ]
+    render json: @loading_list, include: [:team, loading_list_items: :item]
   end
 
   def create
     loading_list = LoadingList.create!(loading_list_params)
-    render json: loading_list, status: :created
+    render json: loading_list, include: [:team, loading_list_items: :item], status: :created
   end
 
   def update
     @loading_list.update!(loading_list_params)
-    render json: @loading_list
+    render json: @loading_list, include: [:team, loading_list_items: :item]
   end
 
-def destroy
-  if @loading_list.unloaded?
-    render json: { error: "Cannot delete an unloaded loading list." }, status: :forbidden
-    return
+  def destroy
+    if @loading_list.unloaded?
+      render json: { error: "Cannot delete an unloaded loading list." }, status: :forbidden
+      return
+    end
+
+    @loading_list.loading_list_items.each do |loading_list_item|
+      inventory_item = loading_list_item.item
+      inventory_item.increment!(:quantity, loading_list_item.quantity)
+    end
+
+    @loading_list.destroy
+
+    head :no_content
   end
-
-  @loading_list.loading_list_items.each do |loading_list_item|
-    inventory_item = loading_list_item.item
-    inventory_item.increment!(:quantity, loading_list_item.quantity)
-  end
-
-  @loading_list.destroy
-
-  head :no_content
-end
 
 
 
