@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   Box,
   Container,
@@ -14,6 +20,31 @@ import PMKanbanBoard from "../components/pm/PMKanbanBoard";
 import CreateListButton from "../components/pm/CreateListButton";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
 
+const useDateRanges = () => {
+  return useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const daysAhead = new Date(today);
+    daysAhead.setDate(daysAhead.getDate() + 30);
+
+    return {
+      today,
+      tomorrow,
+      sevenDaysAgo,
+      daysAhead,
+      isSameDay: (date1, date2) =>
+        date1.toDateString() === date2.toDateString(),
+    };
+  }, []); // Empty dependency array since these dates should only be calculated once
+};
+
 const PMDashboard = () => {
   const [lists, setLists] = useState({
     previous: [],
@@ -27,6 +58,7 @@ const PMDashboard = () => {
   });
 
   const { loadingLists } = useContext(LoadingListsContext);
+  const dateRanges = useDateRanges();
 
   const filterLists = useCallback(
     (lists) => {
@@ -49,18 +81,6 @@ const PMDashboard = () => {
 
   const categorizeLists = useCallback(
     (lists) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const sevenDaysAgo = new Date(today);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      const daysAhead = new Date(today);
-      daysAhead.setDate(daysAhead.getDate() + 30);
-
       // First filter the lists
       const filteredLists = filterLists(lists);
 
@@ -68,11 +88,15 @@ const PMDashboard = () => {
         (acc, list) => {
           const listDate = new Date(list.date + "T00:00:00");
 
-          const isToday = listDate.toDateString() === today.toDateString();
-          const isTomorrow =
-            listDate.toDateString() === tomorrow.toDateString();
-          const isWithinPastWeek = listDate >= sevenDaysAgo && listDate < today;
-          const isInFuture = listDate <= daysAhead && listDate > tomorrow;
+          const isToday = dateRanges.isSameDay(listDate, dateRanges.today);
+          const isTomorrow = dateRanges.isSameDay(
+            listDate,
+            dateRanges.tomorrow
+          );
+          const isWithinPastWeek =
+            listDate >= dateRanges.sevenDaysAgo && listDate < dateRanges.today;
+          const isInFuture =
+            listDate <= dateRanges.daysAhead && listDate > dateRanges.tomorrow;
 
           if (isToday) {
             acc.today.unshift(list);
@@ -95,43 +119,43 @@ const PMDashboard = () => {
 
       setLists(categorized);
     },
-    [filterLists]
+    [filterLists, dateRanges]
   );
 
   // Update lists when filters or loadingLists change
   useEffect(() => {
     categorizeLists(loadingLists);
-  }, [categorizeLists, loadingLists, filters]);
+  }, [categorizeLists, loadingLists]);
 
   const handleNewList = (newList) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
     const listDate = new Date(newList.date + "T00:00:00");
 
-    if (listDate.toDateString() === today.toDateString()) {
+    if (dateRanges.isSameDay(listDate, dateRanges.today)) {
       setLists((prev) => ({
         ...prev,
         today: [...prev.today, newList].sort((a, b) => a.team_id - b.team_id),
       }));
-    } else if (listDate.toDateString() === tomorrow.toDateString()) {
+    } else if (dateRanges.isSameDay(listDate, dateRanges.tomorrow)) {
       setLists((prev) => ({
         ...prev,
         tomorrow: [...prev.tomorrow, newList].sort(
           (a, b) => a.team_id - b.team_id
         ),
       }));
-    } else if (listDate >= new Date(today.setDate(today.getDate() - 7))) {
+    } else if (
+      listDate >= dateRanges.sevenDaysAgo &&
+      listDate < dateRanges.today
+    ) {
       setLists((prev) => ({
         ...prev,
         previous: [...prev.previous, newList].sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         ),
       }));
-    } else if (listDate <= new Date(today.setDate(today.getDate() + 7))) {
+    } else if (
+      listDate <= dateRanges.daysAhead &&
+      listDate > dateRanges.tomorrow
+    ) {
       setLists((prev) => ({
         ...prev,
         future: [...prev.future, newList].sort(
@@ -144,7 +168,12 @@ const PMDashboard = () => {
   return (
     <Container maxWidth="xl">
       <Box sx={{ mb: 4, mt: 4 }}>
-        <Stack direction="row" spacing={2} sx={{ mb: 2, ml: 2 }} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ mb: 2, ml: 2 }}
+          alignItems="center"
+        >
           <TextField
             label="Filter by Site Name"
             value={filters.siteNameFilter}
