@@ -38,6 +38,11 @@ const Inventory = () => {
     [items]
   );
 
+  const sortedItems = useMemo(
+    () => [...items].sort((a, b) => a.name.localeCompare(b.name)),
+    [items]
+  );
+
   const today = format(new Date(), "yyyy-MM-dd");
 
   const returningTodayCount = (itemId) => {
@@ -61,19 +66,36 @@ const Inventory = () => {
       ...item,
       quantity: item.quantity,
       repair_quantity: item.repair_quantity || 0,
+      previous_repair_quantity: item.repair_quantity || 0, // Track previous repair quantity
     });
     setOpen(true);
   };
 
   const handleNumberInput = (value, field) => {
+    // Allow empty value
     if (value === "") {
       setSelectedItem((prev) => ({
         ...prev,
         [field]: "",
       }));
-    } else {
-      const number = parseInt(value);
-      if (!isNaN(number) && number >= 0) {
+      return;
+    }
+
+    // Convert to integer and validate
+    const number = parseInt(value);
+
+    // Only update if it's a valid non-negative integer
+    if (Number.isInteger(number) && number >= 0) {
+      if (field === "repair_quantity") {
+        const previousRepair = selectedItem.repair_quantity || 0;
+        const repairDifference = number - previousRepair;
+
+        setSelectedItem((prev) => ({
+          ...prev,
+          repair_quantity: number,
+          quantity: prev.quantity - repairDifference,
+        }));
+      } else {
         setSelectedItem((prev) => ({
           ...prev,
           [field]: number,
@@ -143,7 +165,7 @@ const Inventory = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((item) => {
+            {sortedItems.map((item) => {
               const returningCount = returningTodayCount(item.id);
               const availableCount =
                 item.quantity + returningCount - (item.repair_quantity || 0);
@@ -223,7 +245,18 @@ const Inventory = () => {
               fullWidth
               label="Quantity"
               type="number"
-              InputProps={{ inputProps: { min: 0 } }}
+              InputProps={{
+                inputProps: {
+                  min: 0,
+                  step: 1,
+                  onKeyDown: (e) => {
+                    // Prevent decimal point and non-numeric input
+                    if (e.key === "." || e.key === "-" || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  },
+                },
+              }}
               value={selectedItem?.quantity ?? ""}
               onChange={(e) => handleNumberInput(e.target.value, "quantity")}
               margin="normal"
@@ -232,7 +265,18 @@ const Inventory = () => {
               fullWidth
               label="In Repair"
               type="number"
-              InputProps={{ inputProps: { min: 0 } }}
+              InputProps={{
+                inputProps: {
+                  min: 0,
+                  step: 1,
+                  onKeyDown: (e) => {
+                    // Prevent decimal point and non-numeric input
+                    if (e.key === "." || e.key === "-" || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  },
+                },
+              }}
               value={selectedItem?.repair_quantity ?? ""}
               onChange={(e) =>
                 handleNumberInput(e.target.value, "repair_quantity")
