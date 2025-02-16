@@ -86,7 +86,7 @@ const AvailableItems = ({
               variant="outlined"
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
-              sx={{ mb: 2 }}
+              sx={{ mb: 2, width: "95%"}}
             />
             <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
               <InputLabel shrink>Filter by Category</InputLabel>
@@ -95,6 +95,7 @@ const AvailableItems = ({
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 label="Filter by Category"
                 displayEmpty
+                sx={{width: "95%"}}
               >
                 <MenuItem value="">All Categories</MenuItem>
                 {uniqueCategories.map((category) => (
