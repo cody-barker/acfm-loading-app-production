@@ -406,7 +406,7 @@ function LoadingListEditor() {
     }
   };
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const { source, destination } = result;
 
     if (!destination) return;
@@ -417,31 +417,39 @@ function LoadingListEditor() {
     ) {
       const item = loadingList.loading_list_items[source.index];
       setError(null);
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === loadingList.id
-            ? {
-                ...list,
-                loading_list_items: list.loading_list_items.filter(
-                  (_, index) => index !== source.index
-                ),
-              }
-            : list
-        )
-      );
 
-      setItems((prev) =>
-        prev.map((availableItem) =>
-          availableItem.id === item.item_id
-            ? {
-                ...availableItem,
-                quantity: availableItem.quantity + item.quantity,
-              }
-            : availableItem
-        )
-      );
+      try {
+        // First delete the item from the API
+        await fetch(`/api/loading_list_items/${item.id}`, { method: "DELETE" });
 
-      deleteLoadingListItem(item.id);
+        // Then update both states together
+        setLoadingLists((prev) =>
+          prev.map((list) =>
+            list.id === loadingList.id
+              ? {
+                  ...list,
+                  loading_list_items: list.loading_list_items.filter(
+                    (_, index) => index !== source.index
+                  ),
+                }
+              : list
+          )
+        );
+
+        setItems((prev) =>
+          prev.map((availableItem) =>
+            availableItem.id === item.item_id
+              ? {
+                  ...availableItem,
+                  quantity: availableItem.quantity + item.quantity,
+                }
+              : availableItem
+          )
+        );
+      } catch (error) {
+        console.error("Error deleting loading list item:", error);
+        setError("Failed to move item. Please try again.");
+      }
     }
 
     if (
