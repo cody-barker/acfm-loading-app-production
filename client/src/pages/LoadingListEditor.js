@@ -14,7 +14,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Typography,
 } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
