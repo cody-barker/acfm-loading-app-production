@@ -478,7 +478,7 @@ function LoadingListEditor() {
         />
       </Box>
 
-      {/* Existing Dialog */}
+      {/* Edit Dialog */}
       <LoadingListDialog
         open={open}
         handleClose={() => setOpen(false)}
@@ -508,7 +508,7 @@ function LoadingListEditor() {
             />
             <TextField
               fullWidth
-              label="Load Date"
+              label="Work Starts"
               type="date"
               value={copyFormData.date}
               onChange={(e) =>
