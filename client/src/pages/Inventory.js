@@ -66,7 +66,6 @@ const Inventory = () => {
       ...item,
       quantity: item.quantity,
       repair_quantity: item.repair_quantity || 0,
-      previous_repair_quantity: item.repair_quantity || 0, // Track previous repair quantity
     });
     setOpen(true);
   };
@@ -86,21 +85,10 @@ const Inventory = () => {
 
     // Only update if it's a valid non-negative integer
     if (Number.isInteger(number) && number >= 0) {
-      if (field === "repair_quantity") {
-        const previousRepair = selectedItem.repair_quantity || 0;
-        const repairDifference = number - previousRepair;
-
-        setSelectedItem((prev) => ({
-          ...prev,
-          repair_quantity: number,
-          quantity: prev.quantity - repairDifference,
-        }));
-      } else {
-        setSelectedItem((prev) => ({
-          ...prev,
-          [field]: number,
-        }));
-      }
+      setSelectedItem((prev) => ({
+        ...prev,
+        [field]: number,
+      }));
     }
   };
 
@@ -113,6 +101,7 @@ const Inventory = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Convert empty strings to 0
       const quantity = selectedItem.quantity === "" ? 0 : selectedItem.quantity;
       const repair_quantity =
         selectedItem.repair_quantity === "" ? 0 : selectedItem.repair_quantity;
@@ -171,34 +160,18 @@ const Inventory = () => {
                 item.quantity + returningCount - (item.repair_quantity || 0);
 
               return (
-                <TableRow
-                  key={item.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
+                <TableRow key={item.id}>
                   <TableCell>
-                    <IconButton
-                      onClick={() => handleEdit(item)}
-                      color="primary"
-                      size="small"
-                    >
+                    <IconButton onClick={() => handleEdit(item)}>
                       <EditIcon />
                     </IconButton>
                   </TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.category}</TableCell>
-                  <TableCell align="right">{item.quantity}</TableCell>
-                  <TableCell align="right">{returningCount}</TableCell>
-                  <TableCell align="right">
-                    {item.repair_quantity || 0}
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{
-                      color: availableCount < 0 ? "error.main" : "inherit",
-                    }}
-                  >
-                    {availableCount}
-                  </TableCell>
+                  <TableCell>{item.quantity}</TableCell>
+                  <TableCell>{returningCount}</TableCell>
+                  <TableCell>{item.repair_quantity || 0}</TableCell>
+                  <TableCell>{availableCount}</TableCell>
                 </TableRow>
               );
             })}
