@@ -445,18 +445,33 @@ function LoadingListEditor() {
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
-    if (!destination) return;
+    // If there's no destination, or the item was dropped in its original location
+    if (
+      !destination ||
+      (source.droppableId === destination.droppableId &&
+        source.index === destination.index)
+    ) {
+      return;
+    }
 
     if (
       source.droppableId === "loadingListItems" &&
       destination.droppableId === "availableItems"
     ) {
       const item = loadingList.loading_list_items[source.index];
+      if (!item) return; // Guard against undefined item
+
       setError(null);
 
       try {
         // First delete the item from the API
-        await fetch(`/api/loading_list_items/${item.id}`, { method: "DELETE" });
+        const response = await fetch(`/api/loading_list_items/${item.id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete item");
+        }
 
         // Then update both states together
         setLoadingLists((prev) =>
@@ -492,8 +507,8 @@ function LoadingListEditor() {
       source.droppableId === "availableItems" &&
       destination.droppableId === "loadingListItems"
     ) {
-      const draggedItemId = parseInt(result.draggableId, 10); // Get ID from draggableId
-      const item = items.find((i) => i.id === draggedItemId); // Find item by ID
+      const draggedItemId = parseInt(result.draggableId, 10);
+      const item = items.find((i) => i.id === draggedItemId);
 
       if (!item) {
         setError("Error: Item not found.");
@@ -510,7 +525,7 @@ function LoadingListEditor() {
       }
 
       setError(null);
-      createLoadingListItem(item);
+      await createLoadingListItem(item);
     }
   };
 
