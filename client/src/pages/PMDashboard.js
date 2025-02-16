@@ -175,7 +175,15 @@ const PMDashboard = () => {
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container
+      maxWidth="xl"
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
       <Box sx={{ mb: 4, mt: 4 }}>
         <Stack
           direction="row"
@@ -277,15 +285,7 @@ const PMDashboard = () => {
           <CreateListButton onNewList={handleNewList} />
         </Stack>
         <DragDropContext>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              flexGrow: 1,
-              overflowX: { xs: "auto", md: "hidden" },
-              padding: 2,
-            }}
-          >
+          <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
             <PMKanbanBoard lists={lists} />
           </Box>
         </DragDropContext>

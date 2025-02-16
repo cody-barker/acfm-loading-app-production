@@ -17,7 +17,7 @@ function ToggleButton({ isExpanded, setIsExpanded }) {
         color="primary"
         onClick={() => setIsExpanded(!isExpanded)}
         sx={{
-          height: "100%",
+          height: "67vh",
           writingMode: "vertical-rl",
           transform: "rotate(180deg)",
           padding: "4px",

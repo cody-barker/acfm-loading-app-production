@@ -18,7 +18,7 @@ const LoadingListItems = ({
           padding: 2,
           borderRadius: 2,
           boxShadow: 2,
-          maxHeight: "70vh",
+          maxHeight: "65vh",
           overflowY: "auto",
           marginLeft: 4,
         }}
