@@ -132,9 +132,37 @@ function LoadingListEditor() {
     return totalReturningQuantity;
   };
 
+  // const decreaseItemQuantity = async (item) => {
+  //   try {
+  //     const response = await fetch(`/api/items/${item.id}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         quantity: item.quantity - 1,
+  //       }),
+  //     });
+  //     const updatedItem = await response.json();
+  //     setItems((prev) =>
+  //       prev.map((i) =>
+  //         i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
+  //       )
+  //     );
+  //   } catch (error) {
+  //     console.error("Error decreasing item quantity:", error);
+  //   }
+  // };
+
+  const settlePromise = (promise) =>
+    Promise.allSettled([promise]).then(([{ value, reason }]) => [
+      value,
+      reason,
+    ]);
+
   const decreaseItemQuantity = async (item) => {
-    try {
-      const response = await fetch(`/api/items/${item.id}`, {
+    const [response, error] = await settlePromise(
+      fetch(`/api/items/${item.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -142,21 +170,22 @@ function LoadingListEditor() {
         body: JSON.stringify({
           quantity: item.quantity - 1,
         }),
-      });
-      const updatedItem = await response.json();
-      setItems((prev) =>
-        prev.map((i) =>
-          i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
-        )
-      );
-    } catch (error) {
-      console.error("Error decreasing item quantity:", error);
-    }
+      })
+    );
+
+    if (error) return console.error("Error decreasing item quantity:", error);
+
+    const updatedItem = await response.json();
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
+      )
+    );
   };
 
   const increaseItemQuantity = async (item) => {
-    try {
-      const response = await fetch(`/api/items/${item.id}`, {
+    const [response, error] = await settlePromise(
+      fetch(`/api/items/${item.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -164,21 +193,22 @@ function LoadingListEditor() {
         body: JSON.stringify({
           quantity: item.quantity + 1,
         }),
-      });
-      const updatedItem = await response.json();
-      setItems((prev) =>
-        prev.map((i) =>
-          i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
-        )
-      );
-    } catch (error) {
-      console.error("Error increasing item quantity:", error);
-    }
+      })
+    );
+
+    if (error) return console.error("Error increasing item quantity:", error);
+
+    const updatedItem = await response.json();
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
+      )
+    );
   };
 
   const createLoadingListItem = async (item) => {
-    try {
-      const response = await fetch("/api/loading_list_items", {
+    const [response, error] = await settlePromise(
+      fetch("/api/loading_list_items", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -188,26 +218,28 @@ function LoadingListEditor() {
           item_id: item.id,
           quantity: 1,
         }),
-      });
-      const newLoadingListItem = await response.json();
+      })
+    );
 
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === newLoadingListItem.loading_list_id
-            ? {
-                ...list,
-                loading_list_items: [
-                  ...list.loading_list_items,
-                  newLoadingListItem,
-                ],
-              }
-            : list
-        )
-      );
-      decreaseItemQuantity(item);
-    } catch (error) {
-      console.error("Error creating loading list item:", error);
-    }
+    if (error) return console.error("Error creating loading list item:", error);
+
+    const newLoadingListItem = await response.json();
+
+    setLoadingLists((prev) =>
+      prev.map((list) =>
+        list.id === newLoadingListItem.loading_list_id
+          ? {
+              ...list,
+              loading_list_items: [
+                ...list.loading_list_items,
+                newLoadingListItem,
+              ],
+            }
+          : list
+      )
+    );
+
+    decreaseItemQuantity(item);
   };
 
   const increaseLoadingListItemQuantity = async (loadingListItem) => {
