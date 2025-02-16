@@ -359,8 +359,9 @@ function LoadingListEditor() {
     // If quantity is 1, delete the item instead of decreasing
     if (loadingListItem.quantity === 1) {
       try {
+        // Just delete the loading list item, don't call increaseItemQuantity here
+        // as deleteLoadingListItem will handle updating the item quantity
         await deleteLoadingListItem(loadingListItem.id);
-        increaseItemQuantity(loadingListItem.item);
         return;
       } catch (error) {
         console.error("Error deleting loading list item:", error);
@@ -405,6 +406,11 @@ function LoadingListEditor() {
 
   const deleteLoadingListItem = async (id) => {
     try {
+      // Find the loading list item before deleting it
+      const loadingListItem = loadingList.loading_list_items.find(
+        (item) => item.id === id
+      );
+
       await fetch(`/api/loading_list_items/${id}`, { method: "DELETE" });
 
       // If we reach here, the delete was successful
@@ -420,6 +426,17 @@ function LoadingListEditor() {
             : list
         )
       );
+
+      // Update the available item quantity
+      if (loadingListItem) {
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === loadingListItem.item_id
+              ? { ...item, quantity: item.quantity + loadingListItem.quantity }
+              : item
+          )
+        );
+      }
     } catch (error) {
       console.error("Error deleting loading list item:", error);
     }
