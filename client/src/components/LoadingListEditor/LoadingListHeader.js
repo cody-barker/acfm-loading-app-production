@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Stack } from "@mui/material";
+import { Box, Typography, Button, Stack, Alert } from "@mui/material";
 import { format } from "date-fns";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,6 +26,7 @@ const LoadingListHeader = ({
   handleEdit,
   handleDelete,
   handleCopy,
+  error,
 }) => {
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();
@@ -88,6 +89,11 @@ const LoadingListHeader = ({
           Delete
         </Button>
       </Stack>
+      {error && (
+        <Alert severity="error" sx={{ width: "20%", mt: 2 }}>
+          {error}
+        </Alert>
+      )}
     </Box>
   );
 };

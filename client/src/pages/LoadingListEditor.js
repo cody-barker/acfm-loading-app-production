@@ -486,6 +486,7 @@ function LoadingListEditor() {
           handleDelete={handleDelete}
           handleEdit={() => setOpen(true)}
           handleCopy={handleCopyList}
+          error={error}
         />
       </Box>
 
