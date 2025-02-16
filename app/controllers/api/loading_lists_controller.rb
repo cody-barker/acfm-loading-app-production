@@ -3,21 +3,21 @@ class Api::LoadingListsController < ApplicationController
 
   def index
     loading_lists = LoadingList.includes(:user, :team, loading_list_items: :item).all
-    render json: loading_lists, include: [:team, loading_list_items: :item]
+    render json: loading_lists, include: [ :team, loading_list_items: :item ]
   end
 
   def show
-    render json: @loading_list, include: [:team, loading_list_items: :item]
+    render json: @loading_list, include: [ :team, loading_list_items: :item ]
   end
 
   def create
     loading_list = LoadingList.create!(loading_list_params)
-    render json: loading_list, include: [:team, loading_list_items: :item], status: :created
+    render json: loading_list, include: [ :team, loading_list_items: :item ], status: :created
   end
 
   def update
     @loading_list.update!(loading_list_params)
-    render json: @loading_list, include: [:team, loading_list_items: :item]
+    render json: @loading_list, include: [ :team, loading_list_items: :item ]
   end
 
   def destroy
