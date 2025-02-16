@@ -68,28 +68,28 @@ function LoadingListEditor() {
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_lists/${parseInt(id)}`, {
+    try {
+      await fetch(`/api/loading_lists/${parseInt(id)}`, {
         method: "DELETE",
-      })
-    );
+      });
 
-    if (error) return console.error("Error deleting loading list:", error);
+      setLoadingLists((prevLists) =>
+        prevLists.filter((list) => list.id !== parseInt(id))
+      );
 
-    setLoadingLists((prevLists) =>
-      prevLists.filter((list) => list.id !== parseInt(id))
-    );
+      const [itemsResponse, itemsError] = await settlePromise(
+        fetch("/api/items")
+      );
 
-    const [itemsResponse, itemsError] = await settlePromise(
-      fetch("/api/items")
-    );
+      if (itemsError)
+        return console.error("Error fetching updated items:", itemsError);
 
-    if (itemsError)
-      return console.error("Error fetching updated items:", itemsError);
-
-    const updatedItems = await itemsResponse.json();
-    setItems(updatedItems);
-    navigate("/");
+      const updatedItems = await itemsResponse.json();
+      setItems(updatedItems);
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting loading list:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -294,24 +294,25 @@ function LoadingListEditor() {
   };
 
   const deleteLoadingListItem = async (id) => {
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_list_items/${id}`, { method: "DELETE" })
-    );
+    try {
+      await fetch(`/api/loading_list_items/${id}`, { method: "DELETE" });
 
-    if (error) return console.error("Error deleting loading list item:", error);
-
-    setLoadingLists((prev) =>
-      prev.map((list) =>
-        list.id === loadingList.id
-          ? {
-              ...list,
-              loading_list_items: list.loading_list_items.filter(
-                (item) => item.id !== id
-              ),
-            }
-          : list
-      )
-    );
+      // If we reach here, the delete was successful
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === loadingList.id
+            ? {
+                ...list,
+                loading_list_items: list.loading_list_items.filter(
+                  (item) => item.id !== id
+                ),
+              }
+            : list
+        )
+      );
+    } catch (error) {
+      console.error("Error deleting loading list item:", error);
+    }
   };
 
   const onDragEnd = (result) => {
