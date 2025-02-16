@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   Box,
   FormControl,
@@ -11,6 +11,42 @@ import {
   TextField,
 } from "@mui/material";
 import { Droppable, Draggable } from "react-beautiful-dnd";
+
+// Memoized item card component
+const ItemCard = memo(({ item, returningCount, provided }) => {
+  const inStockCount = item.quantity;
+  const inStockColor = returningCount + inStockCount < 0 ? "red" : "black";
+
+  return (
+    <Card
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      sx={{
+        marginBottom: 1,
+        borderRadius: 2,
+        boxShadow: 1,
+        maxWidth: "95%",
+        "&:hover": {
+          transform: "translateY(-2px)",
+        },
+      }}
+    >
+      <CardContent>
+        <Typography variant="body1">{item.name}</Typography>
+        <Typography variant="body2" sx={{ color: inStockColor }}>
+          In Stock: {item.quantity}
+        </Typography>
+        <Typography variant="body2">
+          Returning today: {returningCount}
+        </Typography>
+        <Typography variant="body2">
+          Available: {returningCount + inStockCount}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+});
 
 const AvailableItems = ({
   isExpanded,
@@ -69,52 +105,21 @@ const AvailableItems = ({
               </Select>
             </FormControl>
 
-            {filteredItems.map((item, index) => {
-              const returningCount = returningTodayCount(item.id);
-              const inStockCount = item.quantity;
-              const inStockColor =
-                returningCount + inStockCount < 0 ? "red" : "black";
-
-              return (
-                <Draggable
-                  key={item.id}
-                  draggableId={String(item.id)}
-                  index={index}
-                >
-                  {(provided) => (
-                    <Card
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      sx={{
-                        marginBottom: 1,
-                        borderRadius: 2,
-                        boxShadow: 1,
-                        maxWidth: "95%",
-                        transition: "0.3s",
-                        "&:hover": { boxShadow: 3 },
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="body1">{item.name}</Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: inStockColor }}
-                        >
-                          In Stock: {item.quantity}
-                        </Typography>
-                        <Typography variant="body2">
-                          Returning today: {returningCount}
-                        </Typography>
-                        <Typography variant="body2">
-                          Available: {returningCount + inStockCount}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  )}
-                </Draggable>
-              );
-            })}
+            {filteredItems.map((item, index) => (
+              <Draggable
+                key={item.id}
+                draggableId={String(item.id)}
+                index={index}
+              >
+                {(provided) => (
+                  <ItemCard
+                    item={item}
+                    returningCount={returningTodayCount(item.id)}
+                    provided={provided}
+                  />
+                )}
+              </Draggable>
+            ))}
             {provided.placeholder}
           </>
         )}
@@ -123,4 +128,4 @@ const AvailableItems = ({
   </Droppable>
 );
 
-export default AvailableItems;
+export default memo(AvailableItems);
