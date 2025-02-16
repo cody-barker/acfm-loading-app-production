@@ -33,6 +33,6 @@ class Api::ItemsController < ApplicationController
 
 
   def item_params
-    params.require(:item).permit(:name, :category, :quantity)
+    params.require(:item).permit(:name, :category, :quantity, :repair_quantity)
   end
 end

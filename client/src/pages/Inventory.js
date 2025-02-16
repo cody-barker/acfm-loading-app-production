@@ -141,16 +141,24 @@ const Inventory = () => {
         Inventory
       </Typography>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }}>
+        <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Actions</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell align="right">In Stock</TableCell>
-              <TableCell align="right">Returns Today</TableCell>
-              <TableCell align="right">In Repair</TableCell>
-              <TableCell align="right">Available</TableCell>
+              <TableCell width="10%"></TableCell>
+              <TableCell width="20%">Name</TableCell>
+              <TableCell width="15%">Category</TableCell>
+              <TableCell width="10%" align="right">
+                Quantity
+              </TableCell>
+              <TableCell width="15%" align="right">
+                Returns Today
+              </TableCell>
+              <TableCell width="15%" align="right">
+                In Repair
+              </TableCell>
+              <TableCell width="15%" align="right">
+                Available
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -168,10 +176,12 @@ const Inventory = () => {
                   </TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>{returningCount}</TableCell>
-                  <TableCell>{item.repair_quantity || 0}</TableCell>
-                  <TableCell>{availableCount}</TableCell>
+                  <TableCell align="right">{item.quantity}</TableCell>
+                  <TableCell align="right">{returningCount}</TableCell>
+                  <TableCell align="right">
+                    {item.repair_quantity || 0}
+                  </TableCell>
+                  <TableCell align="right">{availableCount}</TableCell>
                 </TableRow>
               );
             })}
@@ -179,10 +189,10 @@ const Inventory = () => {
         </Table>
       </TableContainer>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Item</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit}>
+      <Dialog open={open} onClose={handleClose}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle>Edit Item</DialogTitle>
+          <DialogContent>
             <TextField
               fullWidth
               label="Name"
@@ -195,25 +205,25 @@ const Inventory = () => {
               }
               margin="normal"
             />
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Category</InputLabel>
-              <Select
-                value={selectedItem?.category || ""}
-                onChange={(e) =>
-                  setSelectedItem((prev) => ({
-                    ...prev,
-                    category: e.target.value,
-                  }))
-                }
-                label="Category"
-              >
-                {uniqueCategories.map((category) => (
-                  <MenuItem key={category} value={category}>
-                    {category}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <TextField
+              select
+              fullWidth
+              label="Category"
+              value={selectedItem?.category || ""}
+              onChange={(e) =>
+                setSelectedItem((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
+              }
+              margin="normal"
+            >
+              {uniqueCategories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </TextField>
             <TextField
               fullWidth
               label="Quantity"
@@ -223,7 +233,6 @@ const Inventory = () => {
                   min: 0,
                   step: 1,
                   onKeyDown: (e) => {
-                    // Prevent decimal point and non-numeric input
                     if (e.key === "." || e.key === "-" || e.key === "e") {
                       e.preventDefault();
                     }
@@ -243,7 +252,6 @@ const Inventory = () => {
                   min: 0,
                   step: 1,
                   onKeyDown: (e) => {
-                    // Prevent decimal point and non-numeric input
                     if (e.key === "." || e.key === "-" || e.key === "e") {
                       e.preventDefault();
                     }
@@ -261,14 +269,14 @@ const Inventory = () => {
                 {error}
               </Typography>
             )}
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
-            Save
-          </Button>
-        </DialogActions>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit" variant="contained" color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </Container>
   );
