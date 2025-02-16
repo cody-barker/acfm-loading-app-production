@@ -42,6 +42,7 @@ function LoadingListEditor() {
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
+  const [copyError, setCopyError] = useState(null);
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
@@ -163,6 +164,7 @@ function LoadingListEditor() {
       }
 
       const newList = await response.json();
+      setCopyError(null);
 
       // Copy all loading list items to the new list
       const copyPromises = loadingList.loading_list_items.map((item) =>
@@ -202,7 +204,7 @@ function LoadingListEditor() {
       navigate(`/loading-lists/${listWithTeam.id}`);
     } catch (error) {
       console.error("Error copying loading list:", error);
-      setError(error.errors || "An unexpected error occurred");
+      setCopyError(error.errors || "An unexpected error occurred");
     }
   };
 
@@ -595,14 +597,14 @@ function LoadingListEditor() {
                 ))}
               </Select>
             </FormControl>
-            {error && <Error error={error} />}
+            {copyError && <Error error={copyError} />}
           </Box>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
               setCopyDialogOpen(false);
-              setError(null);
+              setCopyError(null);
             }}
           >
             Cancel
