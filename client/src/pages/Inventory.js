@@ -231,7 +231,7 @@ const Inventory = () => {
             </TextField>
             <TextField
               fullWidth
-              label="Quantity"
+              label="Quantity at Facilities"
               type="number"
               InputProps={{
                 inputProps: {
