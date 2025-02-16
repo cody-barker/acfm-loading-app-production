@@ -1,5 +1,8 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import { format } from "date-fns";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const getLoadText = (date, tomorrow) => {
   if (date < tomorrow) return "Loaded";
@@ -18,7 +21,12 @@ const formatReturnDate = (returnDate, today, tomorrow) => {
   return format(returnDate, "MM-dd-yyyy");
 };
 
-const LoadingListHeader = ({ loadingList, onOpenDialog }) => {
+const LoadingListHeader = ({
+  loadingList,
+  handleEdit,
+  handleDelete,
+  handleCopy,
+}) => {
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -43,7 +51,7 @@ const LoadingListHeader = ({ loadingList, onOpenDialog }) => {
         {loadingList.site_name}
       </Typography>
       <Typography variant="h5" fontWeight="bold">
-        {loadingList.team.name}
+        {loadingList.team?.name || "Loading..."}
       </Typography>
       <Typography variant="h6">
         {getLoadText(loadingList.date, today, formattedTomorrow)}:{" "}
@@ -54,9 +62,32 @@ const LoadingListHeader = ({ loadingList, onOpenDialog }) => {
         {formatReturnDate(loadingList.return_date, today, formattedTomorrow)}
       </Typography>
       <Typography variant="h6">{loadingList.notes}</Typography>
-      <Button variant="contained" onClick={onOpenDialog}>
-        Update
-      </Button>
+      <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<EditIcon />}
+          onClick={handleEdit}
+        >
+          Edit
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<ContentCopyIcon />}
+          onClick={handleCopy}
+        >
+          Copy List
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<DeleteIcon />}
+          onClick={handleDelete}
+        >
+          Delete
+        </Button>
+      </Stack>
     </Box>
   );
 };

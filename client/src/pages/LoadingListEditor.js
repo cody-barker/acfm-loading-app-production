@@ -1,7 +1,20 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
-import { Box, Container } from "@mui/material";
+import {
+  Box,
+  Container,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
 import { format } from "date-fns";
@@ -26,8 +39,25 @@ function LoadingListEditor() {
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [open, setOpen] = useState(false);
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    site_name: "",
+    date: "",
+    return_date: "",
+    notes: "",
+    team_id: "",
+    user_id: user.id,
+  });
+  const [copyFormData, setCopyFormData] = useState({
+    site_name: "",
+    date: "",
+    return_date: "",
+    notes: "",
+    team_id: "",
+    user_id: user.id,
+  });
 
   const uniqueCategories = [...new Set(items.map((item) => item.category))];
   const filteredItems = selectedCategory
@@ -39,15 +69,6 @@ function LoadingListEditor() {
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
   );
-
-  const [formData, setFormData] = useState({
-    site_name: "",
-    date: "",
-    return_date: "",
-    notes: "",
-    team_id: "",
-    user_id: user.id,
-  });
 
   useEffect(() => {
     if (loadingList) {
@@ -113,6 +134,73 @@ function LoadingListEditor() {
       )
     );
     setOpen(false);
+  };
+
+  const handleCopyList = () => {
+    setCopyFormData({
+      ...formData,
+      date: "",
+      return_date: "",
+    });
+    setCopyDialogOpen(true);
+  };
+
+  const handleCopySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Create new loading list
+      const response = await fetch("/api/loading_lists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(copyFormData),
+      });
+
+      if (!response.ok) throw new Error("Failed to create loading list");
+
+      const newList = await response.json();
+
+      // Copy all loading list items to the new list
+      const copyPromises = loadingList.loading_list_items.map((item) =>
+        fetch("/api/loading_list_items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            loading_list_id: newList.id,
+            item_id: item.item_id,
+            quantity: item.quantity,
+          }),
+        })
+      );
+
+      // Wait for all items to be created
+      await Promise.all(copyPromises);
+
+      // Fetch the complete list with items
+      const updatedListResponse = await fetch(
+        `/api/loading_lists/${newList.id}`
+      );
+      const updatedList = await updatedListResponse.json();
+
+      // Add team association
+      const selectedTeam = teams.find(
+        (team) => team.id === copyFormData.team_id
+      );
+      const listWithTeam = {
+        ...updatedList,
+        team: selectedTeam,
+      };
+
+      setLoadingLists((prev) => [...prev, listWithTeam]);
+      setCopyDialogOpen(false);
+      navigate(`/loading-lists/${listWithTeam.id}`);
+    } catch (error) {
+      console.error("Error copying loading list:", error);
+      setError("Failed to copy loading list");
+    }
   };
 
   const returningTodayCount = (itemId) => {
@@ -380,25 +468,123 @@ function LoadingListEditor() {
   };
 
   return (
-    <>
-      <Container>
+    <Container maxWidth="xl">
+      <Box sx={{ mb: 4 }}>
         <LoadingListHeader
           loadingList={loadingList}
-          onOpenDialog={() => setOpen(true)}
-        />
-
-        <LoadingListDialog
-          open={open}
-          onClose={() => setOpen(false)}
-          formData={formData}
-          setFormData={setFormData}
-          teams={teams}
-          handleSubmit={handleSubmit}
           handleDelete={handleDelete}
+          handleEdit={() => setOpen(true)}
+          handleCopy={handleCopyList}
         />
+      </Box>
 
-        {error ? <Error error={error} /> : null}
-      </Container>
+      {/* Existing Dialog */}
+      <LoadingListDialog
+        open={open}
+        handleClose={() => setOpen(false)}
+        formData={formData}
+        setFormData={setFormData}
+        handleSubmit={handleSubmit}
+        teams={teams}
+      />
+
+      {/* Copy List Dialog */}
+      <Dialog open={copyDialogOpen} onClose={() => setCopyDialogOpen(false)}>
+        <DialogTitle>Copy Loading List</DialogTitle>
+        <DialogContent>
+          <Box component="form" onSubmit={handleCopySubmit} sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Site Name"
+              value={copyFormData.site_name}
+              onChange={(e) =>
+                setCopyFormData((prev) => ({
+                  ...prev,
+                  site_name: e.target.value,
+                }))
+              }
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Load Date"
+              type="date"
+              value={copyFormData.date}
+              onChange={(e) =>
+                setCopyFormData((prev) => ({
+                  ...prev,
+                  date: e.target.value,
+                }))
+              }
+              margin="normal"
+              required
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Return Date"
+              type="date"
+              value={copyFormData.return_date}
+              onChange={(e) =>
+                setCopyFormData((prev) => ({
+                  ...prev,
+                  return_date: e.target.value,
+                }))
+              }
+              margin="normal"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Notes"
+              value={copyFormData.notes}
+              onChange={(e) =>
+                setCopyFormData((prev) => ({
+                  ...prev,
+                  notes: e.target.value,
+                }))
+              }
+              margin="normal"
+              multiline
+              rows={4}
+            />
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel>Team</InputLabel>
+              <Select
+                value={copyFormData.team_id}
+                onChange={(e) =>
+                  setCopyFormData((prev) => ({
+                    ...prev,
+                    team_id: e.target.value,
+                  }))
+                }
+                label="Team"
+              >
+                {teams.map((team) => (
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCopyDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleCopySubmit}
+            variant="contained"
+            color="primary"
+          >
+            Create Copy
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
@@ -428,7 +614,7 @@ function LoadingListEditor() {
           />
         </Box>
       </DragDropContext>
-    </>
+    </Container>
   );
 }
 
