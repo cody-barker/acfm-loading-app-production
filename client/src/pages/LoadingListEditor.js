@@ -59,12 +59,18 @@ function LoadingListEditor() {
     team_id: "",
     user_id: user.id,
   });
+  const [nameFilter, setNameFilter] = useState("");
 
   const uniqueCategories = [...new Set(items.map((item) => item.category))];
-  const filteredItems = selectedCategory
-    ? items.filter((item) => item.category === selectedCategory)
-    : items;
-
+  const filteredItems = items.filter((item) => {
+    const matchesCategory = selectedCategory
+      ? item.category === selectedCategory
+      : true;
+    const matchesName = nameFilter
+      ? item.name.toLowerCase().includes(nameFilter.toLowerCase())
+      : true;
+    return matchesCategory && matchesName;
+  });
   const today = format(new Date(), "yyyy-MM-dd");
 
   let loadingList = loadingLists.find(
@@ -635,6 +641,8 @@ function LoadingListEditor() {
             isExpanded={isExpanded}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
+            nameFilter={nameFilter}
+            setNameFilter={setNameFilter}
             uniqueCategories={uniqueCategories}
             filteredItems={filteredItems}
             returningTodayCount={returningTodayCount}

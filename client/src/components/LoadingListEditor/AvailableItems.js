@@ -8,6 +8,7 @@ import {
   Card,
   CardContent,
   Typography,
+  TextField,
 } from "@mui/material";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 
@@ -15,6 +16,8 @@ const AvailableItems = ({
   isExpanded,
   selectedCategory,
   setSelectedCategory,
+  nameFilter,
+  setNameFilter,
   uniqueCategories,
   filteredItems,
   returningTodayCount,
@@ -33,7 +36,7 @@ const AvailableItems = ({
           boxShadow: 2,
           maxHeight: "65vh",
           overflowY: "auto",
-          paddingBottom: 2
+          paddingBottom: 2,
         }}
       >
         {isExpanded && (
@@ -41,6 +44,14 @@ const AvailableItems = ({
             <Typography variant="h6" sx={{ marginBottom: 2 }}>
               Available Items
             </Typography>
+            <TextField
+              fullWidth
+              label="Search by name"
+              variant="outlined"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              sx={{ mb: 2 }}
+            />
             <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>
               <InputLabel shrink>Filter by Category</InputLabel>
               <Select
