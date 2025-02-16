@@ -348,6 +348,18 @@ function LoadingListEditor() {
   };
 
   const decreaseLoadingListItemQuantity = async (loadingListItem) => {
+    // If quantity is 1, delete the item instead of decreasing
+    if (loadingListItem.quantity === 1) {
+      try {
+        await deleteLoadingListItem(loadingListItem.id);
+        increaseItemQuantity(loadingListItem.item);
+        return;
+      } catch (error) {
+        console.error("Error deleting loading list item:", error);
+        return;
+      }
+    }
+
     const [response, error] = await settlePromise(
       fetch(`/api/loading_list_items/${loadingListItem.id}`, {
         method: "PATCH",
@@ -360,11 +372,10 @@ function LoadingListEditor() {
       })
     );
 
-    if (error)
-      return console.error(
-        "Error decreasing loading list item quantity:",
-        error
-      );
+    if (error) {
+      console.error("Error decreasing loading list item quantity:", error);
+      return;
+    }
 
     const updatedItem = await response.json();
     setLoadingLists((prev) =>
