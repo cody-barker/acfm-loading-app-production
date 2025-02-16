@@ -14,6 +14,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Typography,
 } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
@@ -157,7 +158,10 @@ function LoadingListEditor() {
         body: JSON.stringify(copyFormData),
       });
 
-      if (!response.ok) throw new Error("Failed to create loading list");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
 
       const newList = await response.json();
 
@@ -199,7 +203,7 @@ function LoadingListEditor() {
       navigate(`/loading-lists/${listWithTeam.id}`);
     } catch (error) {
       console.error("Error copying loading list:", error);
-      setError("Failed to copy loading list");
+      setError(error.errors || "An unexpected error occurred");
     }
   };
 
@@ -572,10 +576,18 @@ function LoadingListEditor() {
                 ))}
               </Select>
             </FormControl>
+            {error && <Error error={error} />}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCopyDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setCopyDialogOpen(false);
+              setError(null);
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             onClick={handleCopySubmit}
             variant="contained"
