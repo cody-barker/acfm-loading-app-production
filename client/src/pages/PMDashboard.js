@@ -42,7 +42,7 @@ const useDateRanges = () => {
       isSameDay: (date1, date2) =>
         date1.toDateString() === date2.toDateString(),
     };
-  }, []); // Empty dependency array since these dates should only be calculated once
+  }, []);
 };
 
 const PMDashboard = () => {
