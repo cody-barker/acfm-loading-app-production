@@ -1,4 +1,3 @@
-import { memo } from "react";
 import {
   Box,
   FormControl,
@@ -12,7 +11,7 @@ import { Droppable, Draggable } from "react-beautiful-dnd";
 import { useItemFiltering } from "../../hooks/useItemFiltering";
 import { ItemCard } from "./ItemCard";
 
-const AvailableItems = ({
+export const AvailableItems = ({
   isExpanded,
   selectedCategory,
   setSelectedCategory,
@@ -94,5 +93,3 @@ const AvailableItems = ({
     </Droppable>
   );
 };
-
-export default memo(AvailableItems);
