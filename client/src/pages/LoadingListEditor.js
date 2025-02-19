@@ -13,7 +13,7 @@ import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
 import AvailableItems from "../components/LoadingListEditor/AvailableItems";
 import ToggleButton from "../components/LoadingListEditor/ToggleButton";
-import CopyListDialog from "../components/CopyListDialog";
+import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import "./LoadingListEditor.css";
 
 function LoadingListEditor() {
@@ -536,7 +536,6 @@ function LoadingListEditor() {
         handleSubmit={handleSubmit}
         teams={teams}
       />
-
       {/* Copy List Dialog */}
       <CopyListDialog
         copyDialogOpen={copyDialogOpen}
@@ -552,7 +551,6 @@ function LoadingListEditor() {
         copyError={copyError}
         setCopyError={setCopyError}
       />
-
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
           className="loading-list-editor"

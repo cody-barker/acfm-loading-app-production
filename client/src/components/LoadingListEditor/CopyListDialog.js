@@ -11,7 +11,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import Error from "../components/Error";
+import Error from "../Error";
 
 function CopyListDialog({ ...props }) {
   const {

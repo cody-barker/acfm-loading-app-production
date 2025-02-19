@@ -1,25 +1,8 @@
 import { Box, Typography, Button, Stack, Alert } from "@mui/material";
-import { format } from "date-fns";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-const getLoadText = (date, tomorrow) => {
-  if (date < tomorrow) return "Loaded";
-  return "Load";
-};
-
-const formatDate = (date, today, tomorrow) => {
-  if (date === tomorrow) return "Today";
-  if (date === today) return "Yesterday";
-  return format(date, "MM-dd-yyyy");
-};
-
-const formatReturnDate = (returnDate, today, tomorrow) => {
-  if (returnDate === today) return "Today";
-  if (returnDate === tomorrow) return "Tomorrow";
-  return format(returnDate, "MM-dd-yyyy");
-};
+import {getLoadText, formatDate, formatReturnDate} from "../../utils/helpers";
 
 const LoadingListHeader = ({
   loadingList,
