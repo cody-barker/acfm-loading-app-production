@@ -14,6 +14,7 @@ import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
+import { getItemIdFromDraggable } from "../utils/helpers";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -518,8 +519,12 @@ function LoadingListEditor() {
       source.droppableId === "availableItems" &&
       destination.droppableId === "loadingListItems"
     ) {
-      const draggedItemId = parseInt(result.draggableId, 10);
-      await handleAddToLoadingList(draggedItemId, destination.index);
+      const itemId = getItemIdFromDraggable(result.draggableId);
+      if (itemId === null) {
+        setError("Invalid item ID");
+        return;
+      }
+      await handleAddToLoadingList(itemId, destination.index);
     }
   };
 

@@ -16,3 +16,8 @@ export const formatReturnDate = (returnDate, today, tomorrow) => {
   if (returnDate === tomorrow) return "Tomorrow";
   return format(returnDate, "MM-dd-yyyy");
 };
+
+export const getItemIdFromDraggable = (draggableId) => {
+  const id = parseInt(draggableId, 10);
+  return isNaN(id) ? null : id;
+};
