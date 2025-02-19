@@ -19,7 +19,7 @@ const AvailableItems = ({
   returningTodayCount,
   items,
 }) => {
-  const { nameFilter, setNameFilter, uniqueCategories, filteredItems } =
+  const { itemNameFilter, setItemNameFilter, uniqueCategories, filteredItems } =
     useItemFiltering(items, selectedCategory);
 
   return (
@@ -49,8 +49,8 @@ const AvailableItems = ({
                 fullWidth
                 label="Search by name"
                 variant="outlined"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
+                value={itemNameFilter}
+                onChange={(e) => setItemNameFilter(e.target.value)}
                 sx={{ mb: 2, width: "95%" }}
               />
               <FormControl variant="outlined" fullWidth sx={{ mb: 2 }}>

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 
 export const useItemFiltering = (items, selectedCategory) => {
-  const [nameFilter, setNameFilter] = useState("");
+  const [itemNameFilter, setItemNameFilter] = useState("");
 
   const uniqueCategories = useMemo(
     () => [...new Set(items.map((item) => item.category))],
@@ -14,17 +14,17 @@ export const useItemFiltering = (items, selectedCategory) => {
         const matchesCategory = selectedCategory
           ? item.category === selectedCategory
           : true;
-        const matchesName = nameFilter
-          ? item.name.toLowerCase().includes(nameFilter.toLowerCase())
+        const matchesName = itemNameFilter
+          ? item.name.toLowerCase().includes(itemNameFilter.toLowerCase())
           : true;
         return matchesCategory && matchesName;
       }),
-    [items, selectedCategory, nameFilter]
+    [items, selectedCategory, itemNameFilter]
   );
 
   return {
-    nameFilter,
-    setNameFilter,
+    itemNameFilter,
+    setItemNameFilter,
     uniqueCategories,
     filteredItems,
   };
