@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo } from "react";
 import {
   Box,
   FormControl,
@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Droppable, Draggable } from "react-beautiful-dnd";
+import { useItemFiltering } from "../../hooks/useItemFiltering";
 
 // Memoized item card component
 const ItemCard = memo(({ item, returningCount, provided }) => {
@@ -58,18 +59,8 @@ const AvailableItems = ({
   returningTodayCount,
   items,
 }) => {
-  const [nameFilter, setNameFilter] = useState("");
-
-  const uniqueCategories = [...new Set(items.map((item) => item.category))];
-  const filteredItems = items.filter((item) => {
-    const matchesCategory = selectedCategory
-      ? item.category === selectedCategory
-      : true;
-    const matchesName = nameFilter
-      ? item.name.toLowerCase().includes(nameFilter.toLowerCase())
-      : true;
-    return matchesCategory && matchesName;
-  });
+  const { nameFilter, setNameFilter, uniqueCategories, filteredItems } =
+    useItemFiltering(items, selectedCategory);
 
   return (
     <Droppable droppableId="availableItems">
