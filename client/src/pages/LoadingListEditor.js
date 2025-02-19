@@ -26,6 +26,7 @@ import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
 import AvailableItems from "../components/LoadingListEditor/AvailableItems";
 import ToggleButton from "../components/LoadingListEditor/ToggleButton";
+import CopyListDialog from "../components/CopyListDialog";
 import "./LoadingListEditor.css";
 
 function LoadingListEditor() {
@@ -531,16 +532,13 @@ function LoadingListEditor() {
 
   return (
     <Container maxWidth="xl">
-      <Box sx={{ mb: 4 }}>
-        <LoadingListHeader
-          loadingList={loadingList}
-          handleDelete={handleDelete}
-          handleEdit={() => setOpen(true)}
-          handleCopy={handleCopyList}
-          error={error}
-        />
-      </Box>
-
+      <LoadingListHeader
+        loadingList={loadingList}
+        handleDelete={handleDelete}
+        handleEdit={() => setOpen(true)}
+        handleCopy={handleCopyList}
+        error={error}
+      />
       {/* Edit Dialog */}
       <LoadingListDialog
         open={open}
@@ -552,110 +550,15 @@ function LoadingListEditor() {
       />
 
       {/* Copy List Dialog */}
-      <Dialog open={copyDialogOpen} onClose={() => setCopyDialogOpen(false)}>
-        <DialogTitle>Copy Loading List</DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={handleCopySubmit} sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              label="Site Name"
-              value={copyFormData.site_name}
-              onChange={(e) =>
-                setCopyFormData((prev) => ({
-                  ...prev,
-                  site_name: e.target.value,
-                }))
-              }
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Work Starts"
-              type="date"
-              value={copyFormData.date}
-              onChange={(e) =>
-                setCopyFormData((prev) => ({
-                  ...prev,
-                  date: e.target.value,
-                }))
-              }
-              margin="normal"
-              required
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Return Date"
-              type="date"
-              value={copyFormData.return_date}
-              onChange={(e) =>
-                setCopyFormData((prev) => ({
-                  ...prev,
-                  return_date: e.target.value,
-                }))
-              }
-              margin="normal"
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Notes"
-              value={copyFormData.notes}
-              onChange={(e) =>
-                setCopyFormData((prev) => ({
-                  ...prev,
-                  notes: e.target.value,
-                }))
-              }
-              margin="normal"
-              multiline
-              rows={4}
-            />
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel>Team</InputLabel>
-              <Select
-                value={copyFormData.team_id}
-                onChange={(e) =>
-                  setCopyFormData((prev) => ({
-                    ...prev,
-                    team_id: e.target.value,
-                  }))
-                }
-                label="Team"
-              >
-                {teams.map((team) => (
-                  <MenuItem key={team.id} value={team.id}>
-                    {team.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {copyError && <Error error={copyError} />}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setCopyDialogOpen(false);
-              setCopyError(null);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCopySubmit}
-            variant="contained"
-            color="primary"
-          >
-            Create Copy
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CopyListDialog
+        copyDialogOpen={copyDialogOpen}
+        setCopyDialogOpen={setCopyDialogOpen}
+        copyFormData={copyFormData}
+        setCopyFormData={setCopyFormData}
+        handleCopySubmit={handleCopySubmit}
+        copyError={copyError}
+        teams={teams}
+      />
 
       <DragDropContext onDragEnd={onDragEnd}>
         <Box
