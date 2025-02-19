@@ -21,3 +21,6 @@ export const getItemIdFromDraggable = (draggableId) => {
   const id = parseInt(draggableId, 10);
   return isNaN(id) ? null : id;
 };
+
+export const settlePromise = (promise) =>
+  Promise.allSettled([promise]).then(([{ value, reason }]) => [value, reason]);

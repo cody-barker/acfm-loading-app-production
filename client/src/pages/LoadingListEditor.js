@@ -14,7 +14,7 @@ import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
-import { getItemIdFromDraggable } from "../utils/helpers";
+import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -211,12 +211,6 @@ function LoadingListEditor() {
 
     return totalReturningQuantity;
   };
-
-  const settlePromise = (promise) =>
-    Promise.allSettled([promise]).then(([{ value, reason }]) => [
-      value,
-      reason,
-    ]);
 
   const decreaseItemQuantity = async (item) => {
     const [response, error] = await settlePromise(
