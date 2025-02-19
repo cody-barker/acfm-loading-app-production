@@ -2,7 +2,7 @@ import { Box, Typography, Button, Stack, Alert } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {getLoadText, formatDate, formatReturnDate} from "../../utils/helpers";
+import { getLoadText, formatDate, formatReturnDate } from "../../utils/helpers";
 
 const LoadingListHeader = ({
   loadingList,
@@ -10,12 +10,9 @@ const LoadingListHeader = ({
   handleDelete,
   handleCopy,
   error,
+  today,
+  formattedTomorrow,
 }) => {
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const formattedTomorrow = tomorrow.toISOString().split("T")[0];
-
   return (
     <Box sx={{ mb: 4 }}>
       <Box

@@ -32,6 +32,11 @@ function LoadingListEditor() {
   const [error, setError] = useState(null);
   const [copyError, setCopyError] = useState(null);
 
+  const today = new Date().toISOString().split("T")[0];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const formattedTomorrow = tomorrow.toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
@@ -48,19 +53,6 @@ function LoadingListEditor() {
     team_id: "",
     user_id: user.id,
   });
-  const [nameFilter, setNameFilter] = useState("");
-
-  const uniqueCategories = [...new Set(items.map((item) => item.category))];
-  const filteredItems = items.filter((item) => {
-    const matchesCategory = selectedCategory
-      ? item.category === selectedCategory
-      : true;
-    const matchesName = nameFilter
-      ? item.name.toLowerCase().includes(nameFilter.toLowerCase())
-      : true;
-    return matchesCategory && matchesName;
-  });
-  const today = format(new Date(), "yyyy-MM-dd");
 
   let loadingList = loadingLists.find(
     (loadingList) => loadingList.id === parseInt(id)
@@ -526,6 +518,8 @@ function LoadingListEditor() {
         handleEdit={() => setOpen(true)}
         handleCopy={handleCopyList}
         error={error}
+        today={today}
+        formattedTomorrow={formattedTomorrow}
       />
       {/* Edit Dialog */}
       <LoadingListDialog
@@ -567,11 +561,8 @@ function LoadingListEditor() {
             isExpanded={isExpanded}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
-            nameFilter={nameFilter}
-            setNameFilter={setNameFilter}
-            uniqueCategories={uniqueCategories}
-            filteredItems={filteredItems}
             returningTodayCount={returningTodayCount}
+            items={items}
           />
           <ToggleButton isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
           <LoadingListItems
