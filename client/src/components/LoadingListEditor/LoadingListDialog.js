@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 
 const LoadingListDialog = ({
-  open,
+  openEditForm,
   onClose,
   formData,
   setFormData,
@@ -27,10 +27,8 @@ const LoadingListDialog = ({
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  
-
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={openEditForm} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Update Loading List Details</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 2 }}>

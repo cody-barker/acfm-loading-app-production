@@ -26,7 +26,7 @@ function LoadingListEditor() {
   const { user } = useContext(UserContext);
 
   const [isExpanded, setIsExpanded] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [openEditForm, setOpenEditForm] = useState(false);
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
@@ -193,7 +193,7 @@ function LoadingListEditor() {
         list.id === parseInt(id) ? updatedList : list
       )
     );
-    setOpen(false);
+    setOpenEditForm(false);
   };
 
   const returningTodayCount = (itemId) => {
@@ -528,7 +528,7 @@ function LoadingListEditor() {
       <LoadingListHeader
         loadingList={loadingList}
         handleDelete={handleDelete}
-        handleEdit={() => setOpen(true)}
+        handleEdit={() => setOpenEditForm(true)}
         handleCopy={handleCopyList}
         error={error}
         today={today}
@@ -536,11 +536,12 @@ function LoadingListEditor() {
       />
       {/* Edit Dialog */}
       <LoadingListDialog
-        open={open}
-        handleClose={() => setOpen(false)}
+        openEditForm={openEditForm}
+        onClose={() => setOpenEditForm(false)}
         formData={formData}
         setFormData={setFormData}
         handleSubmit={handleSubmit}
+        handleDelete={handleDelete}
         teams={teams}
       />
       {/* Copy List Dialog */}
