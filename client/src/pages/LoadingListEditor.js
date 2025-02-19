@@ -386,41 +386,38 @@ function LoadingListEditor() {
     increaseItemQuantity(updatedItem.item);
   };
 
+  const findLoadingListItemById = (id) =>
+    loadingList.loading_list_items.find((item) => item.id === id);
+
   const deleteLoadingListItem = async (id) => {
+    const loadingListItem = findLoadingListItemById(id);
+    if (!loadingListItem) {
+      console.error("Loading list item not found:", id);
+      return false;
+    }
+
     try {
-      // Find the loading list item before deleting it
-      const loadingListItem = loadingList.loading_list_items.find(
-        (item) => item.id === id
-      );
+      const response = await fetch(`/api/loading_list_items/${id}`, {
+        method: "DELETE",
+      });
 
-      await fetch(`/api/loading_list_items/${id}`, { method: "DELETE" });
-
-      // If we reach here, the delete was successful
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === loadingList.id
-            ? {
-                ...list,
-                loading_list_items: list.loading_list_items.filter(
-                  (item) => item.id !== id
-                ),
-              }
-            : list
-        )
-      );
-
-      // Update the available item quantity
-      if (loadingListItem) {
-        setItems((prev) =>
-          prev.map((item) =>
-            item.id === loadingListItem.item_id
-              ? { ...item, quantity: item.quantity + loadingListItem.quantity }
-              : item
-          )
-        );
+      if (!response.ok) {
+        throw new Error("Failed to delete item");
       }
+
+      removeItemFromLoadingList(
+        loadingList.loading_list_items.findIndex((item) => item.id === id)
+      );
+      returnLoadingListItemToAvailableItems(
+        loadingListItem.item_id,
+        loadingListItem.quantity
+      );
+
+      return true;
     } catch (error) {
       console.error("Error deleting loading list item:", error);
+      setError("Failed to delete item. Please try again.");
+      return false;
     }
   };
 
