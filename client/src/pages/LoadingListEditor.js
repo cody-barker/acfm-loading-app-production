@@ -424,6 +424,34 @@ function LoadingListEditor() {
     }
   };
 
+  const removeItemFromLoadingList = (sourceIndex) => {
+    setLoadingLists((prev) =>
+      prev.map((list) =>
+        list.id === loadingList.id
+          ? {
+              ...list,
+              loading_list_items: list.loading_list_items.filter(
+                (_, index) => index !== sourceIndex
+              ),
+            }
+          : list
+      )
+    );
+  };
+
+  const returnLoadingListItemToAvailableItems = (itemId, quantity) => {
+    setItems((prev) =>
+      prev.map((availableItem) =>
+        availableItem.id === itemId
+          ? {
+              ...availableItem,
+              quantity: availableItem.quantity + quantity,
+            }
+          : availableItem
+      )
+    );
+  };
+
   const handleRemoveFromLoadingList = async (sourceIndex) => {
     const item = loadingList.loading_list_items[sourceIndex];
     if (!item) return false;
@@ -437,32 +465,8 @@ function LoadingListEditor() {
         throw new Error("Failed to delete item");
       }
 
-      // Update loading lists state
-      setLoadingLists((prev) =>
-        prev.map((list) =>
-          list.id === loadingList.id
-            ? {
-                ...list,
-                loading_list_items: list.loading_list_items.filter(
-                  (_, index) => index !== sourceIndex
-                ),
-              }
-            : list
-        )
-      );
-
-      // Update available items state
-      setItems((prev) =>
-        prev.map((availableItem) =>
-          availableItem.id === item.item_id
-            ? {
-                ...availableItem,
-                quantity: availableItem.quantity + item.quantity,
-              }
-            : availableItem
-        )
-      );
-
+      removeItemFromLoadingList(sourceIndex);
+      returnLoadingListItemToAvailableItems(item.item_id, item.quantity);
       setError(null);
 
       return true;
@@ -473,7 +477,7 @@ function LoadingListEditor() {
     }
   };
 
-  const handleAddToLoadingList = async (draggedItemId, destinationIndex) => {
+  const handleAddToLoadingList = async (draggedItemId) => {
     const item = items.find((i) => i.id === draggedItemId);
 
     if (!item) {
