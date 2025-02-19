@@ -1,20 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
-import {
-  Box,
-  Container,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
 import { format } from "date-fns";
@@ -44,6 +31,7 @@ function LoadingListEditor() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
   const [copyError, setCopyError] = useState(null);
+
   const [formData, setFormData] = useState({
     site_name: "",
     date: "",
@@ -94,55 +82,6 @@ function LoadingListEditor() {
   if (!loadingList) {
     return <div></div>;
   }
-
-  const handleDelete = async (e) => {
-    e.preventDefault();
-    try {
-      await fetch(`/api/loading_lists/${parseInt(id)}`, {
-        method: "DELETE",
-      });
-
-      setLoadingLists((prevLists) =>
-        prevLists.filter((list) => list.id !== parseInt(id))
-      );
-
-      const [itemsResponse, itemsError] = await settlePromise(
-        fetch("/api/items")
-      );
-
-      if (itemsError)
-        return console.error("Error fetching updated items:", itemsError);
-
-      const updatedItems = await itemsResponse.json();
-      setItems(updatedItems);
-      navigate("/");
-    } catch (error) {
-      console.error("Error deleting loading list:", error);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_lists/${parseInt(id)}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-    );
-
-    if (error) return console.error("Error submitting loading list:", error);
-
-    const updatedList = await response.json();
-    setLoadingLists(
-      loadingLists.map((list) =>
-        list.id === parseInt(id) ? updatedList : list
-      )
-    );
-    setOpen(false);
-  };
 
   const handleCopyList = () => {
     setCopyFormData({
@@ -213,6 +152,55 @@ function LoadingListEditor() {
       console.error("Error copying loading list:", error);
       setCopyError(error.errors || "An unexpected error occurred");
     }
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch(`/api/loading_lists/${parseInt(id)}`, {
+        method: "DELETE",
+      });
+
+      setLoadingLists((prevLists) =>
+        prevLists.filter((list) => list.id !== parseInt(id))
+      );
+
+      const [itemsResponse, itemsError] = await settlePromise(
+        fetch("/api/items")
+      );
+
+      if (itemsError)
+        return console.error("Error fetching updated items:", itemsError);
+
+      const updatedItems = await itemsResponse.json();
+      setItems(updatedItems);
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting loading list:", error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const [response, error] = await settlePromise(
+      fetch(`/api/loading_lists/${parseInt(id)}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+    );
+
+    if (error) return console.error("Error submitting loading list:", error);
+
+    const updatedList = await response.json();
+    setLoadingLists(
+      loadingLists.map((list) =>
+        list.id === parseInt(id) ? updatedList : list
+      )
+    );
+    setOpen(false);
   };
 
   const returningTodayCount = (itemId) => {
@@ -556,8 +544,13 @@ function LoadingListEditor() {
         copyFormData={copyFormData}
         setCopyFormData={setCopyFormData}
         handleCopySubmit={handleCopySubmit}
-        copyError={copyError}
         teams={teams}
+        loadingList={loadingList}
+        setLoadingLists={setLoadingLists}
+        navigate={navigate}
+        formData={formData}
+        copyError={copyError}
+        setCopyError={setCopyError}
       />
 
       <DragDropContext onDragEnd={onDragEnd}>

@@ -27,6 +27,8 @@ const LoadingListDialog = ({
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Update Loading List Details</DialogTitle>

@@ -6,9 +6,25 @@ import {
   TextField,
   Button,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
+import Error from "../components/Error";
 
-function CopyListDialog() {
+function CopyListDialog({ ...props }) {
+  const {
+    copyDialogOpen,
+    setCopyDialogOpen,
+    copyFormData,
+    setCopyFormData,
+    teams,
+    handleCopySubmit,
+    copyError,
+    setCopyError,
+  } = props;
+
   return (
     <Dialog open={copyDialogOpen} onClose={() => setCopyDialogOpen(false)}>
       <DialogTitle>Copy Loading List</DialogTitle>
