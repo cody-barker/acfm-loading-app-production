@@ -6,14 +6,14 @@ import { ItemsContext } from "../contexts/ItemsContext";
 import { LoadingListsContext } from "../contexts/LoadingListsContext";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
-import Error from "../components/Error";
+import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
-import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
-import "./LoadingListEditor.css";
+import Error from "../components/Error";
+import "../styles/LoadingListEditor.css";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -44,6 +44,7 @@ function LoadingListEditor() {
     team_id: "",
     user_id: user.id,
   });
+
   const [copyFormData, setCopyFormData] = useState({
     site_name: "",
     date: "",
@@ -422,6 +423,76 @@ function LoadingListEditor() {
     }
   };
 
+  const handleRemoveFromLoadingList = async (sourceIndex) => {
+    const item = loadingList.loading_list_items[sourceIndex];
+    if (!item) return false;
+
+    try {
+      const response = await fetch(`/api/loading_list_items/${item.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete item");
+      }
+
+      // Update loading lists state
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === loadingList.id
+            ? {
+                ...list,
+                loading_list_items: list.loading_list_items.filter(
+                  (_, index) => index !== sourceIndex
+                ),
+              }
+            : list
+        )
+      );
+
+      // Update available items state
+      setItems((prev) =>
+        prev.map((availableItem) =>
+          availableItem.id === item.item_id
+            ? {
+                ...availableItem,
+                quantity: availableItem.quantity + item.quantity,
+              }
+            : availableItem
+        )
+      );
+
+      setError(null);
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting loading list item:", error);
+      setError("Failed to move item. Please try again.");
+      return false;
+    }
+  };
+
+  const handleAddToLoadingList = async (draggedItemId, destinationIndex) => {
+    const item = items.find((i) => i.id === draggedItemId);
+
+    if (!item) {
+      setError("Error: Item not found.");
+      return false;
+    }
+
+    const itemExists = loadingList.loading_list_items.some(
+      (loadingListItem) => loadingListItem.item_id === item.id
+    );
+
+    if (itemExists) {
+      setError("This item is already on the loading list.");
+      return false;
+    }
+
+    setError(null);
+    return await createLoadingListItem(item);
+  };
+
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
@@ -434,78 +505,21 @@ function LoadingListEditor() {
       return;
     }
 
+    // Moving from loading list to available items
     if (
       source.droppableId === "loadingListItems" &&
       destination.droppableId === "availableItems"
     ) {
-      const item = loadingList.loading_list_items[source.index];
-      if (!item) return; // Guard against undefined item
-
-      setError(null);
-
-      try {
-        // First delete the item from the API
-        const response = await fetch(`/api/loading_list_items/${item.id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete item");
-        }
-
-        // Then update both states together
-        setLoadingLists((prev) =>
-          prev.map((list) =>
-            list.id === loadingList.id
-              ? {
-                  ...list,
-                  loading_list_items: list.loading_list_items.filter(
-                    (_, index) => index !== source.index
-                  ),
-                }
-              : list
-          )
-        );
-
-        setItems((prev) =>
-          prev.map((availableItem) =>
-            availableItem.id === item.item_id
-              ? {
-                  ...availableItem,
-                  quantity: availableItem.quantity + item.quantity,
-                }
-              : availableItem
-          )
-        );
-      } catch (error) {
-        console.error("Error deleting loading list item:", error);
-        setError("Failed to move item. Please try again.");
-      }
+      await handleRemoveFromLoadingList(source.index);
     }
 
+    // Moving from available items to loading list
     if (
       source.droppableId === "availableItems" &&
       destination.droppableId === "loadingListItems"
     ) {
       const draggedItemId = parseInt(result.draggableId, 10);
-      const item = items.find((i) => i.id === draggedItemId);
-
-      if (!item) {
-        setError("Error: Item not found.");
-        return;
-      }
-
-      const itemExists = loadingList.loading_list_items.some(
-        (loadingListItem) => loadingListItem.item_id === item.id
-      );
-
-      if (itemExists) {
-        setError("This item is already on the loading list.");
-        return;
-      }
-
-      setError(null);
-      await createLoadingListItem(item);
+      await handleAddToLoadingList(draggedItemId, destination.index);
     }
   };
 
