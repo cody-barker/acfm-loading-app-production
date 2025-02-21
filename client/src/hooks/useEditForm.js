@@ -21,7 +21,7 @@ export const useEditForm = (user, loadingListDetails = null) => {
         user_id: user.id,
       });
     }
-  }, [loadingListDetails, user.id]);
+  }, [loadingListDetails]);
 
   return [editForm, setEditForm];
 };
