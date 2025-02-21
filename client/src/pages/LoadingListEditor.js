@@ -16,10 +16,12 @@ import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
+import { loadingListService } from "../services/loadingListService";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  let { id } = useParams();
+  id = parseInt(id);
 
   const { items, setItems } = useContext(ItemsContext);
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
@@ -48,9 +50,7 @@ function LoadingListEditor() {
     user_id: user.id,
   });
 
-  let loadingList = loadingLists.find(
-    (loadingList) => loadingList.id === parseInt(id)
-  );
+  let loadingList = loadingLists.find((loadingList) => loadingList.id === id);
 
   if (!loadingList) {
     return <div></div>;
@@ -130,12 +130,10 @@ function LoadingListEditor() {
   const handleDelete = async (e) => {
     e.preventDefault();
     try {
-      await fetch(`/api/loading_lists/${parseInt(id)}`, {
-        method: "DELETE",
-      });
+      await loadingListService.deleteList(id);
 
       setLoadingLists((prevLists) =>
-        prevLists.filter((list) => list.id !== parseInt(id))
+        prevLists.filter((list) => list.id !== id)
       );
 
       const [itemsResponse, itemsError] = await settlePromise(
@@ -156,7 +154,7 @@ function LoadingListEditor() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const [response, error] = await settlePromise(
-      fetch(`/api/loading_lists/${parseInt(id)}`, {
+      fetch(`/api/loading_lists/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -169,9 +167,7 @@ function LoadingListEditor() {
 
     const updatedList = await response.json();
     setLoadingLists(
-      loadingLists.map((list) =>
-        list.id === parseInt(id) ? updatedList : list
-      )
+      loadingLists.map((list) => (list.id === id ? updatedList : list))
     );
     setOpenEditForm(false);
   };
@@ -246,7 +242,7 @@ function LoadingListEditor() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          loading_list_id: parseInt(id),
+          loading_list_id: id,
           item_id: item.id,
           quantity: 1,
         }),
