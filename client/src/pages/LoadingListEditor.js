@@ -8,7 +8,7 @@ import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
-import { useEditForm } from "../hooks/useEditForm";
+import { useLoadingListForm } from "../hooks/useLoadingListForm";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
@@ -32,7 +32,7 @@ function LoadingListEditor() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
   const [copyError, setCopyError] = useState(null);
-  const [editForm, setEditForm] = useEditForm(user, null);
+  const [editForm, setEditForm] = useLoadingListForm(user, null);
 
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();

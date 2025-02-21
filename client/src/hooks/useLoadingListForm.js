@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export const useEditForm = (user, loadingListDetails = null) => {
+export const useLoadingListForm = (user, loadingListDetails = null) => {
   const [editForm, setEditForm] = useState({
     site_name: "",
     date: "",
