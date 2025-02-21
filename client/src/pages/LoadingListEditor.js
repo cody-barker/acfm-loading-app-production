@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Box, Container } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
@@ -8,7 +8,7 @@ import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
-import { useEditForm } from "../hooks/useEditLoadingListDetailsForm";
+import { useEditForm } from "../hooks/useEditForm";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
