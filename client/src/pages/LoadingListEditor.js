@@ -126,30 +126,6 @@ function LoadingListEditor() {
     }
   };
 
-  // const handleDelete = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     await loadingListService.deleteList(id);
-
-  //     setLoadingLists((prevLists) =>
-  //       prevLists.filter((list) => list.id !== id)
-  //     );
-
-  //     const [itemsResponse, itemsError] = await settlePromise(
-  //       fetch("/api/items")
-  //     );
-
-  //     if (itemsError)
-  //       return console.error("Error fetching updated items:", itemsError);
-
-  //     const updatedItems = await itemsResponse.json();
-  //     setItems(updatedItems);
-  //     navigate("/");
-  //   } catch (error) {
-  //     console.error("Error deleting loading list:", error);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const [response, error] = await settlePromise(
