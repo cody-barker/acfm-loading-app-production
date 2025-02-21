@@ -15,6 +15,7 @@ import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
 import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
+import { useEditLoadingListDetailsForm } from "../hooks/useEditLoadingListDetailsForm";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -31,20 +32,13 @@ function LoadingListEditor() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
   const [copyError, setCopyError] = useState(null);
+  const [loadingListDetailsFormData, setLoadingListDetailsFormData] =
+    useEditLoadingListDetailsForm(user, null);
 
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const formattedTomorrow = tomorrow.toISOString().split("T")[0];
-
-  const [formData, setFormData] = useState({
-    site_name: "",
-    date: "",
-    return_date: "",
-    notes: "",
-    team_id: "",
-    user_id: user.id,
-  });
 
   const [copyFormData, setCopyFormData] = useState({
     site_name: "",
@@ -61,7 +55,7 @@ function LoadingListEditor() {
 
   useEffect(() => {
     if (loadingList) {
-      setFormData({
+      setLoadingListDetailsFormData({
         site_name: loadingList.site_name || "",
         date: loadingList.date || "",
         return_date: loadingList.return_date || "",
@@ -78,7 +72,7 @@ function LoadingListEditor() {
 
   const handleCopyList = () => {
     setCopyFormData({
-      ...formData,
+      ...loadingListDetailsFormData,
       date: "",
       return_date: "",
     });
@@ -181,7 +175,7 @@ function LoadingListEditor() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(loadingListDetailsFormData),
       })
     );
 
@@ -538,8 +532,8 @@ function LoadingListEditor() {
       <LoadingListDialog
         openEditForm={openEditForm}
         onClose={() => setOpenEditForm(false)}
-        formData={formData}
-        setFormData={setFormData}
+        formData={loadingListDetailsFormData}
+        setFormData={setLoadingListDetailsFormData}
         handleSubmit={handleSubmit}
         handleDelete={handleDelete}
         teams={teams}
@@ -555,7 +549,7 @@ function LoadingListEditor() {
         loadingList={loadingList}
         setLoadingLists={setLoadingLists}
         navigate={navigate}
-        formData={formData}
+        formData={loadingListDetailsFormData}
         copyError={copyError}
         setCopyError={setCopyError}
       />
