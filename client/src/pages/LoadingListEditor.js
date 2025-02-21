@@ -9,7 +9,6 @@ import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
 import { useLoadingListForm } from "../hooks/useLoadingListForm";
-import { loadingListService } from "../services/loadingListService";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
@@ -17,6 +16,7 @@ import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
+import { useLoadingListOperations } from "../hooks/useLoadingListOperations";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -27,14 +27,14 @@ function LoadingListEditor() {
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const { teams } = useContext(TeamsContext);
   const { user } = useContext(UserContext);
+  let loadingList = loadingLists.find((loadingList) => loadingList.id === id);
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [openEditForm, setOpenEditForm] = useState(false);
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [error, setError] = useState(null);
-  const [copyError, setCopyError] = useState(null);
   const [editForm, setEditForm] = useLoadingListForm(user, null);
+  const { error, setError, copyError, setCopyError, handleDelete } = useLoadingListOperations(loadingList, setLoadingLists, setItems);
 
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();
@@ -50,7 +50,6 @@ function LoadingListEditor() {
     user_id: user.id,
   });
 
-  let loadingList = loadingLists.find((loadingList) => loadingList.id === id);
 
   if (!loadingList) {
     return <div></div>;
@@ -127,29 +126,29 @@ function LoadingListEditor() {
     }
   };
 
-  const handleDelete = async (e) => {
-    e.preventDefault();
-    try {
-      await loadingListService.deleteList(id);
+  // const handleDelete = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     await loadingListService.deleteList(id);
 
-      setLoadingLists((prevLists) =>
-        prevLists.filter((list) => list.id !== id)
-      );
+  //     setLoadingLists((prevLists) =>
+  //       prevLists.filter((list) => list.id !== id)
+  //     );
 
-      const [itemsResponse, itemsError] = await settlePromise(
-        fetch("/api/items")
-      );
+  //     const [itemsResponse, itemsError] = await settlePromise(
+  //       fetch("/api/items")
+  //     );
 
-      if (itemsError)
-        return console.error("Error fetching updated items:", itemsError);
+  //     if (itemsError)
+  //       return console.error("Error fetching updated items:", itemsError);
 
-      const updatedItems = await itemsResponse.json();
-      setItems(updatedItems);
-      navigate("/");
-    } catch (error) {
-      console.error("Error deleting loading list:", error);
-    }
-  };
+  //     const updatedItems = await itemsResponse.json();
+  //     setItems(updatedItems);
+  //     navigate("/");
+  //   } catch (error) {
+  //     console.error("Error deleting loading list:", error);
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
