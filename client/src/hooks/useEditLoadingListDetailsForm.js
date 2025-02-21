@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 
-export const useEditLoadingListDetailsForm = (user, loadingListDetails = null) => {
-  const [loadingListDetailsFormData, setLoadingListDetailsFormData] =
-    useState({
+export const useEditForm = (user, loadingListDetails = null) => {
+  const [editForm, setEditForm] = useState({
       site_name: "",
       date: "",
       return_date: "",
@@ -13,7 +12,7 @@ export const useEditLoadingListDetailsForm = (user, loadingListDetails = null) =
 
   useEffect(() => {
     if (loadingListDetails) {
-      setLoadingListDetailsFormData({
+      setEditForm({
         site_name: loadingListDetails.site_name || "",
         date: loadingListDetails.date || "",
         return_date: loadingListDetails.return_date || "",
@@ -24,5 +23,5 @@ export const useEditLoadingListDetailsForm = (user, loadingListDetails = null) =
     }
   }, [loadingListDetails, user.id]);
 
-  return [loadingListDetailsFormData, setLoadingListDetailsFormData];
+  return [editForm, setEditForm];
 };

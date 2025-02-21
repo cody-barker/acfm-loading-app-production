@@ -7,6 +7,8 @@ import { LoadingListsContext } from "../contexts/LoadingListsContext";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
+import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
+import { useEditForm } from "../hooks/useEditLoadingListDetailsForm";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
@@ -14,8 +16,6 @@ import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
-import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
-import { useEditLoadingListDetailsForm } from "../hooks/useEditLoadingListDetailsForm";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
@@ -32,8 +32,7 @@ function LoadingListEditor() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [error, setError] = useState(null);
   const [copyError, setCopyError] = useState(null);
-  const [loadingListDetailsFormData, setLoadingListDetailsFormData] =
-    useEditLoadingListDetailsForm(user, null);
+  const [editForm, setEditForm] = useEditForm(user, null);
 
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();
@@ -53,26 +52,13 @@ function LoadingListEditor() {
     (loadingList) => loadingList.id === parseInt(id)
   );
 
-  useEffect(() => {
-    if (loadingList) {
-      setLoadingListDetailsFormData({
-        site_name: loadingList.site_name || "",
-        date: loadingList.date || "",
-        return_date: loadingList.return_date || "",
-        notes: loadingList.notes || "",
-        team_id: loadingList.team_id || "",
-        user_id: user.id,
-      });
-    }
-  }, [loadingList, user.id]);
-
   if (!loadingList) {
     return <div></div>;
   }
 
   const handleCopyList = () => {
     setCopyFormData({
-      ...loadingListDetailsFormData,
+      ...editForm,
       date: "",
       return_date: "",
     });
@@ -175,7 +161,7 @@ function LoadingListEditor() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(loadingListDetailsFormData),
+        body: JSON.stringify(editForm),
       })
     );
 
@@ -532,8 +518,8 @@ function LoadingListEditor() {
       <LoadingListDialog
         openEditForm={openEditForm}
         onClose={() => setOpenEditForm(false)}
-        formData={loadingListDetailsFormData}
-        setFormData={setLoadingListDetailsFormData}
+        formData={editForm}
+        setFormData={setEditForm}
         handleSubmit={handleSubmit}
         handleDelete={handleDelete}
         teams={teams}
@@ -549,7 +535,8 @@ function LoadingListEditor() {
         loadingList={loadingList}
         setLoadingLists={setLoadingLists}
         navigate={navigate}
-        formData={loadingListDetailsFormData}
+        formData={editForm}
+        setFormData={setEditForm}
         copyError={copyError}
         setCopyError={setCopyError}
       />
