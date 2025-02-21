@@ -9,6 +9,7 @@ import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
 import { useLoadingListForm } from "../hooks/useLoadingListForm";
+import { loadingListService } from "../services/loadingListService";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
@@ -16,7 +17,6 @@ import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
-import { loadingListService } from "../services/loadingListService";
 
 function LoadingListEditor() {
   const navigate = useNavigate();
