@@ -121,7 +121,11 @@ function CopyListDialog({ ...props }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleCopySubmit} variant="contained" color="primary">
+        <Button
+          onClick={() => handleCopySubmit(copyFormData)}
+          variant="contained"
+          color="primary"
+        >
           Create Copy
         </Button>
       </DialogActions>

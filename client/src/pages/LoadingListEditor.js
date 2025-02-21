@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState} from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Box, Container } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
@@ -27,20 +27,13 @@ function LoadingListEditor() {
   const { loadingLists, setLoadingLists } = useContext(LoadingListsContext);
   const { teams } = useContext(TeamsContext);
   const { user } = useContext(UserContext);
-  let loadingList = loadingLists.find((loadingList) => loadingList.id === id);
 
+  let loadingList = loadingLists.find((loadingList) => loadingList.id === id);
   const [isExpanded, setIsExpanded] = useState(true);
   const [openEditForm, setOpenEditForm] = useState(false);
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [editForm, setEditForm] = useLoadingListForm(user, null);
-  const { error, setError, copyError, setCopyError, handleDelete } = useLoadingListOperations(loadingList, setLoadingLists, setItems);
-
-  const today = new Date().toISOString().split("T")[0];
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const formattedTomorrow = tomorrow.toISOString().split("T")[0];
-
+  const [editForm, setEditForm] = useLoadingListForm(user, loadingList);
   const [copyFormData, setCopyFormData] = useState({
     site_name: "",
     date: "",
@@ -49,13 +42,25 @@ function LoadingListEditor() {
     team_id: "",
     user_id: user.id,
   });
+  const {
+    error,
+    setError,
+    copyError,
+    setCopyError,
+    handleDelete,
+    handleCopySubmit,
+  } = useLoadingListOperations(loadingList, setLoadingLists, setItems, setCopyDialogOpen);
 
+  const today = new Date().toISOString().split("T")[0];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const formattedTomorrow = tomorrow.toISOString().split("T")[0];
 
   if (!loadingList) {
     return <div></div>;
   }
 
-  const handleCopyList = () => {
+  const handleCopy = () => {
     setCopyFormData({
       ...editForm,
       date: "",
@@ -64,67 +69,67 @@ function LoadingListEditor() {
     setCopyDialogOpen(true);
   };
 
-  const handleCopySubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Create new loading list
-      const response = await fetch("/api/loading_lists", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(copyFormData),
-      });
+  // const handleCopySubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     // Create new loading list
+  //     const response = await fetch("/api/loading_lists", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(copyFormData),
+  //     });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw errorData;
+  //     }
 
-      const newList = await response.json();
-      setCopyError(null);
+  //     const newList = await response.json();
+  //     setCopyError(null);
 
-      // Copy all loading list items to the new list
-      const copyPromises = loadingList.loading_list_items.map((item) =>
-        fetch("/api/loading_list_items", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            loading_list_id: newList.id,
-            item_id: item.item_id,
-            quantity: item.quantity,
-          }),
-        })
-      );
+  //     // Copy all loading list items to the new list
+  //     const copyPromises = loadingList.loading_list_items.map((item) =>
+  //       fetch("/api/loading_list_items", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           loading_list_id: newList.id,
+  //           item_id: item.item_id,
+  //           quantity: item.quantity,
+  //         }),
+  //       })
+  //     );
 
-      // Wait for all items to be created
-      await Promise.all(copyPromises);
+  //     // Wait for all items to be created
+  //     await Promise.all(copyPromises);
 
-      // Fetch the complete list with items
-      const updatedListResponse = await fetch(
-        `/api/loading_lists/${newList.id}`
-      );
-      const updatedList = await updatedListResponse.json();
+  //     // Fetch the complete list with items
+  //     const updatedListResponse = await fetch(
+  //       `/api/loading_lists/${newList.id}`
+  //     );
+  //     const updatedList = await updatedListResponse.json();
 
-      // Add team association
-      const selectedTeam = teams.find(
-        (team) => team.id === copyFormData.team_id
-      );
-      const listWithTeam = {
-        ...updatedList,
-        team: selectedTeam,
-      };
+  //     // Add team association
+  //     const selectedTeam = teams.find(
+  //       (team) => team.id === copyFormData.team_id
+  //     );
+  //     const listWithTeam = {
+  //       ...updatedList,
+  //       team: selectedTeam,
+  //     };
 
-      setLoadingLists((prev) => [...prev, listWithTeam]);
-      setCopyDialogOpen(false);
-      navigate(`/loading-lists/${listWithTeam.id}`);
-    } catch (error) {
-      console.error("Error copying loading list:", error);
-      setCopyError(error.errors || "An unexpected error occurred");
-    }
-  };
+  //     setLoadingLists((prev) => [...prev, listWithTeam]);
+  //     setCopyDialogOpen(false);
+  //     navigate(`/loading-lists/${listWithTeam.id}`);
+  //   } catch (error) {
+  //     console.error("Error copying loading list:", error);
+  //     setCopyError(error.errors || "An unexpected error occurred");
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -480,7 +485,8 @@ function LoadingListEditor() {
         loadingList={loadingList}
         handleDelete={handleDelete}
         handleEdit={() => setOpenEditForm(true)}
-        handleCopy={handleCopyList}
+        handleCopy={handleCopy
+        }
         error={error}
         today={today}
         formattedTomorrow={formattedTomorrow}
@@ -501,7 +507,7 @@ function LoadingListEditor() {
         setCopyDialogOpen={setCopyDialogOpen}
         copyFormData={copyFormData}
         setCopyFormData={setCopyFormData}
-        handleCopySubmit={handleCopySubmit}
+        handleCopySubmit={() => handleCopySubmit(copyFormData)}
         teams={teams}
         loadingList={loadingList}
         setLoadingLists={setLoadingLists}
