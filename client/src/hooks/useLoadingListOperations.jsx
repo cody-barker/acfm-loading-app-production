@@ -5,9 +5,11 @@ import { settlePromise } from "../utils/helpers";
 
 export const useLoadingListOperations = (
   loadingList,
+  loadingLists,
   setLoadingLists,
   setItems,
-  setCopyDialogOpen
+  setCopyDialogOpen,
+  setOpenEditForm
 ) => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -70,12 +72,41 @@ export const useLoadingListOperations = (
     }
   };
 
+  const handleSubmit = async (editForm) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const updatedList = await loadingListService.updateListDetails(
+        editForm,
+        loadingList.id
+      );
+
+      // Update local state
+      setLoadingLists(
+        loadingLists.map((list) =>
+          list.id === loadingList.id ? updatedList : list
+        )
+      );
+
+      // Close the form
+      setOpenEditForm(false);
+    } catch (error) {
+      setError(error.message);
+      console.error("Error updating loading list:", error);
+    } finally {
+      setIsLoading(false);
+      setOpenEditForm(false);
+    }
+  };
+
   return {
     error,
     copyError,
     isLoading,
     handleDelete,
     handleCopySubmit,
+    handleSubmit,
     setError,
     setCopyError,
   };

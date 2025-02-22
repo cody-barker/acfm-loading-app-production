@@ -18,7 +18,7 @@ import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
 import { useLoadingListOperations } from "../hooks/useLoadingListOperations";
 
-function LoadingListEditor() {
+const LoadingListEditor = () => {
   let { id } = useParams();
   id = parseInt(id);
 
@@ -48,11 +48,14 @@ function LoadingListEditor() {
     setCopyError,
     handleDelete,
     handleCopySubmit,
+    handleSubmit,
   } = useLoadingListOperations(
     loadingList,
+    loadingLists,
     setLoadingLists,
     setItems,
-    setCopyDialogOpen
+    setCopyDialogOpen,
+    setOpenEditForm
   );
 
   const today = new Date().toISOString().split("T")[0];
@@ -73,26 +76,26 @@ function LoadingListEditor() {
     setCopyDialogOpen(true);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_lists/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editForm),
-      })
-    );
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const [response, error] = await settlePromise(
+  //     fetch(`/api/loading_lists/${id}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(editForm),
+  //     })
+  //   );
 
-    if (error) return console.error("Error submitting loading list:", error);
+  //   if (error) return console.error("Error submitting loading list:", error);
 
-    const updatedList = await response.json();
-    setLoadingLists(
-      loadingLists.map((list) => (list.id === id ? updatedList : list))
-    );
-    setOpenEditForm(false);
-  };
+  //   const updatedList = await response.json();
+  //   setLoadingLists(
+  //     loadingLists.map((list) => (list.id === id ? updatedList : list))
+  //   );
+  //   setOpenEditForm(false);
+  // };
 
   const returningTodayCount = (itemId) => {
     let totalReturningQuantity = 0;
@@ -437,7 +440,10 @@ function LoadingListEditor() {
         onClose={() => setOpenEditForm(false)}
         formData={editForm}
         setFormData={setEditForm}
-        handleSubmit={handleSubmit}
+        handleSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(editForm);
+        }}
         handleDelete={handleDelete}
         teams={teams}
       />
@@ -480,6 +486,6 @@ function LoadingListEditor() {
       </DragDropContext>
     </Container>
   );
-}
+};
 
-export default LoadingListEditor;
+export { LoadingListEditor as default };

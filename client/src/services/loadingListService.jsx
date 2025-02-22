@@ -64,4 +64,22 @@ export const loadingListService = {
       loading_list_items: createdItems,
     };
   },
+
+  updateListDetails: async (editForm, id) => {
+    const response = await fetch(`/api/loading_lists/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(editForm),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw data; // This will contain your errors array for 422 responses
+    }
+
+    return data;
+  },
 };
