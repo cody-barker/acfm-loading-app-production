@@ -63,28 +63,29 @@ export const loadingListService = {
   },
 
   submitListCopy: async (copyFormData, loadingListItems) => {
-    try {
-      // Create new list
-      const newList = await createLoadingList(copyFormData);
+    // Create new list
+    const [newList, error] = await settlePromise(
+      createLoadingList(copyFormData)
+    );
 
-      // Prepare all items for the new list
-      const newLoadingListItems = loadingListItems.map((loadingListItem) => ({
-        ...loadingListItem,
-        loading_list_id: newList.id,
-      }));
+    // Prepare all items for the new list
+    const newLoadingListItems = loadingListItems.map((loadingListItem) => ({
+      ...loadingListItem,
+      loading_list_id: newList.id,
+    }));
 
-      // Create all items
-      const createdItems = await Promise.all(
-        newLoadingListItems.map((item) => createLoadingListItem(item))
-      );
+    // Create all items
+    const createdItems = await Promise.all(
+      newLoadingListItems.map((item) => createLoadingListItem(item))
+    );
 
-      // Return the complete list with its items
-      return {
-        ...newList,
-        loading_list_items: createdItems,
-      };
-    } catch (error) {
+    if (error) {
       throw error;
     }
+    // Return the complete list with its items
+    return {
+      ...newList,
+      loading_list_items: createdItems,
+    };
   },
 };
