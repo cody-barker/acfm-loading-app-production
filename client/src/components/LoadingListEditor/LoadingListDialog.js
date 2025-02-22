@@ -19,9 +19,9 @@ const LoadingListDialog = ({
   onClose,
   formData,
   setFormData,
-  teams,
   handleSubmit,
   handleDelete,
+  teams,
 }) => {
   const handleChange = (field) => (event) => {
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));

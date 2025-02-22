@@ -19,8 +19,8 @@ function CopyListDialog({ ...props }) {
     setCopyDialogOpen,
     copyFormData,
     setCopyFormData,
-    teams,
     handleCopySubmit,
+    teams,
     copyError,
     setCopyError,
   } = props;

@@ -447,11 +447,6 @@ function LoadingListEditor() {
         setCopyFormData={setCopyFormData}
         handleCopySubmit={() => handleCopySubmit(copyFormData)}
         teams={teams}
-        loadingList={loadingList}
-        setLoadingLists={setLoadingLists}
-        navigate={navigate}
-        formData={editForm}
-        setFormData={setEditForm}
         copyError={copyError}
         setCopyError={setCopyError}
       />
