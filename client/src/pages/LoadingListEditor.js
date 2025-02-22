@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useContext, useState} from "react";
+import { useContext, useState } from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Box, Container } from "@mui/material";
 import { ItemsContext } from "../contexts/ItemsContext";
@@ -49,7 +49,12 @@ function LoadingListEditor() {
     setCopyError,
     handleDelete,
     handleCopySubmit,
-  } = useLoadingListOperations(loadingList, setLoadingLists, setItems, setCopyDialogOpen);
+  } = useLoadingListOperations(
+    loadingList,
+    setLoadingLists,
+    setItems,
+    setCopyDialogOpen
+  );
 
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date();
@@ -423,13 +428,11 @@ function LoadingListEditor() {
         loadingList={loadingList}
         handleDelete={handleDelete}
         handleEdit={() => setOpenEditForm(true)}
-        handleCopy={handleCopy
-        }
+        handleCopy={handleCopy}
         error={error}
         today={today}
         formattedTomorrow={formattedTomorrow}
       />
-      {/* Edit Dialog */}
       <LoadingListDialog
         openEditForm={openEditForm}
         onClose={() => setOpenEditForm(false)}
@@ -439,7 +442,6 @@ function LoadingListEditor() {
         handleDelete={handleDelete}
         teams={teams}
       />
-      {/* Copy List Dialog */}
       <CopyListDialog
         copyDialogOpen={copyDialogOpen}
         setCopyDialogOpen={setCopyDialogOpen}
