@@ -1,45 +1,31 @@
 import { settlePromise } from "../utils/helpers";
 
 const createLoadingList = async (copyFormData) => {
-  const [response, error] = await settlePromise(
-    fetch("/api/loading_lists", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(copyFormData),
-    })
-  );
-
-  if (error) {
-    throw error;
-  }
+  const response = await fetch("/api/loading_lists", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(copyFormData),
+  });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw data;
+    throw data; // This will contain your errors array for 422 responses
   }
 
   return data;
 };
 
 const createLoadingListItem = async (item) => {
-  const [response, error] = await settlePromise(
-    fetch("/api/loading_list_items", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(item),
-    })
-  );
-
-  if (error) {
-    console.error("Network error:", error);
-    throw error;
-  }
+  const response = await fetch("/api/loading_list_items", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(item),
+  });
 
   const data = await response.json();
 
   if (!response.ok) {
-    console.error("API error:", data);
     throw data;
   }
 
@@ -48,15 +34,12 @@ const createLoadingListItem = async (item) => {
 
 export const loadingListService = {
   deleteList: async (id) => {
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_lists/${id}`, {
-        method: "DELETE",
-      })
-    );
+    const response = await fetch(`/api/loading_lists/${id}`, {
+      method: "DELETE",
+    });
 
-    if (error || !response.ok) {
-      console.error("Delete error:", error || response.statusText);
-      throw error || new Error("Failed to delete loading list");
+    if (!response.ok) {
+      throw new Error("Failed to delete loading list");
     }
 
     return response;
@@ -64,9 +47,7 @@ export const loadingListService = {
 
   submitListCopy: async (copyFormData, loadingListItems) => {
     // Create new list
-    const [newList, error] = await settlePromise(
-      createLoadingList(copyFormData)
-    );
+    const newList = await createLoadingList(copyFormData);
 
     // Prepare all items for the new list
     const newLoadingListItems = loadingListItems.map((loadingListItem) => ({
@@ -79,9 +60,6 @@ export const loadingListService = {
       newLoadingListItems.map((item) => createLoadingListItem(item))
     );
 
-    if (error) {
-      throw error;
-    }
     // Return the complete list with its items
     return {
       ...newList,
