@@ -1,5 +1,3 @@
-import { settlePromise } from "../utils/helpers";
-
 const createLoadingList = async (copyFormData) => {
   const response = await fetch("/api/loading_lists", {
     method: "POST",

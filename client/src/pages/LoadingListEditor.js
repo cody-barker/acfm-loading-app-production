@@ -19,7 +19,6 @@ import "../styles/LoadingListEditor.css";
 import { useLoadingListOperations } from "../hooks/useLoadingListOperations";
 
 function LoadingListEditor() {
-  const navigate = useNavigate();
   let { id } = useParams();
   id = parseInt(id);
 
