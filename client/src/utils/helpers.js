@@ -24,3 +24,24 @@ export const getItemIdFromDraggable = (draggableId) => {
 
 export const settlePromise = (promise) =>
   Promise.allSettled([promise]).then(([{ value, reason }]) => [value, reason]);
+
+/**
+ * Calculates the total quantity of an item returning on a specific date
+ * @param {number} itemId - The ID of the item to check
+ * @param {Array} loadingLists - Array of loading lists to check
+ * @param {string} returnDate - The date to check returns for (YYYY-MM-DD format)
+ * @returns {number} Total quantity of the item returning on the specified date
+ */
+export const calculateReturningQuantity = (
+  itemId,
+  loadingLists,
+  returnDate
+) => {
+  return loadingLists.reduce((total, list) => {
+    const item = list.loading_list_items.find(
+      (loadingListItem) =>
+        loadingListItem.item_id === itemId && list.return_date === returnDate
+    );
+    return total + (item?.quantity || 0);
+  }, 0);
+};

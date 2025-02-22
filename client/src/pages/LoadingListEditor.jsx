@@ -7,7 +7,11 @@ import { LoadingListsContext } from "../contexts/LoadingListsContext";
 import { UserContext } from "../contexts/UserContext";
 import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
-import { getItemIdFromDraggable, settlePromise } from "../utils/helpers";
+import {
+  getItemIdFromDraggable,
+  settlePromise,
+  calculateReturningQuantity,
+} from "../utils/helpers";
 import { useLoadingListForm } from "../hooks/useLoadingListForm";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
@@ -55,7 +59,10 @@ const LoadingListEditor = () => {
     setLoadingLists,
     setItems,
     setCopyDialogOpen,
-    setOpenEditForm
+    setOpenEditForm,
+    setEditForm,
+    setItems,
+    items
   );
 
   const today = new Date().toISOString().split("T")[0];
@@ -76,42 +83,8 @@ const LoadingListEditor = () => {
     setCopyDialogOpen(true);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const [response, error] = await settlePromise(
-  //     fetch(`/api/loading_lists/${id}`, {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(editForm),
-  //     })
-  //   );
-
-  //   if (error) return console.error("Error submitting loading list:", error);
-
-  //   const updatedList = await response.json();
-  //   setLoadingLists(
-  //     loadingLists.map((list) => (list.id === id ? updatedList : list))
-  //   );
-  //   setOpenEditForm(false);
-  // };
-
-  const returningTodayCount = (itemId) => {
-    let totalReturningQuantity = 0;
-
-    loadingLists.forEach((list) => {
-      const item = list.loading_list_items.find(
-        (loadingListItem) =>
-          loadingListItem.item_id === itemId && list.return_date === today
-      );
-      if (item) {
-        totalReturningQuantity += item.quantity;
-      }
-    });
-
-    return totalReturningQuantity;
-  };
+  const returningTodayCount = (itemId) =>
+    calculateReturningQuantity(itemId, loadingLists, today);
 
   const decreaseItemQuantity = async (item) => {
     const [response, error] = await settlePromise(
