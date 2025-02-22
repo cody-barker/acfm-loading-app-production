@@ -1,7 +1,7 @@
-import { UserProvider } from "./UserContext.js";
-import { ItemsProvider } from "./ItemsContext.js";
-import { TeamsProvider } from "./TeamsContext.js";
-import { LoadingListsProvider } from "./LoadingListsContext.js";
+import { UserProvider } from "./UserContext.jsx";
+import { ItemsProvider } from "./ItemsContext.jsx";
+import { TeamsProvider } from "./TeamsContext.jsx";
+import { LoadingListsProvider } from "./LoadingListsContext.jsx";
 
 const AppProviders = ({ children }) => {
   return (
