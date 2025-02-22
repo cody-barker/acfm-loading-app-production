@@ -69,68 +69,6 @@ function LoadingListEditor() {
     setCopyDialogOpen(true);
   };
 
-  // const handleCopySubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     // Create new loading list
-  //     const response = await fetch("/api/loading_lists", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(copyFormData),
-  //     });
-
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw errorData;
-  //     }
-
-  //     const newList = await response.json();
-  //     setCopyError(null);
-
-  //     // Copy all loading list items to the new list
-  //     const copyPromises = loadingList.loading_list_items.map((item) =>
-  //       fetch("/api/loading_list_items", {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           loading_list_id: newList.id,
-  //           item_id: item.item_id,
-  //           quantity: item.quantity,
-  //         }),
-  //       })
-  //     );
-
-  //     // Wait for all items to be created
-  //     await Promise.all(copyPromises);
-
-  //     // Fetch the complete list with items
-  //     const updatedListResponse = await fetch(
-  //       `/api/loading_lists/${newList.id}`
-  //     );
-  //     const updatedList = await updatedListResponse.json();
-
-  //     // Add team association
-  //     const selectedTeam = teams.find(
-  //       (team) => team.id === copyFormData.team_id
-  //     );
-  //     const listWithTeam = {
-  //       ...updatedList,
-  //       team: selectedTeam,
-  //     };
-
-  //     setLoadingLists((prev) => [...prev, listWithTeam]);
-  //     setCopyDialogOpen(false);
-  //     navigate(`/loading-lists/${listWithTeam.id}`);
-  //   } catch (error) {
-  //     console.error("Error copying loading list:", error);
-  //     setCopyError(error.errors || "An unexpected error occurred");
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const [response, error] = await settlePromise(

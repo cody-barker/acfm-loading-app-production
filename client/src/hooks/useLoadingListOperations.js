@@ -45,28 +45,31 @@ export const useLoadingListOperations = (
     }
   };
 
-  const handleCopySubmit = async (copyFormData) => {
-    setIsLoading(true);
-    setCopyError(null);
-    try {
-      const newList = await loadingListService.submitListCopy(
-        copyFormData,
-        loadingList.loading_list_items
-      );
+const handleCopySubmit = async (copyFormData) => {
+  setIsLoading(true);
+  setCopyError(null);
+  try {
+    const newList = await loadingListService.submitListCopy(
+      copyFormData,
+      loadingList.loading_list_items
+    );
 
+    if (newList && newList.id) {
       // Update local state with the new list
       setLoadingLists((prevLists) => [...prevLists, newList]);
 
       // Close dialog and navigate
       setCopyDialogOpen(false);
       navigate(`/loading-lists/${newList.id}`);
-    } catch (error) {
-      setCopyError(error.errors);
-      console.error("Error copying loading list:", error);
-    } finally {
-      setIsLoading(false);
+    // } else {
+    //   setCopyError("Failed to create loading list");
     }
-  };
+  } catch (error) {
+    setCopyError(error.errors);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return {
     error,
