@@ -53,6 +53,7 @@ const LoadingListEditor = () => {
     handleDelete,
     handleCopySubmit,
     handleSubmit,
+    decreaseItemQuantity,
   } = useLoadingListOperations(
     loadingList,
     loadingLists,
@@ -61,7 +62,6 @@ const LoadingListEditor = () => {
     setCopyDialogOpen,
     setOpenEditForm,
     setEditForm,
-    setItems,
     items
   );
 
@@ -85,29 +85,6 @@ const LoadingListEditor = () => {
 
   const returningTodayCount = (itemId) =>
     calculateReturningQuantity(itemId, loadingLists, today);
-
-  const decreaseItemQuantity = async (item) => {
-    const [response, error] = await settlePromise(
-      fetch(`/api/items/${item.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          quantity: item.quantity - 1,
-        }),
-      })
-    );
-
-    if (error) return console.error("Error decreasing item quantity:", error);
-
-    const updatedItem = await response.json();
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
-      )
-    );
-  };
 
   const increaseItemQuantity = async (item) => {
     const [response, error] = await settlePromise(

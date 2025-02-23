@@ -9,7 +9,9 @@ export const useLoadingListOperations = (
   setLoadingLists,
   setItems,
   setCopyDialogOpen,
-  setOpenEditForm
+  setOpenEditForm,
+  setEditForm,
+  items
 ) => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -100,6 +102,30 @@ export const useLoadingListOperations = (
     }
   };
 
+  const decreaseItemQuantity = async (item) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const updatedItem = await loadingListService.updateItemQuantity(
+        item.id,
+        item.quantity - 1
+      );
+
+      // Update local state
+      setItems((prev) =>
+        prev.map((i) =>
+          i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
+        )
+      );
+    } catch (error) {
+      setError(error.message);
+      console.error("Error decreasing item quantity:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     error,
     copyError,
@@ -107,6 +133,7 @@ export const useLoadingListOperations = (
     handleDelete,
     handleCopySubmit,
     handleSubmit,
+    decreaseItemQuantity,
     setError,
     setCopyError,
   };

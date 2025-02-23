@@ -82,4 +82,24 @@ export const loadingListService = {
 
     return data;
   },
+
+  updateItemQuantity: async (itemId, newQuantity) => {
+    const response = await fetch(`/api/items/${itemId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        quantity: newQuantity,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw data;
+    }
+
+    return data;
+  },
 };
