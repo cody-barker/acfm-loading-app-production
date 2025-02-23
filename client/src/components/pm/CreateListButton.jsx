@@ -33,7 +33,6 @@ function CreateListButton({ onListCreated }) {
   });
 
   const { error, isLoading, handleCreate } = useLoadingListOperations(
-    null,
     loadingLists,
     setLoadingLists
   );

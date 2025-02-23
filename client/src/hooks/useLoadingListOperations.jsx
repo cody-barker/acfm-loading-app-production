@@ -4,13 +4,12 @@ import { loadingListService } from "../services/loadingListService";
 import { settlePromise } from "../utils/helpers";
 
 export const useLoadingListOperations = (
-  loadingList = null,
   loadingLists = [],
   setLoadingLists,
+  loadingList = null,
   setItems = null,
   setCopyDialogOpen = null,
   setOpenEditForm = null,
-  setEditForm = null,
   items = null
 ) => {
   const navigate = useNavigate();
