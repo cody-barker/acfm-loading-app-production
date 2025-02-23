@@ -102,14 +102,14 @@ export const useLoadingListOperations = (
     }
   };
 
-  const decreaseItemQuantity = async (item) => {
+  const updateItemQuantity = async (item, delta) => {
     setIsLoading(true);
     setError(null);
 
     try {
       const updatedItem = await loadingListService.updateItemQuantity(
         item.id,
-        item.quantity - 1
+        item.quantity + delta
       );
 
       // Update local state
@@ -120,11 +120,14 @@ export const useLoadingListOperations = (
       );
     } catch (error) {
       setError(error.message);
-      console.error("Error decreasing item quantity:", error);
+      console.error("Error updating item quantity:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const decreaseItemQuantity = (item) => updateItemQuantity(item, -1);
+  const increaseItemQuantity = (item) => updateItemQuantity(item, 1);
 
   return {
     error,
@@ -134,6 +137,7 @@ export const useLoadingListOperations = (
     handleCopySubmit,
     handleSubmit,
     decreaseItemQuantity,
+    increaseItemQuantity,
     setError,
     setCopyError,
   };

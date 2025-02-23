@@ -54,6 +54,7 @@ const LoadingListEditor = () => {
     handleCopySubmit,
     handleSubmit,
     decreaseItemQuantity,
+    increaseItemQuantity,
   } = useLoadingListOperations(
     loadingList,
     loadingLists,
@@ -85,29 +86,6 @@ const LoadingListEditor = () => {
 
   const returningTodayCount = (itemId) =>
     calculateReturningQuantity(itemId, loadingLists, today);
-
-  const increaseItemQuantity = async (item) => {
-    const [response, error] = await settlePromise(
-      fetch(`/api/items/${item.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          quantity: item.quantity + 1,
-        }),
-      })
-    );
-
-    if (error) return console.error("Error increasing item quantity:", error);
-
-    const updatedItem = await response.json();
-    setItems((prev) =>
-      prev.map((i) =>
-        i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
-      )
-    );
-  };
 
   const createLoadingListItem = async (item) => {
     const [response, error] = await settlePromise(

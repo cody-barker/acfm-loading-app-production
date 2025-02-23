@@ -83,6 +83,12 @@ export const loadingListService = {
     return data;
   },
 
+  /**
+   * Updates the quantity of an item
+   * @param {number} itemId - The ID of the item to update
+   * @param {number} newQuantity - The new quantity value
+   * @returns {Promise<Object>} The updated item
+   */
   updateItemQuantity: async (itemId, newQuantity) => {
     const response = await fetch(`/api/items/${itemId}`, {
       method: "PATCH",
