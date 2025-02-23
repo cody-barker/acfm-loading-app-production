@@ -55,6 +55,10 @@ const LoadingListEditor = () => {
     handleSubmit,
     decreaseItemQuantity,
     increaseItemQuantity,
+    increaseLoadingListItemQuantity,
+    decreaseLoadingListItemQuantity,
+    handleAddToLoadingList,
+    handleRemoveFromLoadingList,
   } = useLoadingListOperations(
     loadingList,
     loadingLists,
@@ -87,237 +91,6 @@ const LoadingListEditor = () => {
   const returningTodayCount = (itemId) =>
     calculateReturningQuantity(itemId, loadingLists, today);
 
-  const createLoadingListItem = async (item) => {
-    const [response, error] = await settlePromise(
-      fetch("/api/loading_list_items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          loading_list_id: id,
-          item_id: item.id,
-          quantity: 1,
-        }),
-      })
-    );
-
-    if (error) return console.error("Error creating loading list item:", error);
-
-    const newLoadingListItem = await response.json();
-
-    setLoadingLists((prev) =>
-      prev.map((list) =>
-        list.id === newLoadingListItem.loading_list_id
-          ? {
-              ...list,
-              loading_list_items: [
-                ...list.loading_list_items,
-                newLoadingListItem,
-              ],
-            }
-          : list
-      )
-    );
-
-    decreaseItemQuantity(item);
-  };
-
-  const increaseLoadingListItemQuantity = async (loadingListItem) => {
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_list_items/${loadingListItem.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          quantity: loadingListItem.quantity + 1,
-        }),
-      })
-    );
-
-    if (error)
-      return console.error(
-        "Error increasing loading list item quantity:",
-        error
-      );
-
-    const updatedItem = await response.json();
-    setLoadingLists((prev) =>
-      prev.map((list) =>
-        list.id === loadingListItem.loading_list_id
-          ? {
-              ...list,
-              loading_list_items: list.loading_list_items.map((item) =>
-                item.id === updatedItem.id
-                  ? { ...item, quantity: updatedItem.quantity }
-                  : item
-              ),
-            }
-          : list
-      )
-    );
-    decreaseItemQuantity(updatedItem.item);
-  };
-
-  const decreaseLoadingListItemQuantity = async (loadingListItem) => {
-    // If quantity is 1, delete the item instead of decreasing
-    if (loadingListItem.quantity === 1) {
-      try {
-        // Just delete the loading list item, don't call increaseItemQuantity here
-        // as deleteLoadingListItem will handle updating the item quantity
-        await deleteLoadingListItem(loadingListItem.id);
-        return;
-      } catch (error) {
-        console.error("Error deleting loading list item:", error);
-        return;
-      }
-    }
-
-    const [response, error] = await settlePromise(
-      fetch(`/api/loading_list_items/${loadingListItem.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          quantity: loadingListItem.quantity - 1,
-        }),
-      })
-    );
-
-    if (error) {
-      console.error("Error decreasing loading list item quantity:", error);
-      return;
-    }
-
-    const updatedItem = await response.json();
-    setLoadingLists((prev) =>
-      prev.map((list) =>
-        list.id === loadingListItem.loading_list_id
-          ? {
-              ...list,
-              loading_list_items: list.loading_list_items.map((item) =>
-                item.id === updatedItem.id
-                  ? { ...item, quantity: updatedItem.quantity }
-                  : item
-              ),
-            }
-          : list
-      )
-    );
-    increaseItemQuantity(updatedItem.item);
-  };
-
-  const findLoadingListItemById = (id) =>
-    loadingList.loading_list_items.find((item) => item.id === id);
-
-  const deleteLoadingListItem = async (id) => {
-    const loadingListItem = findLoadingListItemById(id);
-    if (!loadingListItem) {
-      console.error("Loading list item not found:", id);
-      return false;
-    }
-
-    try {
-      const response = await fetch(`/api/loading_list_items/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete item");
-      }
-
-      removeItemFromLoadingList(
-        loadingList.loading_list_items.findIndex((item) => item.id === id)
-      );
-      returnLoadingListItemToAvailableItems(
-        loadingListItem.item_id,
-        loadingListItem.quantity
-      );
-
-      return true;
-    } catch (error) {
-      console.error("Error deleting loading list item:", error);
-      setError("Failed to delete item. Please try again.");
-      return false;
-    }
-  };
-
-  const removeItemFromLoadingList = (sourceIndex) => {
-    setLoadingLists((prev) =>
-      prev.map((list) =>
-        list.id === loadingList.id
-          ? {
-              ...list,
-              loading_list_items: list.loading_list_items.filter(
-                (_, index) => index !== sourceIndex
-              ),
-            }
-          : list
-      )
-    );
-  };
-
-  const returnLoadingListItemToAvailableItems = (itemId, quantity) => {
-    setItems((prev) =>
-      prev.map((availableItem) =>
-        availableItem.id === itemId
-          ? {
-              ...availableItem,
-              quantity: availableItem.quantity + quantity,
-            }
-          : availableItem
-      )
-    );
-  };
-
-  const handleRemoveFromLoadingList = async (sourceIndex) => {
-    const item = loadingList.loading_list_items[sourceIndex];
-    if (!item) return false;
-
-    try {
-      const response = await fetch(`/api/loading_list_items/${item.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete item");
-      }
-
-      removeItemFromLoadingList(sourceIndex);
-      returnLoadingListItemToAvailableItems(item.item_id, item.quantity);
-      setError(null);
-
-      return true;
-    } catch (error) {
-      console.error("Error deleting loading list item:", error);
-      setError("Failed to move item. Please try again.");
-      return false;
-    }
-  };
-
-  const handleAddToLoadingList = async (draggedItemId) => {
-    const item = items.find((i) => i.id === draggedItemId);
-
-    if (!item) {
-      setError("Error: Item not found.");
-      return false;
-    }
-
-    const itemExists = loadingList.loading_list_items.some(
-      (loadingListItem) => loadingListItem.item_id === item.id
-    );
-
-    if (itemExists) {
-      setError("This item is already on the loading list.");
-      return false;
-    }
-
-    setError(null);
-    return await createLoadingListItem(item);
-  };
-
   const onDragEnd = async (result) => {
     const { source, destination } = result;
 
@@ -348,7 +121,7 @@ const LoadingListEditor = () => {
         setError("Invalid item ID");
         return;
       }
-      await handleAddToLoadingList(itemId, destination.index);
+      await handleAddToLoadingList(itemId);
     }
   };
 

@@ -108,4 +108,52 @@ export const loadingListService = {
 
     return data;
   },
+
+  createLoadingListItem: async (loadingListId, itemId, quantity = 1) => {
+    const response = await fetch("/api/loading_list_items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        loading_list_id: loadingListId,
+        item_id: itemId,
+        quantity,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw data;
+    }
+    return data;
+  },
+
+  updateLoadingListItemQuantity: async (loadingListItemId, newQuantity) => {
+    const response = await fetch(
+      `/api/loading_list_items/${loadingListItemId}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: newQuantity }),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw data;
+    }
+    return data;
+  },
+
+  deleteLoadingListItem: async (loadingListItemId) => {
+    const response = await fetch(
+      `/api/loading_list_items/${loadingListItemId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to delete loading list item");
+    }
+  },
 };

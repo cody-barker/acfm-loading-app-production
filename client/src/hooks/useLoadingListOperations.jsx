@@ -129,6 +129,166 @@ export const useLoadingListOperations = (
   const decreaseItemQuantity = (item) => updateItemQuantity(item, -1);
   const increaseItemQuantity = (item) => updateItemQuantity(item, 1);
 
+  const findLoadingListItemById = (id) =>
+    loadingList?.loading_list_items?.find((item) => item.id === id);
+
+  const removeItemFromLoadingList = (sourceIndex) => {
+    setLoadingLists((prev) =>
+      prev.map((list) =>
+        list.id === loadingList.id
+          ? {
+              ...list,
+              loading_list_items: list.loading_list_items.filter(
+                (_, index) => index !== sourceIndex
+              ),
+            }
+          : list
+      )
+    );
+  };
+
+  const returnLoadingListItemToAvailableItems = (itemId, quantity) => {
+    setItems((prev) =>
+      prev.map((availableItem) =>
+        availableItem.id === itemId
+          ? { ...availableItem, quantity: availableItem.quantity + quantity }
+          : availableItem
+      )
+    );
+  };
+
+  const createLoadingListItem = async (item) => {
+    try {
+      const newLoadingListItem = await loadingListService.createLoadingListItem(
+        loadingList.id,
+        item.id
+      );
+
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === newLoadingListItem.loading_list_id
+            ? {
+                ...list,
+                loading_list_items: [
+                  ...list.loading_list_items,
+                  newLoadingListItem,
+                ],
+              }
+            : list
+        )
+      );
+
+      await decreaseItemQuantity(item);
+      setError(null);
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error("Error creating loading list item:", error);
+      return false;
+    }
+  };
+
+  const updateLoadingListItemQuantity = async (loadingListItem, delta) => {
+    try {
+      const updatedItem =
+        await loadingListService.updateLoadingListItemQuantity(
+          loadingListItem.id,
+          loadingListItem.quantity + delta
+        );
+
+      setLoadingLists((prev) =>
+        prev.map((list) =>
+          list.id === loadingListItem.loading_list_id
+            ? {
+                ...list,
+                loading_list_items: list.loading_list_items.map((item) =>
+                  item.id === updatedItem.id
+                    ? { ...item, quantity: updatedItem.quantity }
+                    : item
+                ),
+              }
+            : list
+        )
+      );
+
+      if (delta > 0) {
+        await decreaseItemQuantity(updatedItem.item);
+      } else {
+        await increaseItemQuantity(updatedItem.item);
+      }
+      setError(null);
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error("Error updating loading list item quantity:", error);
+      return false;
+    }
+  };
+
+  const deleteLoadingListItem = async (id) => {
+    const loadingListItem = findLoadingListItemById(id);
+    if (!loadingListItem) {
+      console.error("Loading list item not found:", id);
+      return false;
+    }
+
+    try {
+      await loadingListService.deleteLoadingListItem(id);
+
+      const index = loadingList.loading_list_items.findIndex(
+        (item) => item.id === id
+      );
+      removeItemFromLoadingList(index);
+      returnLoadingListItemToAvailableItems(
+        loadingListItem.item_id,
+        loadingListItem.quantity
+      );
+      setError(null);
+      return true;
+    } catch (error) {
+      setError(error.message);
+      console.error("Error deleting loading list item:", error);
+      return false;
+    }
+  };
+
+  const increaseLoadingListItemQuantity = (loadingListItem) =>
+    updateLoadingListItemQuantity(loadingListItem, 1);
+
+  const decreaseLoadingListItemQuantity = async (loadingListItem) => {
+    // If quantity is 1, delete the item instead of decreasing
+    if (loadingListItem.quantity === 1) {
+      return deleteLoadingListItem(loadingListItem.id);
+    }
+    return updateLoadingListItemQuantity(loadingListItem, -1);
+  };
+
+  const handleAddToLoadingList = async (draggedItemId) => {
+    const item = items.find((i) => i.id === draggedItemId);
+
+    if (!item) {
+      setError("Error: Item not found.");
+      return false;
+    }
+
+    const itemExists = loadingList.loading_list_items.some(
+      (loadingListItem) => loadingListItem.item_id === item.id
+    );
+
+    if (itemExists) {
+      setError("This item is already on the loading list.");
+      return false;
+    }
+
+    return await createLoadingListItem(item);
+  };
+
+  const handleRemoveFromLoadingList = async (sourceIndex) => {
+    const item = loadingList.loading_list_items[sourceIndex];
+    if (!item) return false;
+    return deleteLoadingListItem(item.id);
+  };
+
   return {
     error,
     copyError,
@@ -138,6 +298,11 @@ export const useLoadingListOperations = (
     handleSubmit,
     decreaseItemQuantity,
     increaseItemQuantity,
+    createLoadingListItem,
+    increaseLoadingListItemQuantity,
+    decreaseLoadingListItemQuantity,
+    handleAddToLoadingList,
+    handleRemoveFromLoadingList,
     setError,
     setCopyError,
   };
