@@ -4,14 +4,14 @@ import { loadingListService } from "../services/loadingListService";
 import { settlePromise } from "../utils/helpers";
 
 export const useLoadingListOperations = (
-  loadingList,
-  loadingLists,
+  loadingList = null,
+  loadingLists = [],
   setLoadingLists,
-  setItems,
-  setCopyDialogOpen,
-  setOpenEditForm,
-  setEditForm,
-  items
+  setItems = null,
+  setCopyDialogOpen = null,
+  setOpenEditForm = null,
+  setEditForm = null,
+  items = null
 ) => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -19,6 +19,7 @@ export const useLoadingListOperations = (
   const [isLoading, setIsLoading] = useState(false);
 
   // Add refs for abort controllers
+  const createControllerRef = useRef(null);
   const deleteControllerRef = useRef(null);
   const copyControllerRef = useRef(null);
   const submitControllerRef = useRef(null);
@@ -29,6 +30,7 @@ export const useLoadingListOperations = (
   // Cleanup function to abort any pending requests when component unmounts
   useEffect(() => {
     return () => {
+      createControllerRef.current?.abort();
       deleteControllerRef.current?.abort();
       copyControllerRef.current?.abort();
       submitControllerRef.current?.abort();
@@ -37,6 +39,33 @@ export const useLoadingListOperations = (
       updateListItemControllerRef.current?.abort();
     };
   }, []);
+
+  const handleCreate = async (formData) => {
+    // Abort any existing create operation
+    createControllerRef.current?.abort();
+    createControllerRef.current = new AbortController();
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const newList = await loadingListService.createList(
+        formData,
+        createControllerRef.current.signal
+      );
+
+      // Update local state
+      setLoadingLists((prevLists) => [...prevLists, newList]);
+      return newList;
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      setError(error.errors);
+      console.error("Error creating loading list:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleDelete = async () => {
     // Abort any existing delete operation
@@ -47,13 +76,13 @@ export const useLoadingListOperations = (
     setError(null);
     try {
       await loadingListService.deleteList(
-        loadingList.id,
+        loadingList?.id,
         deleteControllerRef.current.signal
       );
 
       // Update local state
       setLoadingLists((prevLists) =>
-        prevLists.filter((list) => list.id !== loadingList.id)
+        prevLists.filter((list) => list.id !== loadingList?.id)
       );
 
       // Fetch updated items
@@ -67,7 +96,7 @@ export const useLoadingListOperations = (
       }
 
       const updatedItems = await itemsResponse.json();
-      setItems(updatedItems);
+      setItems?.(updatedItems);
       navigate("/");
     } catch (error) {
       if (error.name === "AbortError") return;
@@ -89,12 +118,12 @@ export const useLoadingListOperations = (
     try {
       const newList = await loadingListService.submitListCopy(
         copyFormData,
-        loadingList.loading_list_items,
+        loadingList?.loading_list_items,
         copyControllerRef.current.signal
       );
 
       setLoadingLists((prevLists) => [...prevLists, newList]);
-      setCopyDialogOpen(false);
+      setCopyDialogOpen?.(false);
       navigate(`/loading-lists/${newList.id}`);
     } catch (error) {
       if (error.name === "AbortError") return;
@@ -116,18 +145,18 @@ export const useLoadingListOperations = (
     try {
       const updatedList = await loadingListService.updateListDetails(
         editForm,
-        loadingList.id,
+        loadingList?.id,
         submitControllerRef.current.signal
       );
 
       setLoadingLists(
         loadingLists.map((list) =>
-          list.id === loadingList.id ? updatedList : list
+          list.id === loadingList?.id ? updatedList : list
         )
       );
 
       // Only close the form on successful update
-      setOpenEditForm(false);
+      setOpenEditForm?.(false);
     } catch (error) {
       if (error.name === "AbortError") return;
       setError(error.errors);
@@ -152,7 +181,7 @@ export const useLoadingListOperations = (
         quantityControllerRef.current.signal
       );
 
-      setItems((prev) =>
+      setItems?.((prev) =>
         prev.map((i) =>
           i.id === updatedItem.id ? { ...i, quantity: updatedItem.quantity } : i
         )
@@ -175,7 +204,7 @@ export const useLoadingListOperations = (
   const removeItemFromLoadingList = (sourceIndex) => {
     setLoadingLists((prev) =>
       prev.map((list) =>
-        list.id === loadingList.id
+        list.id === loadingList?.id
           ? {
               ...list,
               loading_list_items: list.loading_list_items.filter(
@@ -188,7 +217,7 @@ export const useLoadingListOperations = (
   };
 
   const returnLoadingListItemToAvailableItems = (itemId, quantity) => {
-    setItems((prev) =>
+    setItems?.((prev) =>
       prev.map((availableItem) =>
         availableItem.id === itemId
           ? { ...availableItem, quantity: availableItem.quantity + quantity }
@@ -204,7 +233,7 @@ export const useLoadingListOperations = (
 
     try {
       const newLoadingListItem = await loadingListService.createLoadingListItem(
-        loadingList.id,
+        loadingList?.id,
         item.id,
         createItemControllerRef.current.signal
       );
@@ -320,14 +349,14 @@ export const useLoadingListOperations = (
   };
 
   const handleAddToLoadingList = async (draggedItemId) => {
-    const item = items.find((i) => i.id === draggedItemId);
+    const item = items?.find((i) => i.id === draggedItemId);
 
     if (!item) {
       setError("Error: Item not found.");
       return false;
     }
 
-    const itemExists = loadingList.loading_list_items.some(
+    const itemExists = loadingList?.loading_list_items.some(
       (loadingListItem) => loadingListItem.item_id === item.id
     );
 
@@ -340,7 +369,7 @@ export const useLoadingListOperations = (
   };
 
   const handleRemoveFromLoadingList = async (sourceIndex) => {
-    const item = loadingList.loading_list_items[sourceIndex];
+    const item = loadingList?.loading_list_items[sourceIndex];
     if (!item) return false;
     return deleteLoadingListItem(item.id);
   };
@@ -349,6 +378,7 @@ export const useLoadingListOperations = (
     error,
     copyError,
     isLoading,
+    handleCreate,
     handleDelete,
     handleCopySubmit,
     handleSubmit,

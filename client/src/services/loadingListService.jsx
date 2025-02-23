@@ -33,6 +33,25 @@ const createLoadingListItem = async (item, signal) => {
 };
 
 export const loadingListService = {
+  createList: async (formData, signal) => {
+    const response = await fetch("/api/loading_lists", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+      signal,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw data;
+    }
+
+    return data;
+  },
+
   deleteList: async (id, signal) => {
     const response = await fetch(`/api/loading_lists/${id}`, {
       method: "DELETE",

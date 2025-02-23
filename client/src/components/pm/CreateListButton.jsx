@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import Error from "../Error";
 import {
   Button,
   Dialog,
@@ -15,6 +16,7 @@ import {
 import { UserContext } from "../../contexts/UserContext";
 import { TeamsContext } from "../../contexts/TeamsContext";
 import { LoadingListsContext } from "../../contexts/LoadingListsContext";
+import { useLoadingListOperations } from "../../hooks/useLoadingListOperations";
 
 function CreateListButton({ onListCreated }) {
   const [open, setOpen] = useState(false);
@@ -30,33 +32,28 @@ function CreateListButton({ onListCreated }) {
     user_id: user.id,
   });
 
+  const { error, isLoading, handleCreate } = useLoadingListOperations(
+    null,
+    loadingLists,
+    setLoadingLists
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/loading_lists", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const newList = await handleCreate(formData);
+      setOpen(false);
+      onListCreated(newList);
+      setFormData({
+        site_name: "",
+        date: "",
+        return_date: "",
+        notes: "",
+        team_id: "",
+        user_id: user.id,
       });
-
-      if (response.ok) {
-        const newList = await response.json();
-        setLoadingLists([...loadingLists, newList]);
-        setOpen(false);
-        onListCreated(newList);
-        setFormData({
-          site_name: "",
-          date: "",
-          return_date: "",
-          notes: "",
-          team_id: "",
-          user_id: user.id,
-        });
-      }
     } catch (error) {
-      console.error("Error creating list:", error);
+      // Error is handled by the hook
     }
   };
 
@@ -108,23 +105,20 @@ function CreateListButton({ onListCreated }) {
               }
             />
             <FormControl fullWidth>
-              <InputLabel id="team__selector--label">Team</InputLabel>
+              <InputLabel id="team-selector-label">Team</InputLabel>
               <Select
-                labelId="team__selector--label"
-                id="team__selector"
+                labelId="team-selector-label"
                 value={formData.team_id}
-                label="Team"
                 onChange={(e) =>
                   setFormData({ ...formData, team_id: e.target.value })
                 }
+                label="Team"
               >
-                {teams.map((team) => {
-                  return (
-                    <MenuItem key={team.id} value={team.id}>
-                      {team.name}
-                    </MenuItem>
-                  );
-                })}
+                {teams.map((team) => (
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             <TextField
@@ -137,11 +131,16 @@ function CreateListButton({ onListCreated }) {
                 setFormData({ ...formData, notes: e.target.value })
               }
             />
+            {error && <Error error={error} />}
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained">
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            disabled={isLoading}
+          >
             Create
           </Button>
         </DialogActions>
