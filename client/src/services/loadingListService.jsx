@@ -1,8 +1,9 @@
-const createLoadingList = async (copyFormData) => {
+const createLoadingList = async (copyFormData, signal) => {
   const response = await fetch("/api/loading_lists", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(copyFormData),
+    signal,
   });
 
   const data = await response.json();
@@ -14,11 +15,12 @@ const createLoadingList = async (copyFormData) => {
   return data;
 };
 
-const createLoadingListItem = async (item) => {
+const createLoadingListItem = async (item, signal) => {
   const response = await fetch("/api/loading_list_items", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item),
+    signal,
   });
 
   const data = await response.json();
@@ -31,9 +33,10 @@ const createLoadingListItem = async (item) => {
 };
 
 export const loadingListService = {
-  deleteList: async (id) => {
+  deleteList: async (id, signal) => {
     const response = await fetch(`/api/loading_lists/${id}`, {
       method: "DELETE",
+      signal,
     });
 
     if (!response.ok) {
@@ -43,9 +46,9 @@ export const loadingListService = {
     return response;
   },
 
-  submitListCopy: async (copyFormData, loadingListItems) => {
+  submitListCopy: async (copyFormData, loadingListItems, signal) => {
     // Create new list
-    const newList = await createLoadingList(copyFormData);
+    const newList = await createLoadingList(copyFormData, signal);
 
     // Prepare all items for the new list
     const newLoadingListItems = loadingListItems.map((loadingListItem) => ({
@@ -55,7 +58,7 @@ export const loadingListService = {
 
     // Create all items
     const createdItems = await Promise.all(
-      newLoadingListItems.map((item) => createLoadingListItem(item))
+      newLoadingListItems.map((item) => createLoadingListItem(item, signal))
     );
 
     // Return the complete list with its items
@@ -65,13 +68,14 @@ export const loadingListService = {
     };
   },
 
-  updateListDetails: async (editForm, id) => {
+  updateListDetails: async (editForm, id, signal) => {
     const response = await fetch(`/api/loading_lists/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(editForm),
+      signal,
     });
 
     const data = await response.json();
@@ -87,9 +91,10 @@ export const loadingListService = {
    * Updates the quantity of an item
    * @param {number} itemId - The ID of the item to update
    * @param {number} newQuantity - The new quantity value
+   * @param {AbortSignal} signal - The abort controller signal
    * @returns {Promise<Object>} The updated item
    */
-  updateItemQuantity: async (itemId, newQuantity) => {
+  updateItemQuantity: async (itemId, newQuantity, signal) => {
     const response = await fetch(`/api/items/${itemId}`, {
       method: "PATCH",
       headers: {
@@ -98,6 +103,7 @@ export const loadingListService = {
       body: JSON.stringify({
         quantity: newQuantity,
       }),
+      signal,
     });
 
     const data = await response.json();
@@ -109,7 +115,12 @@ export const loadingListService = {
     return data;
   },
 
-  createLoadingListItem: async (loadingListId, itemId, quantity = 1) => {
+  createLoadingListItem: async (
+    loadingListId,
+    itemId,
+    signal,
+    quantity = 1
+  ) => {
     const response = await fetch("/api/loading_list_items", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -118,6 +129,7 @@ export const loadingListService = {
         item_id: itemId,
         quantity,
       }),
+      signal,
     });
 
     const data = await response.json();
@@ -127,13 +139,18 @@ export const loadingListService = {
     return data;
   },
 
-  updateLoadingListItemQuantity: async (loadingListItemId, newQuantity) => {
+  updateLoadingListItemQuantity: async (
+    loadingListItemId,
+    newQuantity,
+    signal
+  ) => {
     const response = await fetch(
       `/api/loading_list_items/${loadingListItemId}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity: newQuantity }),
+        signal,
       }
     );
 
@@ -144,11 +161,12 @@ export const loadingListService = {
     return data;
   },
 
-  deleteLoadingListItem: async (loadingListItemId) => {
+  deleteLoadingListItem: async (loadingListItemId, signal) => {
     const response = await fetch(
       `/api/loading_list_items/${loadingListItemId}`,
       {
         method: "DELETE",
+        signal,
       }
     );
 

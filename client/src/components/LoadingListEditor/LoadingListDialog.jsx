@@ -1,4 +1,5 @@
 import React from "react";
+import Error from "../Error";
 import {
   Dialog,
   DialogTitle,
@@ -22,6 +23,7 @@ const LoadingListDialog = ({
   handleSubmit,
   handleDelete,
   teams,
+  error,
 }) => {
   const handleChange = (field) => (event) => {
     setFormData((prev) => ({ ...prev, [field]: event.target.value }));
@@ -76,6 +78,7 @@ const LoadingListDialog = ({
             onChange={handleChange("notes")}
           />
         </Stack>
+        {error && <Error error={error} />}
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", mx: 2, mb: 2 }}>
         <Button onClick={handleDelete} variant="contained" color="error">

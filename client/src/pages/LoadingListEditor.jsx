@@ -9,16 +9,16 @@ import { TeamsContext } from "../contexts/TeamsContext";
 import { AvailableItems } from "../components/LoadingListEditor/AvailableItems";
 import { calculateReturningQuantity } from "../utils/helpers";
 import { useLoadingListForm } from "../hooks/useLoadingListForm";
+import { useLoadingListOperations } from "../hooks/useLoadingListOperations";
+import { useLoadingListDragAndDrop } from "../hooks/useLoadingListDragAndDrop";
+import { useLoadingListDates } from "../hooks/useLoadingListDates";
+import { useLoadingListCopy } from "../hooks/useLoadingListCopy";
 import LoadingListHeader from "../components/LoadingListEditor/LoadingListHeader";
 import LoadingListDialog from "../components/LoadingListEditor/LoadingListDialog";
 import LoadingListItems from "../components/LoadingListEditor/LoadingListItems";
 import ToggleButton from "../components/LoadingListEditor/ToggleButton";
 import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import "../styles/LoadingListEditor.css";
-import { useLoadingListOperations } from "../hooks/useLoadingListOperations";
-import { useLoadingListDragAndDrop } from "../hooks/useLoadingListDragAndDrop";
-import { useLoadingListDates } from "../hooks/useLoadingListDates";
-import { useLoadingListCopy } from "../hooks/useLoadingListCopy";
 
 const LoadingListEditor = () => {
   let { id } = useParams();
@@ -30,6 +30,7 @@ const LoadingListEditor = () => {
   const { user } = useContext(UserContext);
 
   let loadingList = loadingLists.find((loadingList) => loadingList.id === id);
+
   const { today, formattedTomorrow } = useLoadingListDates();
   const [isExpanded, setIsExpanded] = useState(true);
   const [openEditForm, setOpenEditForm] = useState(false);
@@ -67,10 +68,6 @@ const LoadingListEditor = () => {
     items
   );
 
-  if (!loadingList) {
-    return <div></div>;
-  }
-
   const returningTodayCount = (itemId) =>
     calculateReturningQuantity(itemId, loadingLists, today);
 
@@ -79,6 +76,10 @@ const LoadingListEditor = () => {
     handleRemoveFromLoadingList,
     setError
   );
+
+  if (!loadingList) {
+    return <div></div>;
+  }
 
   return (
     <Container maxWidth="xl">
@@ -102,6 +103,7 @@ const LoadingListEditor = () => {
         }}
         handleDelete={handleDelete}
         teams={teams}
+        error={error}
       />
       <CopyListDialog
         copyDialogOpen={copyDialogOpen}
