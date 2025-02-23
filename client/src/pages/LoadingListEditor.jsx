@@ -21,6 +21,7 @@ import CopyListDialog from "../components/LoadingListEditor/CopyListDialog";
 import Error from "../components/Error";
 import "../styles/LoadingListEditor.css";
 import { useLoadingListOperations } from "../hooks/useLoadingListOperations";
+import { useLoadingListDragAndDrop } from "../hooks/useLoadingListDragAndDrop";
 
 const LoadingListEditor = () => {
   let { id } = useParams();
@@ -91,39 +92,45 @@ const LoadingListEditor = () => {
   const returningTodayCount = (itemId) =>
     calculateReturningQuantity(itemId, loadingLists, today);
 
-  const onDragEnd = async (result) => {
-    const { source, destination } = result;
+  const onDragEnd = useLoadingListDragAndDrop(
+    handleAddToLoadingList,
+    handleRemoveFromLoadingList,
+    setError
+  );
 
-    // If there's no destination, or the item was dropped in its original location
-    if (
-      !destination ||
-      (source.droppableId === destination.droppableId &&
-        source.index === destination.index)
-    ) {
-      return;
-    }
+  // const onDragEnd = async (result) => {
+  //   const { source, destination } = result;
 
-    // Moving from loading list to available items
-    if (
-      source.droppableId === "loadingListItems" &&
-      destination.droppableId === "availableItems"
-    ) {
-      await handleRemoveFromLoadingList(source.index);
-    }
+  //   // If there's no destination, or the item was dropped in its original location
+  //   if (
+  //     !destination ||
+  //     (source.droppableId === destination.droppableId &&
+  //       source.index === destination.index)
+  //   ) {
+  //     return;
+  //   }
 
-    // Moving from available items to loading list
-    if (
-      source.droppableId === "availableItems" &&
-      destination.droppableId === "loadingListItems"
-    ) {
-      const itemId = getItemIdFromDraggable(result.draggableId);
-      if (itemId === null) {
-        setError("Invalid item ID");
-        return;
-      }
-      await handleAddToLoadingList(itemId);
-    }
-  };
+  //   // Moving from loading list to available items
+  //   if (
+  //     source.droppableId === "loadingListItems" &&
+  //     destination.droppableId === "availableItems"
+  //   ) {
+  //     await handleRemoveFromLoadingList(source.index);
+  //   }
+
+  //   // Moving from available items to loading list
+  //   if (
+  //     source.droppableId === "availableItems" &&
+  //     destination.droppableId === "loadingListItems"
+  //   ) {
+  //     const itemId = getItemIdFromDraggable(result.draggableId);
+  //     if (itemId === null) {
+  //       setError("Invalid item ID");
+  //       return;
+  //     }
+  //     await handleAddToLoadingList(itemId);
+  //   }
+  // };
 
   return (
     <Container maxWidth="xl">
