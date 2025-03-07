@@ -58,13 +58,12 @@ const LoadingListEditor = () => {
     handleAddToLoadingList,
     handleRemoveFromLoadingList,
   } = useLoadingListOperations(
-    loadingList,
     loadingLists,
     setLoadingLists,
+    loadingList,
     setItems,
     setCopyDialogOpen,
     setOpenEditForm,
-    setEditForm,
     items
   );
 

@@ -12,6 +12,13 @@ export const useLoadingListOperations = (
   setOpenEditForm = null,
   items = null
 ) => {
+  // Validate items parameter
+  useEffect(() => {
+    if (items && !Array.isArray(items)) {
+      console.error("Items must be an array or null, received:", typeof items);
+    }
+  }, [items]);
+
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [copyError, setCopyError] = useState(null);
@@ -40,7 +47,6 @@ export const useLoadingListOperations = (
   }, []);
 
   const handleCreate = async (formData) => {
-    // Abort any existing create operation
     createControllerRef.current?.abort();
     createControllerRef.current = new AbortController();
 
@@ -52,8 +58,6 @@ export const useLoadingListOperations = (
         formData,
         createControllerRef.current.signal
       );
-
-      // Update local state
       setLoadingLists((prevLists) => [...prevLists, newList]);
       return newList;
     } catch (error) {
@@ -348,6 +352,13 @@ export const useLoadingListOperations = (
   };
 
   const handleAddToLoadingList = async (draggedItemId) => {
+    console.log("handleAddToLoadingList called with:", {
+      draggedItemId,
+      items,
+      itemsType: typeof items,
+      isArray: Array.isArray(items),
+    });
+
     const item = items?.find((i) => i.id === draggedItemId);
 
     if (!item) {
