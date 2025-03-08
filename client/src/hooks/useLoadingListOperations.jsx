@@ -352,13 +352,6 @@ export const useLoadingListOperations = (
   };
 
   const handleAddToLoadingList = async (draggedItemId) => {
-    console.log("handleAddToLoadingList called with:", {
-      draggedItemId,
-      items,
-      itemsType: typeof items,
-      isArray: Array.isArray(items),
-    });
-
     const item = items?.find((i) => i.id === draggedItemId);
 
     if (!item) {
